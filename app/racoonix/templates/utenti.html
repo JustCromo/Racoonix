@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Utenti - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
+<h1>Gestione utenti</h1>
+{% if errore %}<p class="errore">{{ errore }}</p>{% endif %}
+<p><a class="pulsante" href="{{ url_for('utenti.nuovo') }}">Nuovo utente</a></p>
+<div class="tabella-wrap">
+<table>
+  <tr><th>Username</th><th>Ruoli</th><th>Stato</th><th>Azioni</th></tr>
+  {% for u in utenti %}
+  <tr>
+    <td>{{ u.username }}{% if u.id == g.utente.id %} <span class="sotto">(tu)</span>{% endif %}</td>
+    <td>
+      <form method="post" action="{{ url_for('utenti.ruoli', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for r in ruoli %}
+        <label class="spunta"><input type="checkbox" name="ruoli" value="{{ r.nome }}" {% if u.ha_ruolo(r.nome) %}checked{% endif %}> {{ r.nome }}</label>
+        {% endfor %}
+        <button type="submit" class="piccolo">Salva</button>
+      </form>
+    </td>
+    <td>
+      {% if not u.attivo %}<span class="badge spento">disattivato</span>
+      {% elif u.bloccato_fino and u.bloccato_fino > adesso %}<span class="badge avviso">bloccato</span>
+      {% else %}<span class="badge ok">attivo</span>{% endif %}
+      {% if u.deve_cambiare_password %}<span class="badge">password temporanea</span>{% endif %}
+    </td>
+    <td class="azioni">
+      {% if u.id != g.utente.id %}
+      <form method="post" action="{{ url_for('utenti.attivo', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">{{ "Disattiva" if u.attivo else "Riattiva" }}</button>
+      </form>
+      {% if u.bloccato_fino and u.bloccato_fino > adesso %}
+      <form method="post" action="{{ url_for('utenti.sblocca', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">Sblocca</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('utenti.reset_password', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">Reset password</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}

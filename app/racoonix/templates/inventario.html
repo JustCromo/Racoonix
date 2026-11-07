@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Inventario - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
+<h1>Inventario</h1>
+<form id="modulo-codice" method="get" action="{{ url_for('inventario.pagina') }}" class="riga"
+      hx-get="{{ url_for('inventario.risultati') }}" hx-trigger="submit" hx-target="#risultati">
+  <input id="codice" name="q" value="{{ q }}" maxlength="100" placeholder="Scrivi un nome o leggi un codice" autocomplete="off"
+         hx-get="{{ url_for('inventario.risultati') }}" hx-trigger="input changed delay:300ms"
+         hx-target="#risultati" hx-include="closest form">
+  <select name="categoria"
+          hx-get="{{ url_for('inventario.risultati') }}" hx-trigger="change"
+          hx-target="#risultati" hx-include="closest form">
+    <option value="">Tutte le categorie</option>
+    {% for c in categorie %}<option value="{{ c.id }}" {% if c.id == categoria_id %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}
+  </select>
+</form>
+<button id="avvia" type="button" class="secondario">Usa fotocamera</button>
+<div id="lettore"></div>
+<div id="risultati">{% include "_risultati.html" %}</div>
+{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/carico.js') }}"></script>
+{% endblock %}

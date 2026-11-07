@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block contenuto %}
+<section class="scheda stretta">
+  <h1>{{ messaggio }}</h1>
+  <p><a href="{{ url_for('home') }}">Torna alla home</a></p>
+</section>
+{% endblock %}

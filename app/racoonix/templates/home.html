@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block contenuto %}
+<section class="scheda">
+  <h1>Ciao {{ g.utente.username }}</h1>
+  <p>Market: {{ market }}</p>
+  <p>Ruoli attivi: {{ ruoli|join(", ") if ruoli else "nessuno" }}</p>
+  <p class="sotto">IP visto dal server: {{ ip }}</p>
+  {% if ruoli %}<p><a href="{{ url_for('inventario.pagina') }}">Inventario</a></p>{% endif %}
+  {% if "admin" in ruoli or "dipendente" in ruoli %}<p><a href="{{ url_for('cassa.pagina') }}">Cassa (demo)</a></p>{% endif %}
+  {% if "admin" in ruoli or "magazziniere" in ruoli %}
+  <p><a href="{{ url_for('carico.pagina') }}">Carico merce</a></p>
+  {% endif %}
+  {% if "admin" in ruoli %}
+  <p><a href="{{ url_for('prodotti.attesa') }}">Prodotti da approvare{% if da_approvare %} ({{ da_approvare }}){% endif %}</a></p>
+  <p><a href="{{ url_for('utenti.elenco') }}">Gestione utenti</a></p>
+  <p><a href="{{ url_for('auth.cambia_password') }}">Cambia password</a></p>
+  {% endif %}
+  {% if test_scanner %}<p><a href="{{ url_for('scanner_test.pagina') }}">Test scanner</a></p>{% endif %}
+  <form method="post" action="{{ url_for('auth.logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">Esci</button>
+  </form>
+</section>
+{% endblock %}

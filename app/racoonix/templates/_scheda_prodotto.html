@@ -1,0 +1,47 @@
+{% set etichette = {"scaduto": "scaduto", "oggi": "scade oggi", "in_scadenza": "in scadenza", "controllare": "da controllare"} %}
+{% set classi = {"scaduto": "spento", "oggi": "spento", "in_scadenza": "avviso", "controllare": "avviso"} %}
+{% set p = s.p %}
+<section class="scheda spazio" id="prodotto-{{ p.id }}">
+  <div class="intestazione">
+    <h3>{{ p.nome }}</h3>
+    <span>
+      {% if p.stato != "attivo" %}<span class="badge avviso">in attesa di approvazione</span>{% endif %}
+      {% if s.sotto_soglia %}<span class="badge avviso">scaffale da riempire</span>{% endif %}
+    </span>
+  </div>
+  <p class="sotto">
+    {% if p.prezzo_centesimi is not none %}{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %} al kg{% endif %} &middot; {% endif %}
+    Esposti: <strong>{{ s.esposta|quantita(p.unita) }}</strong> &middot; Magazzino: <strong>{{ s.magazzino|quantita(p.unita) }}</strong>
+  </p>
+  {% if s.lotti %}
+  <div class="tabella-wrap">
+    <table>
+      <tr><th>Lotto</th><th>Scadenza</th><th>Esposti</th><th>Magazzino</th><th></th></tr>
+      {% for r in s.lotti %}
+      <tr>
+        <td>{{ r.l.codice_lotto }}</td>
+        <td>{{ r.l.data_scadenza|data }}</td>
+        <td>{{ r.l.qta_esposta|quantita(p.unita) }}</td>
+        <td>{{ r.l.qta_magazzino|quantita(p.unita) }}</td>
+        <td>{% if r.stato != "ok" %}<span class="badge {{ classi[r.stato] }}">{{ etichette[r.stato] }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% else %}
+  <p class="sotto">Nessuna giacenza.</p>
+  {% endif %}
+  {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  {% if p.stato == "attivo" and s.rifornibile > 0 %}
+  <form method="post" action="{{ url_for('inventario.rifornisci', prodotto_id=p.id) }}" class="riga"
+        hx-post="{{ url_for('inventario.rifornisci', prodotto_id=p.id) }}"
+        hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="q" value="{{ q }}">
+    <input type="hidden" name="categoria" value="{{ categoria_id or '' }}">
+    <input name="quantita" inputmode="decimal" required autocomplete="off"
+           placeholder="{{ 'Kg' if p.unita == 'kg' else 'Pezzi' }} da spostare sullo scaffale">
+    <button type="submit">Rifornisci</button>
+  </form>
+  {% endif %}
+</section>

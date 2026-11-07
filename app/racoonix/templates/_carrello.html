@@ -1,0 +1,52 @@
+{% macro azione(url, testo, classe="piccolo secondario") %}
+<form method="post" action="{{ url }}" hx-post="{{ url }}" hx-target="#carrello" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="{{ classe }}">{{ testo }}</button>
+</form>
+{% endmacro %}
+<div id="carrello" class="spazio">
+  {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  {% if righe %}
+  <div class="tabella-wrap">
+    <table>
+      <tr><th>Prodotto</th><th>Quantita'</th><th>Prezzo</th><th>Importo</th><th></th></tr>
+      {% for r in righe %}
+      <tr>
+        <td>{{ r.p.nome }}{% if r.perc %} <span class="badge avviso">-{{ r.perc }}%</span>{% endif %}</td>
+        <td class="azioni">
+          {% if r.p.unita == "pezzo" %}
+          {{ azione(url_for('cassa.riga', rid=r.id, azione='meno'), '−') }}
+          <strong>{{ r.q }}</strong>
+          {{ azione(url_for('cassa.riga', rid=r.id, azione='piu'), '+') }}
+          {% else %}{{ r.q|quantita(r.p.unita) }}{% endif %}
+        </td>
+        <td>{{ r.p.prezzo_centesimi|euro }}{% if r.p.unita == "kg" %}/kg{% endif %}</td>
+        <td>{{ r.importo|euro }}</td>
+        <td class="azioni">
+          {% if not r.lotto_fisso and r.sconto_possibile %}
+          {{ azione(url_for('cassa.riga', rid=r.id, azione='sconto'), 'Togli sconto' if r.sconto_richiesto else 'Sconto scadenza') }}
+          {% endif %}
+          {{ azione(url_for('cassa.riga', rid=r.id, azione='rimuovi'), 'Rimuovi') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <p class="totale">Totale: <strong>{{ totale|euro }}</strong></p>
+  <div class="azioni">
+    {{ azione(url_for('cassa.annulla'), 'Annulla spesa', 'secondario') }}
+    {{ azione(url_for('cassa.finalizza'), 'Paga e chiudi', '') }}
+  </div>
+  {% elif not scontrino %}
+  <p class="sotto">Carrello vuoto: leggi un codice per iniziare.</p>
+  {% endif %}
+  {% if scontrino %}
+  <section class="scheda spazio">
+    <h2>Riepilogo vendita n. {{ scontrino.id }}</h2>
+    {% for r in scontrino.righe %}
+    <p>{{ r.nome }} &middot; {{ r.q|quantita(r.unita) }}{% if r.perc %} &middot; -{{ r.perc }}%{% endif %} &middot; <strong>{{ r.importo|euro }}</strong></p>
+    {% endfor %}
+    <p class="totale">Totale: <strong>{{ scontrino.totale|euro }}</strong></p>
+  </section>
+  {% endif %}
+</div>

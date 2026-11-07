@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Cassa - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
+<h1>Cassa (demo)</h1>
+<p class="sotto">Simulazione di una spesa: non sostituisce il registratore fiscale.</p>
+<form id="modulo-codice" method="post" action="{{ url_for('cassa.leggi') }}" class="riga"
+      hx-post="{{ url_for('cassa.leggi') }}" hx-target="#carrello" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input id="codice" name="codice" autocomplete="off" autofocus maxlength="250" placeholder="Leggi o scrivi il codice">
+  <button type="submit">Aggiungi</button>
+</form>
+<button id="avvia" type="button" class="secondario">Usa fotocamera</button>
+<div id="lettore"></div>
+{% include "_carrello.html" %}
+{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cassa.js') }}"></script>
+{% endblock %}

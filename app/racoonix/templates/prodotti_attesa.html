@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Prodotti da approvare - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
+<h1>Prodotti da approvare</h1>
+{% if not prodotti %}<p class="sotto">Nessun prodotto in attesa.</p>{% endif %}
+{% for p in prodotti %}
+<section class="scheda spazio">
+  <p class="sotto">GTIN {{ p.gtin or "-" }} &middot; unita': {{ p.unita }} &middot; in magazzino: {{ p.lotti|sum(attribute="qta_magazzino")|quantita(p.unita) }}</p>
+  <form method="post" action="{{ url_for('prodotti.approva', prodotto_id=p.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nome <input name="nome" value="{{ p.nome }}" maxlength="120" required></label>
+    <label>Categoria
+      <select name="categoria_id">{% for c in categorie %}<option value="{{ c.id }}" {% if c.id == p.categoria_id %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select>
+    </label>
+    <label>Prezzo in euro {{ "al kg" if p.unita == "kg" else "al pezzo" }} <input name="prezzo" inputmode="decimal" placeholder="2,49" required></label>
+    <button type="submit">Approva</button>
+  </form>
+  <form method="post" action="{{ url_for('prodotti.rifiuta', prodotto_id=p.id) }}" class="spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="secondario">Rifiuta e scarta la merce</button>
+  </form>
+</section>
+{% endfor %}
+{% endblock %}

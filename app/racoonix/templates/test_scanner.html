@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titolo %}Test scanner - Racoonix{% endblock %}
+{% block contenuto %}
+<h1>Test scanner GS1</h1>
+<button id="avvia" type="button">Avvia webcam</button>
+<div id="lettore"></div>
+<form id="manuale" class="riga">
+  <input id="codice" autocomplete="off" placeholder="(01)02000000000013(17)261112(10)LOTTO1">
+  <button type="submit">Analizza</button>
+</form>
+<pre id="risultato"></pre>
+{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/test_scanner.js') }}"></script>
+{% endblock %}

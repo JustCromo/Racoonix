@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titolo %}Carico - Racoonix{% endblock %}
+{% block contenuto %}
+{% set tipi = {"ean": "EAN", "editoriale": "Editoriale", "gs1": "GS1", "gs1_digital_link": "QR GS1 Digital Link", "manuale": "Senza codice"} %}
+<section class="scheda">
+  <p><a href="{{ url_for('carico.pagina') }}">&larr; Nuovo codice</a></p>
+  <h1>{% if prodotto %}{{ prodotto.nome }}{% else %}Prodotto nuovo{% endif %}</h1>
+  <p class="sotto">Codice: {{ tipi.get(info.tipo, info.tipo) }}{% if info.gtin %} &middot; GTIN {{ info.gtin }}{% endif %}</p>
+  {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+  {% if not prodotto %}
+  <p class="info">Prodotto non in catalogo: verra' creato e dovra' essere approvato dall'admin. Fino ad allora resta solo in magazzino.</p>
+  {% elif prodotto.stato != "attivo" %}
+  <p class="info">Prodotto in attesa di approvazione: puoi caricarlo solo in magazzino.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('carico.conferma') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if not prodotto %}
+    <label>Nome <input name="nome" value="{{ valori.nome or '' }}" maxlength="120" required></label>
+    <label>Categoria
+      <select name="categoria_id">{% for c in categorie %}<option value="{{ c.id }}" {% if valori.categoria_id == c.id|string %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select>
+    </label>
+    <label>Unita'
+      <select name="unita"><option value="pezzo">pezzo</option><option value="kg" {% if valori.unita == "kg" %}selected{% endif %}>kg</option></select>
+    </label>
+    {% endif %}
+    {% set misura = ("kg" if prodotto.unita == "kg" else "pezzi") if prodotto else "pezzi, o kg se a peso" %}
+    {% if prodotto and prodotto.stato == "attivo" %}
+    <label>In esposizione ({{ misura }}) <input name="esposta" inputmode="decimal" value="{{ valori.esposta or '' }}"></label>
+    {% endif %}
+    <label>In magazzino ({{ misura }}) <input name="magazzino" inputmode="decimal" value="{{ valori.magazzino or '' }}"></label>
+    {% if info.scadenza %}
+    <p>Scadenza dal codice: <strong>{{ info.scadenza }}</strong>{% if info.tipo_data == "preferibilmente_entro" %} (preferibilmente entro){% endif %}</p>
+    {% else %}
+    {% set obbligatoria = prodotto and prodotto.categoria.richiede_scadenza %}
+    <label>Scadenza{% if prodotto and not obbligatoria %} (facoltativa){% endif %}
+      <input type="date" name="scadenza" min="{{ oggi.isoformat() }}" value="{{ valori.scadenza or '' }}" {% if obbligatoria %}required{% endif %}>
+    </label>
+    {% endif %}
+    {% if info.lotto %}
+    <p>Lotto dal codice: <strong>{{ info.lotto }}</strong></p>
+    {% else %}
+    <label>Lotto (facoltativo) <input name="lotto" maxlength="20" value="{{ valori.lotto or '' }}"></label>
+    {% endif %}
+    <button type="submit">Carica</button>
+  </form>
+</section>
+{% endblock %}
