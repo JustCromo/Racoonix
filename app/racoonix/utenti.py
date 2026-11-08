@@ -39,10 +39,44 @@ def _altri_admin_attivi(utente_id):
     )
 
 
+RUOLI_FILTRO = ("admin", "magazziniere", "dipendente")
+STATI_FILTRO = ("attivo", "disattivato", "bloccato", "temporanea")
+
+
+def _cerca_utenti():
+    q = (request.args.get("q") or "").strip()[:40]
+    ruolo = request.args.get("ruolo") if request.args.get("ruolo") in RUOLI_FILTRO else ""
+    stato = request.args.get("stato") if request.args.get("stato") in STATI_FILTRO else ""
+    stmt = db.select(Utente).order_by(Utente.username)
+    if q:
+        sicuro = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(Utente.username.ilike(f"%{sicuro}%", escape="\\"))
+    if ruolo:
+        stmt = stmt.where(Utente.ruoli.any(Ruolo.nome == ruolo))
+    adesso = datetime.now(timezone.utc)
+    if stato == "attivo":
+        stmt = stmt.where(Utente.attivo.is_(True))
+    elif stato == "disattivato":
+        stmt = stmt.where(Utente.attivo.is_(False))
+    elif stato == "bloccato":
+        stmt = stmt.where(Utente.bloccato_fino > adesso)
+    elif stato == "temporanea":
+        stmt = stmt.where(Utente.deve_cambiare_password.is_(True))
+    return db.session.scalars(stmt).all(), q, ruolo, stato
+
+
 def _elenco(errore=None, codice=200):
-    utenti = db.session.scalars(db.select(Utente).order_by(Utente.username)).all()
-    return render_template("utenti.html", utenti=utenti, ruoli=_tutti_i_ruoli(),
-                           errore=errore, adesso=datetime.now(timezone.utc)), codice
+    utenti, q, ruolo, stato = _cerca_utenti()
+    return render_template("utenti.html", utenti=utenti, ruoli=_tutti_i_ruoli(), errore=errore,
+                           adesso=datetime.now(timezone.utc), q=q, ruolo=ruolo, stato=stato), codice
+
+
+@bp.get("/risultati")
+@richiede_ruolo("admin")
+def risultati():
+    utenti, _, _, _ = _cerca_utenti()
+    return render_template("_utenti_risultati.html", utenti=utenti, ruoli=_tutti_i_ruoli(),
+                           adesso=datetime.now(timezone.utc))
 
 
 def _mostra_password(utente, password):

@@ -1,0 +1,51 @@
+{% from "_icone.html" import icona %}
+{% if not utenti %}<p class="sotto spazio">Nessun utente trovato.</p>{% endif %}
+<div class="lista-schede">
+  {% for u in utenti %}
+  <section class="scheda">
+    <div class="intestazione">
+      <div class="utente-nome">
+        <span class="avatar">{{ u.username[0]|upper }}</span>
+        <div>
+          <h3>{{ u.username }}{% if u.id == g.utente.id %} <span class="sotto">(tu)</span>{% endif %}</h3>
+          <span class="sotto">Creato il {{ u.creato_il|data_ora }}</span>
+        </div>
+      </div>
+      <span>
+        {% if not u.attivo %}<span class="badge spento">disattivato</span>
+        {% elif u.bloccato_fino and u.bloccato_fino > adesso %}<span class="badge avviso">bloccato</span>
+        {% else %}<span class="badge ok">attivo</span>{% endif %}
+        {% if u.deve_cambiare_password %}<span class="badge">password temporanea</span>{% endif %}
+      </span>
+    </div>
+    <form method="post" action="{{ url_for('utenti.ruoli', utente_id=u.id) }}" class="spazio">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <p class="sotto">Ruoli</p>
+      <div class="scelte">
+        {% for r in ruoli %}
+        <label class="scelta"><input type="checkbox" name="ruoli" value="{{ r.nome }}" {% if u.ha_ruolo(r.nome) %}checked{% endif %}><span>{{ r.nome }}</span></label>
+        {% endfor %}
+        <button type="submit" class="piccolo">Salva ruoli</button>
+      </div>
+    </form>
+    {% if u.id != g.utente.id %}
+    <div class="azioni">
+      <form method="post" action="{{ url_for('utenti.attivo', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">{{ "Disattiva" if u.attivo else "Riattiva" }}</button>
+      </form>
+      {% if u.bloccato_fino and u.bloccato_fino > adesso %}
+      <form method="post" action="{{ url_for('utenti.sblocca', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">Sblocca</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('utenti.reset_password', utente_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="piccolo secondario">{{ icona("key") }} Reset password</button>
+      </form>
+    </div>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
