@@ -9,7 +9,7 @@
   <svg class="grafico" viewBox="0 0 600 200" role="img" aria-label="{{ titolo }}">
     <line x1="0" y1="170" x2="600" y2="170" class="asse"></line>
     {% for b in barre %}
-    <rect class="barra" x="{{ b.x }}" y="{{ 170 - b.h }}" width="{{ b.w }}" height="{{ b.h }}" rx="4"><title>{{ b.titolo }}: {{ b.testo }}</title></rect>
+    {% if b.link %}<a href="{{ b.link }}">{% endif %}<rect class="barra" x="{{ b.x }}" y="{{ 170 - b.h }}" width="{{ b.w }}" height="{{ b.h }}" rx="4"><title>{{ b.titolo }}: {{ b.testo }}</title></rect>{% if b.link %}</a>{% endif %}
     {% if b.mostra %}<text class="etichetta-grafico" x="{{ b.centro }}" y="190" text-anchor="middle">{{ b.etichetta }}</text>{% endif %}
     {% if barre|length <= 14 and b.valore %}<text class="valore-grafico" x="{{ b.centro }}" y="{{ [170 - b.h - 7, 14]|max }}" text-anchor="middle">{{ b.testo }}</text>{% endif %}
     {% endfor %}
@@ -37,13 +37,13 @@
   <div class="scheda"><p class="sotto">Scontrino medio</p><p class="numero">{{ medio|euro }}</p></div>
   <div class="scheda"><p class="sotto">Sconti concessi</p><p class="numero">{{ sconti|euro }}</p></div>
   {% else %}
-  <div class="scheda"><p class="sotto">Lotti monitorati</p><p class="numero">{{ autonoma.lotti }}</p><p class="sotto">{{ autonoma.prodotti }} prodotti</p></div>
-  <div class="scheda"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if autonoma.scadenza_7 %} acceso{% endif %}">{{ autonoma.scadenza_7 }}</p></div>
-  <div class="scheda"><p class="sotto">Verifiche fatte</p><p class="numero">{{ autonoma.verifiche }}</p></div>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Lotti monitorati</p><p class="numero">{{ autonoma.lotti }}</p><p class="sotto">{{ autonoma.prodotti }} prodotti</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina', entro=7) }}"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if autonoma.scadenza_7 %} acceso{% endif %}">{{ autonoma.scadenza_7 }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}"><p class="sotto">Verifiche fatte</p><p class="numero">{{ autonoma.verifiche }}</p></a>
   <div class="scheda"><p class="sotto">Correzioni quantita'</p><p class="numero">{{ autonoma.rettifiche }}</p></div>
   {% endif %}
-  <div class="scheda"><p class="sotto">Valore scarti</p><p class="numero">{{ valore_scarti|euro }}</p></div>
-  <div class="scheda"><p class="sotto">Merce in negozio{% if not vendite_attive %} (stima){% endif %}</p><p class="numero">{{ valore_merce|euro }}</p></div>
+  <a class="scheda kpi-link" href="#scarti"><p class="sotto">Valore scarti</p><p class="numero">{{ valore_scarti|euro }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Merce in negozio{% if not vendite_attive %} (stima){% endif %}</p><p class="numero">{{ valore_merce|euro }}</p></a>
 </div>
 
 <div class="cruscotto spazio">
@@ -74,7 +74,7 @@
     {{ grafico(autonoma.barre_scadenze, "Lotti in scadenza nei prossimi 14 giorni") }}
     {% endif %}
 
-    <section class="scheda spazio">
+    <section class="scheda spazio" id="scarti">
       <h2>Scarti per motivo</h2>
       <div class="tabella-wrap">
         <table>
@@ -101,7 +101,7 @@
       <h2>In scadenza entro 3 giorni</h2>
       {% for lotto, p in in_scadenza %}
       <div class="voce-elenco">
-        <span>{{ p.descrizione }}<br><span class="sotto">{{ (lotto.qta_esposta + lotto.qta_magazzino)|quantita(p.unita) }}</span></span>
+        <span><a href="{{ url_for('inventario.pagina', q=p.nome) }}">{{ p.descrizione }}</a><br><span class="sotto">{{ (lotto.qta_esposta + lotto.qta_magazzino)|quantita(p.unita) }}</span></span>
         <span class="badge {{ 'spento' if lotto.data_scadenza == oggi else 'avviso' }}">{{ lotto.data_scadenza|data }}</span>
       </div>
       {% else %}

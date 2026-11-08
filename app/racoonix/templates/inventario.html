@@ -14,7 +14,13 @@
     <option value="">Tutte le categorie</option>
     {% for c in categorie %}<option value="{{ c.id }}" {% if c.id == categoria_id %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}
   </select>
+  {% set entro, giorno = filtro_scadenza %}
+  {% if entro is not none %}<input type="hidden" name="entro" value="{{ entro }}">{% endif %}
+  {% if giorno %}<input type="hidden" name="giorno" value="{{ giorno.isoformat() }}">{% endif %}
 </form>
+{% if entro is not none or giorno %}
+<p class="info filtro">Mostro solo i prodotti {% if giorno %}che scadono il {{ giorno|data }}{% else %}in scadenza entro {{ entro }} giorni{% endif %} &middot; <a href="{{ url_for('inventario.pagina') }}">mostra tutto</a></p>
+{% endif %}
 <button id="avvia" type="button" class="secondario">Usa fotocamera</button>
 <div id="lettore"></div>
 <div id="risultati">{% include "_risultati.html" %}</div>

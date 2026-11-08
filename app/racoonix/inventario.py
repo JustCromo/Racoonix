@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from flask import (Blueprint, current_app, flash, g, redirect, render_template,
                    request, url_for)
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
 
 from . import codici, db
@@ -58,7 +58,7 @@ def _scheda(p, oggi):
     }
 
 
-def _cerca(q, categoria_id, tutti=False):
+def _cerca(q, categoria_id, tutti=False, entro=None, giorno=None):
     stmt = (db.select(Prodotto).join(Categoria)
             .where(Prodotto.stato.in_(("attivo", "in_attesa")))
             .options(selectinload(Prodotto.lotti), selectinload(Prodotto.categoria))
@@ -67,6 +67,12 @@ def _cerca(q, categoria_id, tutti=False):
         stmt = stmt.where(Prodotto.categoria_id == categoria_id)
     if not tutti:
         stmt = stmt.where(Prodotto.lotti.any((Lotto.qta_esposta + Lotto.qta_magazzino) > 0))
+    presenti = (Lotto.qta_esposta + Lotto.qta_magazzino) > 0
+    if entro is not None:
+        stmt = stmt.where(Prodotto.lotti.any(and_(presenti, Lotto.data_scadenza >= date.today(),
+                                                  Lotto.data_scadenza <= date.today() + timedelta(days=entro))))
+    if giorno is not None:
+        stmt = stmt.where(Prodotto.lotti.any(and_(presenti, Lotto.data_scadenza == giorno)))
     if q:
         try:
             info = codici.riconosci(q, current_app.config["BILANCIA_PREFISSI"])
@@ -83,6 +89,17 @@ def _cerca(q, categoria_id, tutti=False):
     return [_scheda(p, oggi) for p in db.session.scalars(stmt)]
 
 
+def _filtri_scadenza():
+    """Filtri arrivati dalla dashboard: in scadenza entro N giorni, oppure in un giorno preciso."""
+    testo_entro = (request.args.get("entro") or "").strip()
+    entro = int(testo_entro) if re.fullmatch(r"[0-9]{1,2}", testo_entro) and int(testo_entro) <= 60 else None
+    try:
+        giorno = date.fromisoformat((request.args.get("giorno") or "").strip()[:10])
+    except ValueError:
+        giorno = None
+    return entro, giorno
+
+
 def _q_mostrabile(q):
     return "".join(c for c in q if c.isprintable())
 
@@ -93,16 +110,16 @@ def pagina():
     q, categoria_id = _filtri(request.args)
     categorie = db.session.scalars(db.select(Categoria).filter_by(attiva=True)
                                    .order_by(Categoria.nome)).all()
-    return render_template("inventario.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1"), categorie=categorie,
-                           q=_q_mostrabile(q), categoria_id=categoria_id)
+    return render_template("inventario.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1", *_filtri_scadenza()), categorie=categorie,
+                           q=_q_mostrabile(q), categoria_id=categoria_id, filtro_scadenza=_filtri_scadenza())
 
 
 @bp.get("/risultati")
 @richiede_ruolo("dipendente", "magazziniere")
 def risultati():
     q, categoria_id = _filtri(request.args)
-    return render_template("_risultati.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1"),
-                           q=_q_mostrabile(q), categoria_id=categoria_id)
+    return render_template("_risultati.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1", *_filtri_scadenza()),
+                           q=_q_mostrabile(q), categoria_id=categoria_id, filtro_scadenza=_filtri_scadenza())
 
 
 def _risposta(prodotto, messaggio, esito, q, categoria_id):
@@ -110,7 +127,7 @@ def _risposta(prodotto, messaggio, esito, q, categoria_id):
     if request.headers.get("HX-Request") == "true":
         return render_template("_scheda_prodotto.html", s=_scheda(prodotto, date.today()),
                                messaggio=messaggio, esito=esito,
-                               q=_q_mostrabile(q), categoria_id=categoria_id)
+                               q=_q_mostrabile(q), categoria_id=categoria_id, filtro_scadenza=_filtri_scadenza())
     flash(messaggio, esito)
     return redirect(url_for(".pagina", q=q or None, categoria=categoria_id))
 

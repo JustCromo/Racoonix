@@ -1,20 +1,21 @@
 {% if not prodotti %}<p class="sotto spazio">Nessun prodotto trovato.</p>{% else %}
-<div class="tabella-wrap spazio">
-  <table>
-    <tr><th>Prodotto</th><th>Categoria</th><th>Fornitore</th><th>Prezzo</th><th>IVA</th><th>Stato</th></tr>
-    {% for p in prodotti %}
-    <tr>
-      <td><a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">{{ p.descrizione }}</a></td>
-      <td>{{ p.categoria.nome }}{% if p.sottocategoria %} &rsaquo; {{ p.sottocategoria.nome }}{% endif %}</td>
-      <td>{{ p.fornitore.ragione_sociale if p.fornitore else "—" }}</td>
-      <td>{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %}/kg{% elif p.prezzo_misura %}<br><span class="sotto">{{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</span>{% endif %}</td>
-      <td>{{ p.aliquota_iva }}%</td>
-      <td>
+<div class="lista-schede compatta">
+  {% for p in prodotti %}
+  <a class="scheda scheda-link" href="{{ url_for('anagrafica.scheda', pid=p.id) }}">
+    <div class="intestazione">
+      <h3>{{ p.descrizione }}</h3>
+      <span>
         {% if p.stato == "attivo" %}<span class="badge ok">attivo</span>{% elif p.stato == "in_attesa" %}<span class="badge avviso">in attesa</span>{% else %}<span class="badge spento">{{ p.stato }}</span>{% endif %}
         {% if p.in_esaurimento %}<span class="badge">in esaurimento</span>{% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+      </span>
+    </div>
+    <p class="sotto">{{ p.categoria.nome }}{% if p.sottocategoria %} &rsaquo; {{ p.sottocategoria.nome }}{% endif %} &middot; {{ p.fornitore.ragione_sociale if p.fornitore else "Nessun fornitore" }}</p>
+    <div class="prezzo-riga">
+      <strong>{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %}/kg{% endif %}</strong>
+      {% if p.prezzo_misura and p.unita != "kg" %}<span class="sotto">{{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</span>{% endif %}
+      <span class="badge">IVA {{ p.aliquota_iva }}%</span>
+    </div>
+  </a>
+  {% endfor %}
 </div>
 {% endif %}

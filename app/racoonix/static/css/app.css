@@ -232,3 +232,12 @@ button.occhio { position: absolute; right: .35rem; top: calc(50% + .15rem); tran
 .blocco-copia { position: relative; }
 .blocco-copia pre { padding-right: 7rem; }
 .blocco-copia button.copia { position: absolute; top: .55rem; right: .55rem; background: #F6F0E4; color: #2E3A59; border-color: transparent; }
+
+/* --- Catalogo a schede, collegamenti, filtri --- */
+.lista-schede.compatta { grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); }
+a.scheda-link { display: block; text-decoration: none; color: inherit; }
+a.scheda-link:hover, a.kpi-link:hover { border-color: var(--miele); }
+.prezzo-riga { display: flex; gap: .7rem; align-items: baseline; flex-wrap: wrap; margin-top: .6rem; font-size: 1.1rem; }
+.grafico a .barra { cursor: pointer; }
+.grafico a:hover .barra { fill: var(--mattone); }
+.filtro { margin-top: 1rem; }

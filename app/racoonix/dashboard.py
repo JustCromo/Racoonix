@@ -2,7 +2,7 @@
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for
 from sqlalchemy import func
 
 from . import db
@@ -134,7 +134,8 @@ def pagina():
                            "valore": per_giorno_scadenza[d], "testo": str(per_giorno_scadenza[d]),
                            "x": round(i * passo14 + passo14 * 0.15, 1), "w": round(passo14 * 0.7, 1),
                            "centro": round(i * passo14 + passo14 / 2, 1),
-                           "h": round(per_giorno_scadenza[d] / massimo14 * ALTEZZA, 1), "mostra": i % 2 == 0}
+                           "h": round(per_giorno_scadenza[d] / massimo14 * ALTEZZA, 1), "mostra": i % 2 == 0,
+                           "link": url_for("inventario.pagina", giorno=d.isoformat()) if per_giorno_scadenza[d] else None}
                           for i, d in enumerate(quattordici)]
         autonoma = {
             "barre_scadenze": barre_scadenze,
