@@ -1,7 +1,6 @@
-import os
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
@@ -55,9 +54,6 @@ def create_app():
     from .interfaccia import contesto as contesto_interfaccia
     app.context_processor(contesto_interfaccia)
 
-    if os.environ.get("RACOONIX_TEST_SCANNER") == "1":
-        from .scanner_test import bp as scanner_bp
-        app.register_blueprint(scanner_bp)
 
     @app.context_processor
     def contesto():

@@ -94,7 +94,6 @@ RACOONIX_HOST=localhost, $ip
 RACOONIX_SNI=$ip
 RACOONIX_SIM_HOST=localhost:8443, $ip:8443
 ADMIN_IP_CONSENTITI=$reti
-RACOONIX_TEST_SCANNER=0
 EOF
   chmod 600 .env
   ok "Configurazione salvata in .env"

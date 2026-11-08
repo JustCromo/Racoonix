@@ -177,16 +177,9 @@ class Prodotto(db.Model):
         return per_mille, "kg" if self.formato_unita == "g" else "l"
 
     def fasce_sconto(self):
-        """Fasce effettive: valori del prodotto se presenti, altrimenti della categoria."""
-        c = self.categoria
-
-        def scegli(proprio, ereditato):
-            return proprio or 0
-
-        return [
-            (scegli(self.sconto1_giorni, c.sconto1_giorni), scegli(self.sconto1_perc, c.sconto1_perc)),
-            (scegli(self.sconto2_giorni, c.sconto2_giorni), scegli(self.sconto2_perc, c.sconto2_perc)),
-        ]
+        """Fasce dello sconto programmato dall'admin sul prodotto (0 = nessuna fascia)."""
+        return [(self.sconto1_giorni or 0, self.sconto1_perc or 0),
+                (self.sconto2_giorni or 0, self.sconto2_perc or 0)]
 
 
 class CodiceAggiuntivo(db.Model):

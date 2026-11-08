@@ -20,7 +20,6 @@ VOCI = [
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria")),
     ("dispositivi.elenco", "Dispositivi", "plug-connected", {"admin"}, ("dispositivi.",)),
     ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",)),
-    ("scanner_test.pagina", "Test scanner", "camera", {"admin"}, ("scanner_test.",)),
 ]
 
 
