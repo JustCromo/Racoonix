@@ -20,6 +20,7 @@
 {% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
 <div id="notifiche">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  {% if not sezioni %}<p class="sotto spazio">Il tuo account non ha ancora un ruolo: chiedi all'amministratore di assegnartene uno.</p>{% endif %}
   <div class="lista-sezioni">
   {% for sez in sezioni %}
   <section class="sezione">

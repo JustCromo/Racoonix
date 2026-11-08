@@ -37,4 +37,5 @@ def contesto():
         if ammessi is TUTTI or admin or ruoli & ammessi:
             menu.append({"url": url_for(endpoint), "etichetta": etichetta, "icona": icona,
                          "attiva": attuale.startswith(prefissi)})
-    return {"menu": menu, "tema": g.utente.tema}
+    return {"menu": menu, "tema": g.utente.tema,
+            "admin_limitato": g.utente.ha_ruolo("admin") and not admin}

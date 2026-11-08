@@ -55,6 +55,7 @@
     {% with messaggi = get_flashed_messages(with_categories=true) %}
     {% for categoria, messaggio in messaggi %}<p class="flash {{ categoria }}">{{ messaggio }}</p>{% endfor %}
     {% endwith %}
+    {% if admin_limitato %}<p class="info">Le funzioni di amministrazione non sono disponibili da questo dispositivo: usa il computer autorizzato.</p>{% endif %}
     {% block contenuto %}{% endblock %}
   </main>
 

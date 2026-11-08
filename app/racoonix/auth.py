@@ -142,6 +142,8 @@ def login():
         utente.bloccato_fino = None
         utente.token_sessione = secrets.token_hex(32)
         registra("login_ok", utente.id)
+        if utente.ha_ruolo("admin") and not ip_admin_consentito():
+            registra("admin_ip_non_consentito", utente.id)
         db.session.commit()
         destinazione = session.get("dopo_login")
         session.clear()
