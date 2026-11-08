@@ -241,3 +241,19 @@ a.scheda-link:hover, a.kpi-link:hover { border-color: var(--miele); }
 .grafico a .barra { cursor: pointer; }
 .grafico a:hover .barra { fill: var(--mattone); }
 .filtro { margin-top: 1rem; }
+a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9px; }
+
+/* --- Avvisi a comparsa --- */
+.avvisi { position: fixed; top: 1rem; right: 1rem; z-index: 50; display: flex; flex-direction: column; gap: .6rem;
+          width: min(420px, calc(100vw - 2rem)); pointer-events: none; }
+.avviso { pointer-events: auto; display: flex; align-items: center; gap: .65rem; padding: .75rem .7rem .75rem .9rem;
+          border-radius: 12px; border-left: 5px solid; font-weight: 700; box-shadow: 0 10px 28px rgba(0, 0, 0, .22);
+          animation: avviso-entra .25s ease-out; }
+.avviso.ok { background: var(--ok-sfondo); color: var(--ok-testo); border-color: #6E9A5B; }
+.avviso.errore { background: var(--errore-sfondo); color: var(--mattone); border-color: var(--mattone); }
+.avviso span { flex: 1; }
+.avviso button.chiudi { background: transparent; border: 0; color: inherit; padding: 0 .35rem; font-size: 1.4rem; line-height: 1; }
+.avviso.via { opacity: 0; transform: translateX(24px); transition: opacity .25s, transform .25s; }
+@keyframes avviso-entra { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@media (max-width: 900px) { .avvisi { top: 4.4rem; left: .8rem; right: .8rem; width: auto; } }
+@media (prefers-reduced-motion: reduce) { .avviso { animation: none; } .avviso.via { transition: none; } }

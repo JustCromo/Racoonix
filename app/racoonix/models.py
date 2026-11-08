@@ -29,6 +29,7 @@ class Utente(db.Model):
     username = db.Column(db.String(40), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     attivo = db.Column(db.Boolean, nullable=False, default=True)
+    eliminato = db.Column(db.Boolean, nullable=False, default=False)
     deve_cambiare_password = db.Column(db.Boolean, nullable=False, default=True)
     tentativi_falliti = db.Column(db.Integer, nullable=False, default=0)
     bloccato_fino = db.Column(db.DateTime(timezone=True))

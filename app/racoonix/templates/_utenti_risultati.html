@@ -44,6 +44,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="piccolo secondario">{{ icona("key") }} Reset password</button>
       </form>
+      <a class="pulsante spento-link piccolo" href="{{ url_for('utenti.conferma_elimina', utente_id=u.id) }}">Elimina</a>
     </div>
     {% endif %}
   </section>

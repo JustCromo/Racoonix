@@ -2,7 +2,7 @@ import re
 import secrets
 from datetime import datetime, timezone
 
-from flask import (Blueprint, g, make_response, redirect, render_template,
+from flask import (Blueprint, flash, g, make_response, redirect, render_template,
                    request, url_for)
 
 from . import db
@@ -47,7 +47,7 @@ def _cerca_utenti():
     q = (request.args.get("q") or "").strip()[:40]
     ruolo = request.args.get("ruolo") if request.args.get("ruolo") in RUOLI_FILTRO else ""
     stato = request.args.get("stato") if request.args.get("stato") in STATI_FILTRO else ""
-    stmt = db.select(Utente).order_by(Utente.username)
+    stmt = db.select(Utente).where(Utente.eliminato.is_(False)).order_by(Utente.username)
     if q:
         sicuro = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
         stmt = stmt.where(Utente.username.ilike(f"%{sicuro}%", escape="\\"))
@@ -195,3 +195,46 @@ def _chiudi_richieste_reset(utente_id):
         notifica.stato = "chiusa"
         notifica.chiusa_da = g.utente.id
         notifica.chiusa_il = datetime.now(timezone.utc)
+
+
+def _ha_storico(utente_id):
+    """True se l'utente compare in qualche operazione: in quel caso non si cancella, si archivia."""
+    from .models import AuditLog, Dispositivo, Lotto, Notifica, Prodotto, Scarto, Sconto, Vendita
+    colonne = [AuditLog.utente_id, Vendita.utente_id, Lotto.caricato_da, Scarto.utente_id,
+               Notifica.chiusa_da, Notifica.utente_id, Prodotto.creato_da, Prodotto.approvato_da,
+               Sconto.creato_da, Dispositivo.creato_da]
+    return any(db.session.scalar(db.select(c).where(c == utente_id).limit(1)) for c in colonne)
+
+
+@bp.get("/<int:utente_id>/elimina")
+@richiede_ruolo("admin")
+def conferma_elimina(utente_id):
+    utente = db.get_or_404(Utente, utente_id)
+    if utente.eliminato or utente.id == g.utente.id:
+        return redirect(url_for(".elenco"))
+    return render_template("utenti_elimina.html", utente=utente, storico=_ha_storico(utente.id))
+
+
+@bp.post("/<int:utente_id>/elimina")
+@richiede_ruolo("admin")
+def elimina(utente_id):
+    utente = db.get_or_404(Utente, utente_id)
+    if utente.id == g.utente.id:
+        return _elenco("Non puoi eliminare te stesso", 400)
+    if utente.attivo and utente.ha_ruolo("admin") and _altri_admin_attivi(utente.id) == 0:
+        return _elenco("Deve restare almeno un admin attivo", 400)
+    nome = utente.username
+    if _ha_storico(utente.id):
+        utente.eliminato = True
+        utente.attivo = False
+        utente.token_sessione = None
+        utente.ruoli = []
+        registra("utente_archiviato", g.utente.id, nome)
+        messaggio = f"{nome} eliminato dall'elenco: le sue operazioni restano nello storico"
+    else:
+        registra("utente_eliminato", g.utente.id, nome)
+        db.session.delete(utente)
+        messaggio = f"{nome} eliminato definitivamente"
+    db.session.commit()
+    flash(messaggio, "ok")
+    return redirect(url_for(".elenco"))

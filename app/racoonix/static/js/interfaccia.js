@@ -1,5 +1,5 @@
 "use strict";
-// Piccoli aiuti comuni a tutte le pagine: occhio sulle password e pulsante "Copia".
+// Aiuti comuni a tutte le pagine: occhio sulle password, pulsante "Copia", avvisi a comparsa.
 (() => {
   const sprite = document.body.dataset.icone;
   const icona = (nome) => `<svg class="icona" aria-hidden="true"><use href="${sprite}#${nome}"></use></svg>`;
@@ -51,7 +51,51 @@
     });
   }
 
-  const applica = (radice) => { occhi(radice); copie(radice); };
+  let contenitore = null;
+  function contenitoreAvvisi() {
+    if (!contenitore) {
+      contenitore = document.createElement("div");
+      contenitore.className = "avvisi";
+      contenitore.setAttribute("role", "status");
+      contenitore.setAttribute("aria-live", "polite");
+      document.body.appendChild(contenitore);
+    }
+    return contenitore;
+  }
+
+  function avvisi(radice) {
+    radice.querySelectorAll(".flash:not([data-avviso])").forEach((messaggio) => {
+      messaggio.dataset.avviso = "1";
+      const errore = messaggio.classList.contains("errore");
+      const avviso = document.createElement("div");
+      avviso.className = "avviso " + (errore ? "errore" : "ok");
+      avviso.innerHTML = icona(errore ? "alert-triangle" : "circle-check");
+      const testo = document.createElement("span");
+      testo.textContent = messaggio.textContent.trim();
+      const chiudi = document.createElement("button");
+      chiudi.type = "button";
+      chiudi.className = "chiudi";
+      chiudi.setAttribute("aria-label", "Chiudi avviso");
+      chiudi.textContent = "×";
+      avviso.append(testo, chiudi);
+      contenitoreAvvisi().appendChild(avviso);
+      messaggio.remove();
+
+      let timer;
+      const togli = () => {
+        clearTimeout(timer);
+        avviso.classList.add("via");
+        setTimeout(() => avviso.remove(), 250);
+      };
+      const avvia = () => { timer = setTimeout(togli, errore ? 9000 : 4500); };
+      avviso.addEventListener("mouseenter", () => clearTimeout(timer));
+      avviso.addEventListener("mouseleave", avvia);
+      chiudi.addEventListener("click", togli);
+      avvia();
+    });
+  }
+
+  const applica = (radice) => { occhi(radice); copie(radice); avvisi(radice); };
   document.addEventListener("DOMContentLoaded", () => applica(document));
   document.addEventListener("htmx:afterSettle", (evento) => applica(evento.target));
 })();
