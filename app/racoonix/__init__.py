@@ -20,10 +20,11 @@ def create_app():
     db.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
-    from .formato import data_it, euro, quantita
+    from .formato import data_it, data_ora_it, euro, quantita
     app.add_template_filter(quantita, "quantita")
     app.add_template_filter(euro, "euro")
     app.add_template_filter(data_it, "data")
+    app.add_template_filter(data_ora_it, "data_ora")
 
     from . import models  # noqa: F401
     from . import auth

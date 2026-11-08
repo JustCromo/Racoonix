@@ -148,5 +148,16 @@ def reset_password(utente_id):
     utente.bloccato_fino = None
     utente.tentativi_falliti = 0
     registra("password_resettata", g.utente.id, utente.username)
+    _chiudi_richieste_reset(utente.id)
     db.session.commit()
     return _mostra_password(utente, password)
+
+
+def _chiudi_richieste_reset(utente_id):
+    """Quando l'admin genera la password, la richiesta risulta gestita da lui."""
+    from .models import Notifica
+    for notifica in db.session.scalars(db.select(Notifica).filter_by(
+            tipo="reset_password", utente_id=utente_id, stato="aperta")):
+        notifica.stato = "chiusa"
+        notifica.chiusa_da = g.utente.id
+        notifica.chiusa_il = datetime.now(timezone.utc)

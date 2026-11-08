@@ -30,3 +30,8 @@ def misura(valore, unita):
         decimali = f"{resto:03d}".rstrip("0")
         return f"{intero},{decimali} {grande}" if decimali else f"{intero} {grande}"
     return f"{valore} {unita}"
+
+
+def data_ora_it(valore):
+    """Data e ora nel fuso del server (Europe/Rome nei container)."""
+    return valore.astimezone().strftime("%d/%m/%Y %H:%M") if valore else "—"

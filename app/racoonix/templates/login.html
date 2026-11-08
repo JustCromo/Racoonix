@@ -11,5 +11,6 @@
     <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
     <button type="submit">Accedi</button>
   </form>
+  <p class="sotto spazio"><a href="{{ url_for('auth.password_dimenticata') }}">Password dimenticata?</a></p>
 </section>
 {% endblock %}

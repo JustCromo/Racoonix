@@ -271,8 +271,9 @@ class Notifica(db.Model):
     __tablename__ = "notifiche"
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(20), nullable=False)
-    prodotto_id = db.Column(db.Integer, db.ForeignKey("prodotti.id"), nullable=False)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey("prodotti.id"))
     lotto_id = db.Column(db.Integer, db.ForeignKey("lotti.id"))
+    utente_id = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     ruolo_destinatario = db.Column(db.String(30), nullable=False)
     stato = db.Column(db.String(10), nullable=False, default="aperta")
     nota = db.Column(db.String(255))
@@ -281,18 +282,21 @@ class Notifica(db.Model):
     chiusa_il = db.Column(db.DateTime(timezone=True))
     prodotto = db.relationship("Prodotto")
     lotto = db.relationship("Lotto")
+    utente = db.relationship("Utente", foreign_keys=[utente_id])
+    chiusa_da_utente = db.relationship("Utente", foreign_keys=[chiusa_da])
 
     __table_args__ = (
         CheckConstraint(
             "tipo IN ('riempi','esaurito','in_scadenza','da_rimuovere','da_approvare',"
-            "'da_correggere','sconto','freschezza')",
+            "'da_correggere','sconto','freschezza','reset_password')",
             name="ck_notifica_tipo",
         ),
         CheckConstraint("ruolo_destinatario IN ('admin','magazziniere','dipendente')", name="ck_notifica_ruolo"),
         CheckConstraint("stato IN ('aperta','chiusa')", name="ck_notifica_stato"),
+        CheckConstraint("prodotto_id IS NOT NULL OR utente_id IS NOT NULL", name="ck_notifica_soggetto"),
         Index(
             "uq_notifica_aperta",
-            "tipo", "prodotto_id", "lotto_id", "ruolo_destinatario",
+            "tipo", "prodotto_id", "lotto_id", "utente_id", "ruolo_destinatario",
             unique=True,
             postgresql_where=text("stato = 'aperta'"),
             postgresql_nulls_not_distinct=True,

@@ -204,3 +204,22 @@ def cambia_password():
     registra("cambio_password", g.utente.id)
     db.session.commit()
     return redirect(url_for("home"))
+
+
+@bp.route("/password-dimenticata", methods=["GET", "POST"])
+@limiter.limit("5 per 15 minutes", methods=["POST"])
+def password_dimenticata():
+    """La risposta e' sempre la stessa: non rivela se l'username esiste."""
+    if g.utente:
+        return redirect(url_for("home"))
+    if request.method == "GET":
+        return render_template("password_dimenticata.html")
+    from .notifiche import _apri
+    username = (request.form.get("username") or "").strip()[:40]
+    utente = db.session.scalar(db.select(Utente).filter_by(username=username)) if username else None
+    if utente and utente.attivo:
+        _apri("reset_password", None, "admin",
+              f"{utente.username} ha chiesto di reimpostare la password", utente_id=utente.id)
+        registra("richiesta_reset_password", utente.id)
+    db.session.commit()
+    return render_template("password_dimenticata.html", inviata=True)

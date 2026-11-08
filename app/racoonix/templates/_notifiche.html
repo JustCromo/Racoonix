@@ -1,5 +1,5 @@
-{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "da_correggere": "Da correggere"} %}
-{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso"} %}
+{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "da_correggere": "Da correggere", "reset_password": "Nuova password"} %}
+{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
 <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
       hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" hx-target="#notifiche" hx-swap="outerHTML">
@@ -7,17 +7,20 @@
   <button type="submit" class="{{ classe }}">{{ testo }}</button>
 </form>
 {% endmacro %}
+{% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
 <div id="notifiche">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
-  {% if not notifiche %}<p class="sotto spazio">Niente da fare: tutto in ordine.</p>{% endif %}
-  {% for n in notifiche %}
+  {% for sez in sezioni %}
+  <h2 class="spazio">{{ sez.titolo }}{% if sez.aperte %} ({{ sez.aperte|length }}){% endif %}</h2>
+  {% if not sez.aperte %}<p class="sotto">Niente da fare: tutto in ordine.</p>{% endif %}
+  {% for n in sez.aperte %}
   <section class="scheda spazio">
     <div class="intestazione">
-      <h3>{{ n.prodotto.descrizione }}</h3>
+      <h3>{{ soggetto(n) }}</h3>
       <span class="badge {{ classi.get(n.tipo, '') }}">{{ titoli.get(n.tipo, n.tipo) }}</span>
     </div>
     {% if n.nota %}<p>{{ n.nota }}</p>{% endif %}
-    {% if admin %}<p class="sotto">Per: {{ n.ruolo_destinatario }}</p>{% endif %}
+    <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
     <div class="azioni">
       {% if n.tipo == "da_rimuovere" %}
         {{ azione(n, "rimosso", "Rimosso dallo scaffale" if n.ruolo_destinatario == "dipendente" else "Rimosso dal magazzino") }}
@@ -39,10 +42,39 @@
         {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
       {% elif n.tipo == "da_approvare" %}
         <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
+      {% elif n.tipo == "reset_password" %}
+        <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="piccolo">Genera password temporanea</button>
+        </form>
+        {{ azione(n, "ignora", "Ignora", "piccolo secondario") }}
       {% else %}
         {{ azione(n, "visto", "Presa visione") }}
       {% endif %}
     </div>
   </section>
+  {% endfor %}
+  {% if admin %}
+  <details class="spazio">
+    <summary>Storico: {{ sez.titolo }}</summary>
+    {% if sez.storico %}
+    <div class="tabella-wrap spazio">
+      <table>
+        <tr><th>Chiusa il</th><th>Cosa</th><th>Dettaglio</th><th>Gestita da</th></tr>
+        {% for n in sez.storico %}
+        <tr>
+          <td>{{ n.chiusa_il|data_ora }}</td>
+          <td>{{ titoli.get(n.tipo, n.tipo) }} &middot; {{ soggetto(n) }}</td>
+          <td>{{ n.nota or "" }}</td>
+          <td>{{ n.chiusa_da_utente.username if n.chiusa_da_utente else "Sistema" }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% else %}
+    <p class="sotto">Nessuna attivita' registrata.</p>
+    {% endif %}
+  </details>
+  {% endif %}
   {% endfor %}
 </div>

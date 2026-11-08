@@ -14,10 +14,10 @@ def _adesso():
     return datetime.now(timezone.utc)
 
 
-def _apri(tipo, prodotto_id, ruolo, nota, lotto_id=None):
+def _apri(tipo, prodotto_id, ruolo, nota, lotto_id=None, utente_id=None):
     """Crea la notifica solo se non ne esiste gia' una aperta uguale (ci pensa l'indice unico)."""
     risultato = db.session.execute(
-        insert(Notifica).values(tipo=tipo, prodotto_id=prodotto_id, lotto_id=lotto_id,
+        insert(Notifica).values(tipo=tipo, prodotto_id=prodotto_id, lotto_id=lotto_id, utente_id=utente_id,
                                 ruolo_destinatario=ruolo, stato="aperta", nota=nota[:255],
                                 creata_il=_adesso())
         .on_conflict_do_nothing())
@@ -68,7 +68,7 @@ def controlla_scaffali(prodotto_ids):
                 _chiudi(p.id, "esaurito")
                 continue
             fornitore = f" (fornitore: {p.fornitore.ragione_sociale})" if p.fornitore else ""
-            _apri("esaurito", p.id, "magazziniere",
+            _apri("esaurito", p.id, "admin",
                   f"Sullo scaffale: {quantita(esposta, p.unita)} e magazzino vuoto: da riordinare{fornitore}")
     db.session.commit()
 

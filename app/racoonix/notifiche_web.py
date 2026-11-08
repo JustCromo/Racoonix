@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 from flask import (Blueprint, abort, current_app, flash, g, redirect, render_template,
                    request, url_for)
@@ -9,37 +9,52 @@ from .auth import login_richiesto, registra, ruoli_attivi
 from .carico import _quantita as leggi_quantita
 from .models import Lotto, Notifica, Scarto
 from .notifiche import controlla_scaffali, controllo_giornaliero
-from .regole import perc_sconto
 from .sconti import applica_programmati
 
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
-URGENZA = {"da_rimuovere": 0, "riempi": 1, "esaurito": 2, "sconto": 3,
-           "in_scadenza": 4, "freschezza": 5, "da_approvare": 6, "da_correggere": 7}
+SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali e cassa"),
+           ("magazziniere", "Magazzinieri: magazzino")]
+URGENZA = {"reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3, "esaurito": 4,
+           "sconto": 5, "in_scadenza": 6, "freschezza": 7, "da_correggere": 8}
 AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto", "esaurimento"}, "sconto": {"bollino"},
-          "in_scadenza": {"visto"}, "freschezza": {"ok", "deteriorato"}}
+          "in_scadenza": {"visto"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
+STORICO_MAX = 30
 
 
-def _query_visibili(ruoli):
-    stmt = db.select(Notifica).where(Notifica.stato == "aperta")
-    if "admin" not in ruoli:
-        stmt = stmt.where(Notifica.ruolo_destinatario.in_(ruoli))
-    return stmt
+def _ruoli_visibili(ruoli):
+    return [r for r, _ in SEZIONI if "admin" in ruoli or r in ruoli]
 
 
 def conta_notifiche():
     if g.get("utente") is None:
         return {"notifiche_aperte": 0, "admin_attivo": False}
-    stmt = _query_visibili(ruoli_attivi()).with_only_columns(db.func.count(Notifica.id))
-    return {"notifiche_aperte": db.session.scalar(stmt), "admin_attivo": "admin" in ruoli_attivi()}
+    ruoli = ruoli_attivi()
+    totale = db.session.scalar(db.select(db.func.count(Notifica.id)).where(
+        Notifica.stato == "aperta", Notifica.ruolo_destinatario.in_(_ruoli_visibili(ruoli))))
+    return {"notifiche_aperte": totale, "admin_attivo": "admin" in ruoli}
 
 
 def _dati(messaggio=None, esito="ok"):
     ruoli = ruoli_attivi()
-    notifiche = db.session.scalars(_query_visibili(ruoli).options(
-        selectinload(Notifica.prodotto), selectinload(Notifica.lotto))).all()
-    notifiche.sort(key=lambda n: (URGENZA.get(n.tipo, 9), n.creata_il))
-    return {"notifiche": notifiche, "admin": "admin" in ruoli,
-            "messaggio": messaggio, "esito": esito}
+    admin = "admin" in ruoli
+    visibili = _ruoli_visibili(ruoli)
+    opzioni = (selectinload(Notifica.prodotto), selectinload(Notifica.lotto),
+               selectinload(Notifica.utente), selectinload(Notifica.chiusa_da_utente))
+    aperte = db.session.scalars(db.select(Notifica).where(
+        Notifica.stato == "aperta", Notifica.ruolo_destinatario.in_(visibili)).options(*opzioni)).all()
+    sezioni = []
+    for ruolo, titolo in SEZIONI:
+        if ruolo not in visibili:
+            continue
+        mie = sorted((n for n in aperte if n.ruolo_destinatario == ruolo),
+                     key=lambda n: (URGENZA.get(n.tipo, 9), n.creata_il))
+        storico = []
+        if admin:
+            storico = db.session.scalars(
+                db.select(Notifica).where(Notifica.stato == "chiusa", Notifica.ruolo_destinatario == ruolo)
+                .order_by(Notifica.chiusa_il.desc()).limit(STORICO_MAX).options(*opzioni)).all()
+        sezioni.append({"ruolo": ruolo, "titolo": titolo, "aperte": mie, "storico": storico})
+    return {"sezioni": sezioni, "admin": admin, "messaggio": messaggio, "esito": esito}
 
 
 def _vista(messaggio=None, esito="ok"):
@@ -91,9 +106,9 @@ def agisci(nid, azione):
             db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
                                   motivo="scaduto" if azione == "rimosso" else "deteriorato",
                                   utente_id=g.utente.id))
-
     if azione == "esaurimento":
         notifica.prodotto.in_esaurimento = True
+
     notifica.stato = "chiusa"
     notifica.chiusa_da = g.utente.id
     notifica.chiusa_il = datetime.now(timezone.utc)
