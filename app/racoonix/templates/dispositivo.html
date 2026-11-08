@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_icone.html" import icona %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}{{ d.nome }} - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('dispositivi.elenco') }}">&larr; Dispositivi</a></p>
+<div class="intestazione">
+  <div class="utente-nome">
+    <span class="avatar">{{ icona("plug-connected") }}</span>
+    <div>
+      <h1>{{ d.nome }}</h1>
+      <p class="sotto">{{ "Cassa" if d.tipo == "cassa" else "Bilancia del banco" }} &middot; ultimi 30 giorni &middot; ultimo utilizzo: {{ d.ultimo_uso|data_ora }}</p>
+    </div>
+  </div>
+  {% if d.attivo %}<span class="badge ok">attivo</span>{% else %}<span class="badge spento">revocato</span>{% endif %}
+</div>
+
+{% if d.tipo == "cassa" %}
+<div class="kpi">
+  <div class="scheda"><p class="sotto">Scontrini</p><p class="numero">{{ dati.scontrini }}</p></div>
+  <div class="scheda"><p class="sotto">Incasso</p><p class="numero">{{ dati.incasso|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Scontrino medio</p><p class="numero">{{ dati.medio|euro }}</p></div>
+</div>
+<div class="due-colonne spazio">
+  <section class="scheda">
+    <h2>Prodotti piu' venduti</h2>
+    {% for p, incasso, quantita in dati.top %}
+    <div class="voce-elenco"><span>{{ p.descrizione }}<br><span class="sotto">{{ quantita|quantita(p.unita) }}</span></span><strong>{{ incasso|euro }}</strong></div>
+    {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endfor %}
+  </section>
+  <section class="scheda">
+    <h2>Ultime vendite</h2>
+    {% for v in dati.ultime %}
+    <div class="voce-elenco"><span>Scontrino n. {{ v.id }}<br><span class="sotto">{{ v.data_ora|data_ora }}</span></span><strong>{{ v.totale_centesimi|euro }}</strong></div>
+    {% else %}<p class="sotto">Nessuna vendita.</p>{% endfor %}
+  </section>
+</div>
+{% else %}
+<div class="kpi">
+  <div class="scheda"><p class="sotto">Vaschette registrate</p><p class="numero">{{ dati.numero }}</p></div>
+  <div class="scheda"><p class="sotto">Peso confezionato</p><p class="numero">{{ dati.grammi|quantita("kg") }}</p></div>
+</div>
+<section class="scheda spazio">
+  <h2>Ultime etichette</h2>
+  {% for v in dati.ultime %}
+  <div class="voce-elenco"><span>{{ v.descrizione }}<br><span class="sotto">{{ v.quando|data_ora }} &middot; lotto {{ v.lotto }}</span></span><strong>{{ v.peso_g|quantita("kg") }}</strong></div>
+  {% else %}<p class="sotto">Nessuna etichetta registrata.</p>{% endfor %}
+</section>
+{% endif %}
+{% endblock %}

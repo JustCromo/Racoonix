@@ -7,12 +7,17 @@ from sqlalchemy import func
 
 from . import db
 from .auth import richiede_ruolo
-from .models import Dispositivo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
+from .formato import euro
+from .models import AuditLog, Dispositivo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
 
 bp = Blueprint("dashboard", __name__, url_prefix="/admin/dashboard")
 PERIODI = {1: "Oggi", 7: "Ultimi 7 giorni", 30: "Ultimi 30 giorni"}
 MOTIVI = {"scaduto": "Scaduti", "deteriorato": "Deteriorati", "non_conforme": "Non conformi"}
 LARGHEZZA, ALTEZZA = 600, 130
+ETICHETTE_ATTIVITA = {"carico": "Carico merce", "rettifica": "Correzione quantita'",
+                      "notifica_verifica": "Verifica scadenza", "notifica_rimosso": "Rimozione scaduti",
+                      "notifica_deteriorato": "Scarto per freschezza", "rifornimento": "Scaffale rifornito",
+                      "prodotto_approvato": "Prodotto approvato", "sconto_manuale": "Sconto applicato"}
 
 
 def _valore(prodotto, quantita, prezzo=None):
@@ -72,7 +77,7 @@ def pagina():
         titolo_grafico = "Incasso per giorno"
     massimo = max([v for _, _, v in punti] + [1])
     passo = LARGHEZZA / len(punti)
-    barre = [{"etichetta": e, "titolo": tt, "valore": v,
+    barre = [{"etichetta": e, "titolo": tt, "valore": v, "testo": euro(v),
               "x": round(i * passo + passo * 0.15, 1), "w": round(passo * 0.7, 1),
               "centro": round(i * passo + passo / 2, 1),
               "h": round(v / massimo * ALTEZZA, 1),
@@ -114,6 +119,43 @@ def pagina():
     sconti_attivi = db.session.scalar(db.select(func.count(Sconto.id)).where(
         Sconto.attivo.is_(True), Sconto.venduti < Sconto.quantita))
 
+    autonoma = {}
+    if not cassa_collegata:
+        vivi = (Prodotto.stato == "attivo", (Lotto.qta_esposta + Lotto.qta_magazzino) > 0)
+        per_giorno_scadenza = defaultdict(int)
+        for (scadenza,) in db.session.execute(
+                db.select(Lotto.data_scadenza).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
+                .where(*vivi, Lotto.data_scadenza >= oggi, Lotto.data_scadenza <= oggi + timedelta(days=13))).all():
+            per_giorno_scadenza[scadenza] += 1
+        quattordici = [oggi + timedelta(days=i) for i in range(14)]
+        massimo14 = max([per_giorno_scadenza[d] for d in quattordici] + [1])
+        passo14 = LARGHEZZA / 14
+        barre_scadenze = [{"etichetta": d.strftime("%d/%m"), "titolo": d.strftime("%d/%m/%Y"),
+                           "valore": per_giorno_scadenza[d], "testo": str(per_giorno_scadenza[d]),
+                           "x": round(i * passo14 + passo14 * 0.15, 1), "w": round(passo14 * 0.7, 1),
+                           "centro": round(i * passo14 + passo14 / 2, 1),
+                           "h": round(per_giorno_scadenza[d] / massimo14 * ALTEZZA, 1), "mostra": i % 2 == 0}
+                          for i, d in enumerate(quattordici)]
+        autonoma = {
+            "barre_scadenze": barre_scadenze,
+            "lotti": db.session.scalar(db.select(func.count(Lotto.id)).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
+                                       .where(*vivi)),
+            "prodotti": db.session.scalar(db.select(func.count(func.distinct(Lotto.prodotto_id)))
+                                          .join(Prodotto, Lotto.prodotto_id == Prodotto.id).where(*vivi)),
+            "scadenza_7": db.session.scalar(db.select(func.count(Lotto.id)).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
+                                            .where(*vivi, Lotto.data_scadenza >= oggi,
+                                                   Lotto.data_scadenza <= oggi + timedelta(days=7))),
+            "verifiche": db.session.scalar(db.select(func.count(Notifica.id)).where(
+                Notifica.tipo == "in_scadenza", Notifica.stato == "chiusa",
+                Notifica.chiusa_da.is_not(None), Notifica.chiusa_il >= inizio)),
+            "rettifiche": db.session.scalar(db.select(func.count(AuditLog.id)).where(
+                AuditLog.azione == "rettifica", AuditLog.data_ora >= inizio)),
+            "attivita": db.session.execute(
+                db.select(AuditLog, Utente.username).outerjoin(Utente, AuditLog.utente_id == Utente.id)
+                .where(AuditLog.azione.in_(list(ETICHETTE_ATTIVITA)))
+                .order_by(AuditLog.data_ora.desc()).limit(8)).all(),
+        }
+
     return render_template(
         "dashboard.html", giorni=giorni, titolo_grafico=titolo_grafico, saluto=_saluto(), periodi=PERIODI, primo=primo, oggi=oggi,
         incasso=incasso, scontrini=scontrini, medio=incasso // scontrini if scontrini else 0,
@@ -121,7 +163,7 @@ def pagina():
         valore_scarti=sum(s["valore"] for s in scarti.values()),
         aperte=aperte, valore_merce=valore_merce, attenzione=attenzione,
         in_scadenza=in_scadenza, ultime=ultime, sconti_attivi=sconti_attivi,
-        vendite_attive=cassa_collegata or scontrini > 0)
+        vendite_attive=cassa_collegata, autonoma=autonoma, etichette_attivita=ETICHETTE_ATTIVITA)
 
 
 def _saluto():

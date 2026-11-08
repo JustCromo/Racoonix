@@ -48,6 +48,7 @@ services:
     networks: [backend]
 
   simulatore:
+    profiles: ["integrazione"]
     build: ./simulatore
     image: racoonix-simulatore:latest
     restart: unless-stopped
@@ -70,7 +71,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [app, simulatore]
+    depends_on: [app]
     networks: [frontend, demo]
 
 networks:

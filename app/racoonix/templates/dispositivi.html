@@ -23,7 +23,7 @@
       <div class="utente-nome">
         <span class="avatar">{{ icona("plug-connected") }}</span>
         <div>
-          <h3>{{ d.nome }}</h3>
+          <h3><a href="{{ url_for('dispositivi.dettaglio', did=d.id) }}">{{ d.nome }}</a></h3>
           <span class="sotto">{{ "Cassa" if d.tipo == "cassa" else "Bilancia del banco" }} &middot; chiave {{ d.prefisso }}…</span>
         </div>
       </div>
@@ -34,6 +34,11 @@
     <form method="post" action="{{ url_for('dispositivi.revoca', did=d.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="piccolo secondario">Revoca chiave</button>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('dispositivi.rimuovi', did=d.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="piccolo secondario">Rimuovi dall'elenco</button>
     </form>
     {% endif %}
   </section>

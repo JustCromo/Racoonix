@@ -353,6 +353,7 @@ class Dispositivo(db.Model):
     token_hash = db.Column(db.String(64), unique=True, nullable=False)
     prefisso = db.Column(db.String(12), nullable=False)
     attivo = db.Column(db.Boolean, nullable=False, default=True)
+    archiviato = db.Column(db.Boolean, nullable=False, default=False)
     creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     ultimo_uso = db.Column(db.DateTime(timezone=True))

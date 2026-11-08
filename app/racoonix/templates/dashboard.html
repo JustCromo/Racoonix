@@ -3,10 +3,25 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Dashboard - Racoonix{% endblock %}
 {% block contenuto %}
+{% macro grafico(barre, titolo) %}
+<section class="scheda">
+  <h2>{{ titolo }}</h2>
+  <svg class="grafico" viewBox="0 0 600 200" role="img" aria-label="{{ titolo }}">
+    <line x1="0" y1="170" x2="600" y2="170" class="asse"></line>
+    {% for b in barre %}
+    <rect class="barra" x="{{ b.x }}" y="{{ 170 - b.h }}" width="{{ b.w }}" height="{{ b.h }}" rx="4"><title>{{ b.titolo }}: {{ b.testo }}</title></rect>
+    {% if b.mostra %}<text class="etichetta-grafico" x="{{ b.centro }}" y="190" text-anchor="middle">{{ b.etichetta }}</text>{% endif %}
+    {% if barre|length <= 14 and b.valore %}<text class="valore-grafico" x="{{ b.centro }}" y="{{ [170 - b.h - 7, 14]|max }}" text-anchor="middle">{{ b.testo }}</text>{% endif %}
+    {% endfor %}
+  </svg>
+</section>
+{% endmacro %}
+
 <div class="intestazione">
   <div>
     <h1>{{ saluto }}, {{ g.utente.username }}</h1>
-    <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}</p>
+    <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}
+      &middot; <span class="badge{% if vendite_attive %} ok{% endif %}">{{ "Cassa collegata" if vendite_attive else "Modalita' autonoma" }}</span></p>
   </div>
   <nav class="azioni">
     {% for n, etichetta in periodi.items() %}
@@ -21,26 +36,20 @@
   <div class="scheda"><p class="sotto">Scontrini</p><p class="numero">{{ scontrini }}</p></div>
   <div class="scheda"><p class="sotto">Scontrino medio</p><p class="numero">{{ medio|euro }}</p></div>
   <div class="scheda"><p class="sotto">Sconti concessi</p><p class="numero">{{ sconti|euro }}</p></div>
+  {% else %}
+  <div class="scheda"><p class="sotto">Lotti monitorati</p><p class="numero">{{ autonoma.lotti }}</p><p class="sotto">{{ autonoma.prodotti }} prodotti</p></div>
+  <div class="scheda"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if autonoma.scadenza_7 %} acceso{% endif %}">{{ autonoma.scadenza_7 }}</p></div>
+  <div class="scheda"><p class="sotto">Verifiche fatte</p><p class="numero">{{ autonoma.verifiche }}</p></div>
+  <div class="scheda"><p class="sotto">Correzioni quantita'</p><p class="numero">{{ autonoma.rettifiche }}</p></div>
   {% endif %}
   <div class="scheda"><p class="sotto">Valore scarti</p><p class="numero">{{ valore_scarti|euro }}</p></div>
-  <div class="scheda"><p class="sotto">Merce in negozio</p><p class="numero">{{ valore_merce|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Merce in negozio{% if not vendite_attive %} (stima){% endif %}</p><p class="numero">{{ valore_merce|euro }}</p></div>
 </div>
 
 <div class="cruscotto spazio">
   <div>
     {% if vendite_attive %}
-    <section class="scheda">
-      <h2>{{ titolo_grafico }}</h2>
-      <svg class="grafico" viewBox="0 0 600 200" role="img" aria-label="{{ titolo_grafico }}">
-        <line x1="0" y1="170" x2="600" y2="170" class="asse"></line>
-        {% for b in barre %}
-        <rect class="barra" x="{{ b.x }}" y="{{ 170 - b.h }}" width="{{ b.w }}" height="{{ b.h }}" rx="4"><title>{{ b.titolo }}: {{ b.valore|euro }}</title></rect>
-        {% if b.mostra %}<text class="etichetta-grafico" x="{{ b.centro }}" y="190" text-anchor="middle">{{ b.etichetta }}</text>{% endif %}
-        {% if barre|length <= 14 and b.valore %}<text class="valore-grafico" x="{{ b.centro }}" y="{{ [170 - b.h - 7, 14]|max }}" text-anchor="middle">{{ b.valore|euro }}</text>{% endif %}
-        {% endfor %}
-      </svg>
-    </section>
-
+    {{ grafico(barre, titolo_grafico) }}
     <div class="due-colonne spazio">
       <section class="scheda">
         <h2>Incasso per aliquota IVA</h2>
@@ -61,14 +70,10 @@
         {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endfor %}
       </section>
     </div>
-
     {% else %}
-    <section class="scheda">
-      <h2>Modalita' autonoma</h2>
-      <p>Nessuna cassa collegata: Racoonix tiene sotto controllo lotti e scadenze, e le quantita' si aggiornano con le verifiche e i conteggi dei dipendenti.</p>
-      <p class="sotto">Collegando una cassa dalla pagina Dispositivi, qui compariranno incassi, IVA e prodotti piu' venduti.</p>
-    </section>
+    {{ grafico(autonoma.barre_scadenze, "Lotti in scadenza nei prossimi 14 giorni") }}
     {% endif %}
+
     <section class="scheda spazio">
       <h2>Scarti per motivo</h2>
       <div class="tabella-wrap">
@@ -104,19 +109,24 @@
       {% endfor %}
     </section>
 
-    {% if vendite_attive %}
     <section class="scheda spazio">
+      {% if vendite_attive %}
       <h2>Ultime vendite</h2>
       {% for v, dispositivo, utente in ultime %}
       <div class="voce-elenco">
         <span>{{ v.data_ora|data_ora }}<br><span class="sotto">{{ dispositivo or utente or "—" }}</span></span>
         <strong>{{ v.totale_centesimi|euro }}</strong>
       </div>
+      {% else %}<p class="sotto">Nessuna vendita.</p>{% endfor %}
       {% else %}
-      <p class="sotto">Nessuna vendita.</p>
-      {% endfor %}
+      <h2>Attivita' recenti</h2>
+      {% for voce, utente in autonoma.attivita %}
+      <div class="voce-elenco">
+        <span>{{ etichette_attivita.get(voce.azione, voce.azione) }}<br><span class="sotto">{{ voce.data_ora|data_ora }} &middot; {{ utente or "Sistema" }}</span></span>
+      </div>
+      {% else %}<p class="sotto">Nessuna attivita' registrata.</p>{% endfor %}
+      {% endif %}
     </section>
-    {% endif %}
   </aside>
 </div>
 {% endblock %}
