@@ -24,7 +24,7 @@ class Config:
     SECRET_KEY = leggi_secret("flask_secret")
     SQLALCHEMY_DATABASE_URI = (
         "postgresql+psycopg://racoonix:"
-        f"{quote_plus(leggi_secret('db_password'))}@db:5432/racoonix"
+        f"{quote_plus(leggi_secret('db_password'))}@db:5432/{os.environ.get('RACOONIX_DB_NOME', 'racoonix')}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_SECURE = True

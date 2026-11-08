@@ -1,13 +1,17 @@
 import os
+from pathlib import Path
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 db = SQLAlchemy()
+migrate = Migrate()
+MIGRAZIONI = str(Path(__file__).resolve().parent.parent / "migrations")
 csrf = CSRFProtect()
 limiter = Limiter(key_func=get_remote_address, storage_uri="memory://")
 
@@ -19,6 +23,7 @@ def create_app():
     app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     db.init_app(app)
+    migrate.init_app(app, db, directory=MIGRAZIONI)
     csrf.init_app(app)
     limiter.init_app(app)
     from .formato import data_it, data_ora_it, euro, quantita, quantita_input

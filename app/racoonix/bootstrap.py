@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-from . import create_app, db
+from flask_migrate import upgrade
+
+from . import MIGRAZIONI, create_app, db
 from .models import AuditLog, Categoria, Ruolo, Sottocategoria, Utente
 
 RUOLI = ["admin", "magazziniere", "dipendente"]
@@ -42,7 +44,7 @@ CREDENZIALI = Path("/run/secrets/admin_credentials")
 def main():
     app = create_app()
     with app.app_context():
-        db.create_all()
+        upgrade(directory=MIGRAZIONI)
 
         for nome in RUOLI:
             if not db.session.scalar(db.select(Ruolo).filter_by(nome=nome)):
