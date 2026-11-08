@@ -79,7 +79,7 @@ def leggi():
         "confezionamento": info["confezionamento"].isoformat() if info["confezionamento"] else None,
     }
     return render_template("banco_form.html", prodotto=prodotto, peso=info["peso_g"],
-                           disponibile=disponibile, proposta=proposta, limite=limite, oggi=oggi,
+                           disponibile=disponibile, proposta=proposta, limite=limite, oggi=oggi, domani=oggi + timedelta(days=1),
                            scadenza_fissa=bool(info["scadenza"]))
 
 

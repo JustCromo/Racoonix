@@ -16,7 +16,7 @@
     {% else %}
     <label>Scadenza della vaschetta
       <input type="date" name="scadenza" value="{{ proposta.isoformat() }}"
-             min="{{ (oggi.toordinal() + 1)|string and oggi.isoformat() }}" {% if limite %}max="{{ limite.isoformat() }}"{% endif %} required>
+             min="{{ domani.isoformat() }}" {% if limite %}max="{{ limite.isoformat() }}"{% endif %} required>
     </label>
     {% endif %}
     <button type="submit">Registra vaschetta</button>
