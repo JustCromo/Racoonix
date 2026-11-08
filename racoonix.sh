@@ -71,7 +71,7 @@ installa() {
   [[ "$negozio" =~ ^[[:alnum:][:space:]\'.,\&-]{2,60}$ ]] || errore "Nome non valido: 2-60 caratteri tra lettere, numeri, spazi e . , ' & -"
   ip=$(chiedi "IP di questo server nella rete del negozio" "$(ip_locale)")
   valida_ip "$ip" || errore "IP non valido"
-  suggerito="${SSH_CLIENT%% *}"
+  suggerito="${SSH_CLIENT:-}"; suggerito="${suggerito%% *}"
   [[ -z "$suggerito" ]] && suggerito="$ip"
   info "L'area admin sara' raggiungibile solo dal computer dell'amministratore."
   admin_ip=$(chiedi "IP del computer dell'amministratore" "$suggerito")
