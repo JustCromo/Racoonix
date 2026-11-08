@@ -1,5 +1,19 @@
 {
 	default_sni {$RACOONIX_SNI}
+	# I redirect HTTP -> HTTPS li fa il blocco :80, con l'eccezione del certificato.
+	auto_https disable_redirects
+}
+
+# Il certificato PUBBLICO della CA, scaricabile dai dispositivi.
+# Solo questo file: la chiave privata, nella stessa cartella, non e' mai raggiungibile.
+(certificato) {
+	handle /racoonix-ca.crt {
+		root * /data/caddy/pki/authorities/local
+		rewrite * /root.crt
+		header Content-Type "application/x-x509-ca-cert"
+		header Content-Disposition "attachment; filename=racoonix-ca.crt"
+		file_server
+	}
 }
 
 (sicurezza) {
@@ -18,10 +32,21 @@
 	}
 }
 
+# HTTP: solo il certificato (per i dispositivi nuovi), tutto il resto va su HTTPS.
+:80 {
+	import certificato
+	handle {
+		redir https://{host}{uri} permanent
+	}
+}
+
 # Racoonix: il prodotto
 {$RACOONIX_HOST} {
 	import sicurezza
-	reverse_proxy app:8000
+	import certificato
+	handle {
+		reverse_proxy app:8000
+	}
 }
 
 # Simulatore: le apparecchiature del negozio (ambiente demo separato)

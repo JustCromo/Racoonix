@@ -268,3 +268,7 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 .market-alto { display: block; font-size: .78rem; font-weight: 700; color: #E9E1D2; line-height: 1.15; }
 .occhiello { margin: 0 0 .1rem; font-size: .85rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--miele-testo); }
 .market-accesso { text-align: center; font-size: 1.3rem; font-weight: 800; color: var(--miele-testo); margin: -.2rem 0 1rem; }
+
+/* --- QR code --- */
+.qr { display: flex; justify-content: center; }
+.qr svg { width: min(220px, 70vw); height: auto; background: #FFFFFF; border-radius: 12px; padding: 6px; }

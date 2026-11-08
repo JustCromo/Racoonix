@@ -18,6 +18,7 @@ VOCI = [
     ("anagrafica.categorie", "Categorie", "category", {"admin"},
      ("anagrafica.categorie", "anagrafica.nuova_categoria", "anagrafica.salva_categoria",
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria")),
+    ("collega.pagina", "Collega telefono", "device-mobile", {"admin"}, ("collega.",)),
     ("dispositivi.elenco", "Dispositivi", "plug-connected", {"admin"}, ("dispositivi.",)),
     ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",)),
 ]

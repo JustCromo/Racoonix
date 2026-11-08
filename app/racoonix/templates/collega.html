@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Collega un telefono - Racoonix{% endblock %}
+{% block contenuto %}
+<h1>Collega un telefono</h1>
+<p class="sotto">Da fare una volta sola per ogni telefono o tablet, collegato alla stessa rete Wi-Fi del negozio.</p>
+
+<div class="due-colonne spazio">
+  <section class="scheda">
+    <h2>1. Scarica e installa il certificato</h2>
+    <div class="qr">{{ qr_certificato }}</div>
+    <p class="sotto centrato">{{ url_certificato }}</p>
+    <p>Il certificato permette al telefono di riconoscere Racoonix e proteggere i dati con la crittografia.</p>
+    <details class="spazio">
+      <summary>Android (anche Samsung)</summary>
+      <ol>
+        <li>Inquadra il QR: il file <strong>racoonix-ca.crt</strong> viene scaricato.</li>
+        <li>Impostazioni → Sicurezza e privacy → Altre impostazioni di sicurezza → Installa da memoria dispositivo → <strong>Certificato CA</strong> → Installa comunque.</li>
+        <li>Scegli il file dalla cartella Download.</li>
+      </ol>
+      <p class="sotto">Se non trovi la voce, cerca "certificato" nelle Impostazioni. Serve un blocco schermo (PIN o impronta).</p>
+    </details>
+    <details class="spazio">
+      <summary>iPhone</summary>
+      <ol>
+        <li>Inquadra il QR con la fotocamera e consenti il download del profilo.</li>
+        <li>Impostazioni → Profilo scaricato → <strong>Installa</strong>.</li>
+        <li>Impostazioni → Generali → Info → Impostazioni attendibilita' certificati → attiva il certificato.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="scheda">
+    <h2>2. Verifica e apri Racoonix</h2>
+    <p>Prima di usarlo, confronta l'<strong>impronta SHA-256</strong> del certificato installato (nei dettagli del certificato, sul telefono) con questa:</p>
+    {% if impronta %}<pre>{{ impronta }}</pre>{% else %}<p class="errore">Impronta non disponibile: riprova tra poco.</p>{% endif %}
+    <p class="sotto">Se coincide, il certificato e' quello vero. Se e' diversa, <strong>non usarlo</strong>: qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal telefono e avvisa chi gestisce il server.</p>
+    <div class="qr spazio">{{ qr_app }}</div>
+    <p class="sotto centrato">{{ url_app }}</p>
+    <p>Inquadra il secondo QR: Racoonix deve aprirsi <strong>senza nessun avviso di sicurezza</strong>.</p>
+  </section>
+</div>
+{% endblock %}

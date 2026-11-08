@@ -48,6 +48,8 @@ def create_app():
     csrf.exempt(api_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(dispositivi_bp)
+    from .collega import bp as collega_bp
+    app.register_blueprint(collega_bp)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)
     app.context_processor(conta_notifiche)
