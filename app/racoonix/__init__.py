@@ -31,10 +31,12 @@ def create_app():
     from .carico import bp as carico_bp
     from .cassa import bp as cassa_bp
     from .notifiche_web import bp as notifiche_bp, conta_notifiche
+    from .anagrafica import bp as anagrafica_bp
+    from .banco import bp as banco_bp
     from .inventario import bp as inventario_bp
     from .prodotti import bp as prodotti_bp
     from .utenti import bp as utenti_bp
-    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp):
+    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp, anagrafica_bp, banco_bp):
         app.register_blueprint(blueprint)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)

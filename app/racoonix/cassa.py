@@ -149,7 +149,7 @@ def leggi():
         if prodotto.unita != "kg":
             return _vista("Prodotto non vendibile", "errore")
         if info["tipo"] == "bilancia":
-            etichetta = db.session.scalar(db.select(Lotto).filter_by(prodotto_id=prodotto.id, codice_etichetta=grezzo))
+            etichetta = db.session.scalar(db.select(Lotto).filter_by(prodotto_id=prodotto.id, codice_etichetta=grezzo).where(Lotto.qta_esposta >= info["peso_g"]).order_by(Lotto.data_confezionamento.desc()).limit(1))
             if etichetta:
                 lotto_id = etichetta.id
         righe.append({"i": secrets.token_hex(4), "p": prodotto.id, "l": lotto_id, "q": info["peso_g"], "s": 0})

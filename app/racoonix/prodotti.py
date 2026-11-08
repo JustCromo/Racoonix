@@ -5,7 +5,7 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 
 from . import db
 from .auth import registra, richiede_ruolo
-from .models import Categoria, Notifica, Prodotto, Scarto
+from .models import Categoria, CodiceAggiuntivo, Notifica, Prodotto, Scarto
 
 bp = Blueprint("prodotti", __name__, url_prefix="/admin/prodotti")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
@@ -42,7 +42,8 @@ def attesa():
                                   .order_by(Prodotto.creato_il)).all()
     categorie = db.session.scalars(db.select(Categoria).filter_by(attiva=True)
                                    .order_by(Categoria.nome)).all()
-    return render_template("prodotti_attesa.html", prodotti=prodotti, categorie=categorie)
+    attivi = db.session.scalars(db.select(Prodotto).filter_by(stato="attivo").order_by(Prodotto.nome)).all()
+    return render_template("prodotti_attesa.html", prodotti=prodotti, categorie=categorie, attivi=attivi)
 
 
 @bp.post("/<int:prodotto_id>/approva")
@@ -90,4 +91,31 @@ def rifiuta(prodotto_id):
     registra("prodotto_rifiutato", g.utente.id, f"prodotto {prodotto.id}")
     db.session.commit()
     flash(f"Rifiutato: {prodotto.nome}", "ok")
+    return redirect(url_for(".attesa"))
+
+
+@bp.post("/<int:prodotto_id>/unisci")
+@richiede_ruolo("admin")
+def unisci(prodotto_id):
+    """Il prodotto 'nuovo' era in realta' un altro codice di un prodotto esistente."""
+    nuovo = _in_attesa(prodotto_id)
+    cid = (request.form.get("destinazione_id") or "").strip()
+    destinazione = db.session.get(Prodotto, int(cid)) if ID_OK.match(cid) else None
+    if (nuovo is None or destinazione is None or destinazione.stato != "attivo"
+            or destinazione.id == nuovo.id or destinazione.unita != nuovo.unita or not nuovo.gtin):
+        flash("Unione non possibile: controlla il prodotto scelto", "errore")
+        return redirect(url_for(".attesa"))
+    gtin = nuovo.gtin
+    for lotto in list(nuovo.lotti):
+        lotto.prodotto = destinazione
+    for notifica in db.session.scalars(db.select(Notifica).filter_by(prodotto_id=nuovo.id)):
+        notifica.prodotto = destinazione
+    _chiudi_notifiche(destinazione.id, "da_approvare")
+    db.session.flush()
+    db.session.delete(nuovo)
+    db.session.flush()
+    destinazione.codici_aggiuntivi.append(CodiceAggiuntivo(gtin=gtin, descrizione="aggiunto in approvazione"))
+    registra("prodotto_unito", g.utente.id, f"gtin {gtin} -> prodotto {destinazione.id}")
+    db.session.commit()
+    flash(f"Codice aggiunto a {destinazione.descrizione}, merce spostata", "ok")
     return redirect(url_for(".attesa"))

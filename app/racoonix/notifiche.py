@@ -2,6 +2,7 @@
 from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import or_
 from sqlalchemy.orm import selectinload
 
 from . import db
@@ -52,6 +53,10 @@ def controlla_scaffali(prodotto_ids):
     prodotti = db.session.scalars(db.select(Prodotto).where(
         Prodotto.id.in_(list(prodotto_ids)), Prodotto.stato == "attivo")).all()
     for p in prodotti:
+        if not p.lotti:
+            _chiudi(p.id, "riempi")
+            _chiudi(p.id, "esaurito")
+            continue
         validi = [l for l in p.lotti if vendibile(l, oggi)]
         esposta = sum(l.qta_esposta for l in validi)
         magazzino = sum(l.qta_magazzino for l in validi)
@@ -123,5 +128,5 @@ def controllo_giornaliero():
         notifica.chiusa_il = _adesso()
     db.session.commit()
     controlla_scaffali(db.session.scalars(db.select(Prodotto.id).where(
-        Prodotto.stato == "attivo", Prodotto.lotti.any())).all())
+        Prodotto.stato == "attivo", or_(Prodotto.lotti.any(), Prodotto.id.in_(db.select(Notifica.prodotto_id).where(Notifica.stato == "aperta", Notifica.tipo.in_(("riempi", "esaurito"))))))).all())
     return creati

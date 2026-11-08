@@ -8,12 +8,14 @@
   {% if ruoli %}<p><a href="{{ url_for('notifiche.pagina') }}">Cose da fare{% if notifiche_aperte %} ({{ notifiche_aperte }}){% endif %}</a></p>{% endif %}
   {% if ruoli %}<p><a href="{{ url_for('inventario.pagina') }}">Inventario</a></p>{% endif %}
   {% if "admin" in ruoli or "dipendente" in ruoli %}<p><a href="{{ url_for('cassa.pagina') }}">Cassa (demo)</a></p>{% endif %}
+  {% if "admin" in ruoli or "dipendente" in ruoli %}<p><a href="{{ url_for('banco.pagina') }}">Banco: preincartati</a></p>{% endif %}
   {% if "admin" in ruoli or "magazziniere" in ruoli %}
   <p><a href="{{ url_for('carico.pagina') }}">Carico merce</a></p>
   {% endif %}
   {% if "admin" in ruoli %}
   <p><a href="{{ url_for('prodotti.attesa') }}">Prodotti da approvare{% if da_approvare %} ({{ da_approvare }}){% endif %}</a></p>
   <p><a href="{{ url_for('utenti.elenco') }}">Gestione utenti</a></p>
+  <p><a href="{{ url_for('anagrafica.catalogo') }}">Catalogo prodotti</a> &middot; <a href="{{ url_for('anagrafica.fornitori') }}">Fornitori</a> &middot; <a href="{{ url_for('anagrafica.categorie') }}">Categorie</a></p>
   <p><a href="{{ url_for('auth.cambia_password') }}">Cambia password</a></p>
   {% endif %}
   {% if test_scanner %}<p><a href="{{ url_for('scanner_test.pagina') }}">Test scanner</a></p>{% endif %}

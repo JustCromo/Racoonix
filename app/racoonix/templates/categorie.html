@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Categorie - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
+<h1>Categorie</h1>
+<form method="post" action="{{ url_for('anagrafica.nuova_categoria') }}" class="riga">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input name="nome" placeholder="Nuova categoria" maxlength="50" required>
+  <button type="submit">Aggiungi</button>
+</form>
+{% for c in categorie %}
+<section class="scheda spazio">
+  <h2>{{ c.nome }}{% if not c.attiva %} <span class="badge spento">disattivata</span>{% endif %}</h2>
+  <form method="post" action="{{ url_for('anagrafica.salva_categoria', cid=c.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="spunta"><input type="checkbox" name="richiede_scadenza" value="1" {% if c.richiede_scadenza %}checked{% endif %}> Scadenza obbligatoria al carico</label>
+    <label class="spunta"><input type="checkbox" name="attiva" value="1" {% if c.attiva %}checked{% endif %}> Attiva</label>
+    <div class="griglia">
+      <label>Controllo freschezza (giorni) <input name="giorni_freschezza" inputmode="numeric" value="{{ c.giorni_freschezza or '' }}" placeholder="nessuno"></label>
+      <label>Sconto suggerito 1: % <input name="p1" inputmode="numeric" value="{{ c.sconto1_perc }}"></label>
+      <label>a giorni <input name="g1" inputmode="numeric" value="{{ c.sconto1_giorni }}"></label>
+      <label>Sconto suggerito 2: % <input name="p2" inputmode="numeric" value="{{ c.sconto2_perc }}"></label>
+      <label>a giorni <input name="g2" inputmode="numeric" value="{{ c.sconto2_giorni }}"></label>
+    </div>
+    <button type="submit" class="piccolo">Salva</button>
+  </form>
+  <p class="spazio"><strong>Sottocategorie</strong></p>
+  <div class="azioni">
+    {% for s in c.sottocategorie %}
+    <form method="post" action="{{ url_for('anagrafica.cambia_sottocategoria', sid=s.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="piccolo secondario" title="{{ 'Disattiva' if s.attiva else 'Riattiva' }}">{{ s.nome }}{% if not s.attiva %} (off){% endif %}</button>
+    </form>
+    {% endfor %}
+  </div>
+  <form method="post" action="{{ url_for('anagrafica.nuova_sottocategoria', cid=c.id) }}" class="riga">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input name="nome" placeholder="Nuova sottocategoria" maxlength="50" required>
+    <button type="submit" class="piccolo">Aggiungi</button>
+  </form>
+</section>
+{% endfor %}
+{% endblock %}

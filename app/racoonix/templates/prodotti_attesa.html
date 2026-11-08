@@ -7,6 +7,10 @@
 {% if not prodotti %}<p class="sotto">Nessun prodotto in attesa.</p>{% endif %}
 {% for p in prodotti %}
 <section class="scheda spazio">
+  <div class="intestazione">
+    <h3>{{ p.descrizione }}</h3>
+    <a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">Scheda completa</a>
+  </div>
   <p class="sotto">GTIN {{ p.gtin or "-" }} &middot; unita': {{ p.unita }} &middot; in magazzino: {{ p.lotti|sum(attribute="qta_magazzino")|quantita(p.unita) }}</p>
   <form method="post" action="{{ url_for('prodotti.approva', prodotto_id=p.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -17,6 +21,15 @@
     <label>Prezzo in euro {{ "al kg" if p.unita == "kg" else "al pezzo" }} <input name="prezzo" inputmode="decimal" placeholder="2,49" required></label>
     <button type="submit">Approva</button>
   </form>
+  {% if p.gtin %}
+  <form method="post" action="{{ url_for('prodotti.unisci', prodotto_id=p.id) }}" class="spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Oppure e' un altro codice di un prodotto gia' in catalogo:
+      <select name="destinazione_id" required><option value="" selected disabled>— scegli il prodotto —</option>{% for a in attivi if a.unita == p.unita %}<option value="{{ a.id }}">{{ a.descrizione }}</option>{% endfor %}</select>
+    </label>
+    <button type="submit" class="secondario">Unisci come codice aggiuntivo</button>
+  </form>
+  {% endif %}
   <form method="post" action="{{ url_for('prodotti.rifiuta', prodotto_id=p.id) }}" class="spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button type="submit" class="secondario">Rifiuta e scarta la merce</button>
