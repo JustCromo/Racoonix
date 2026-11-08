@@ -17,7 +17,8 @@ HASH_FINTO = ph.hash("hash-finto-per-tempi-di-risposta-costanti")
 MAX_TENTATIVI = 5
 DURATA_BLOCCO = timedelta(minutes=15)
 MIN_PASSWORD = 12
-ERRORE_LOGIN = "Accesso non riuscito"
+ERRORE_LOGIN = ("Accesso non riuscito. Se e' il primo accesso da questo dispositivo, "
+                "potrebbe servire l'approvazione dell'amministratore.")
 
 
 def _adesso():
@@ -119,10 +120,11 @@ def richiede_ruolo(*ruoli):
 @bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("10 per minute", methods=["POST"])
 def login():
+    from .accessi import assicura_cookie, controlla_al_login, imposta_cookie
     if g.utente:
         return redirect(url_for("home"))
     if request.method == "GET":
-        return render_template("login.html")
+        return assicura_cookie(make_response(render_template("login.html")))
 
     username = (request.form.get("username") or "").strip()[:40]
     password = request.form.get("password") or ""
@@ -144,9 +146,9 @@ def login():
         from .accessi import controlla_al_login, imposta_cookie
         controllo = controlla_al_login(utente)
         if not controllo.ammesso:
-            utente.tentativi_falliti = 0
+            # Stessa risposta di una password sbagliata: il motivo vero resta solo nel log di audit.
             db.session.commit()
-            risposta = make_response(render_template("login.html", errore=controllo.messaggio), 403)
+            risposta = make_response(render_template("login.html", errore=ERRORE_LOGIN), 401)
             return imposta_cookie(risposta, controllo.token_nuovo)
         if ph.check_needs_rehash(utente.password_hash):
             utente.password_hash = ph.hash(password)
@@ -175,7 +177,7 @@ def login():
             registra("account_bloccato", utente.id)
     registra(f"login_{esito}", utente.id if utente else None)
     db.session.commit()
-    return render_template("login.html", errore=ERRORE_LOGIN), 401
+    return assicura_cookie(make_response(render_template("login.html", errore=ERRORE_LOGIN), 401))
 
 
 @bp.post("/logout")

@@ -118,3 +118,11 @@ def revoca_tutti(utente_id):
     for dispositivo in db.session.scalars(db.select(DispositivoAccesso).where(
             DispositivoAccesso.utente_id == utente_id, DispositivoAccesso.stato != "revocato")):
         dispositivo.stato = "revocato"
+
+
+def assicura_cookie(risposta):
+    """Ogni visitatore della pagina di login riceve il cookie del dispositivo, prima ancora della password:
+    cosi' la sua comparsa non rivela se una password era giusta."""
+    if not TOKEN_OK.match(request.cookies.get(COOKIE, "")):
+        imposta_cookie(risposta, secrets.token_urlsafe(32))
+    return risposta
