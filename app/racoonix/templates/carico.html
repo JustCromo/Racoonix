@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block titolo %}Carico merce - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
 <h1>Carico merce</h1>
 <section class="scheda">
   <form id="modulo-codice" method="post" action="{{ url_for('carico.leggi') }}" class="riga">

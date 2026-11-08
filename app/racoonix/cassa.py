@@ -277,7 +277,7 @@ def finalizza():
                 lotto.qta_esposta -= parte
                 db.session.add(RigaVendita(vendita=vendita, lotto_id=lotto.id, quantita=parte,
                                            prezzo_unitario_centesimi=p.prezzo_centesimi,
-                                           sconto_perc=perc, totale_centesimi=importo))
+                                           sconto_perc=perc, totale_centesimi=importo, aliquota_iva=p.aliquota_iva))
                 totale += importo
                 scontrino.append({"nome": p.descrizione, "unita": p.unita, "q": parte,
                                   "perc": perc, "importo": importo})

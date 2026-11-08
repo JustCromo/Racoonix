@@ -2,8 +2,7 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Catalogo - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
-<h1>Catalogo prodotti</h1>
+<div class="intestazione"><h1>Catalogo prodotti</h1><a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Da approvare</a></div>
 <form method="get" action="{{ url_for('anagrafica.catalogo') }}" class="riga"
       hx-get="{{ url_for('anagrafica.catalogo_risultati') }}" hx-trigger="submit" hx-target="#risultati">
   <input name="q" value="{{ q }}" maxlength="100" placeholder="Nome, marca o codice" autocomplete="off"

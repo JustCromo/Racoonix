@@ -243,6 +243,7 @@ class RigaVendita(db.Model):
     prezzo_unitario_centesimi = db.Column(db.Integer, nullable=False)
     sconto_perc = db.Column(db.Integer, nullable=False, default=0)
     totale_centesimi = db.Column(db.Integer, nullable=False)
+    aliquota_iva = db.Column(db.Integer, nullable=False)
     vendita = db.relationship("Vendita", back_populates="righe")
 
     __table_args__ = (

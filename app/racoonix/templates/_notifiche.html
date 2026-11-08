@@ -1,5 +1,7 @@
+{% from "_icone.html" import icona %}
 {% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "da_correggere": "Da correggere", "reset_password": "Nuova password"} %}
 {% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso"} %}
+{% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
 <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
       hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" hx-target="#notifiche" hx-swap="outerHTML">
@@ -10,71 +12,80 @@
 {% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
 <div id="notifiche">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  <div class="lista-sezioni">
   {% for sez in sezioni %}
-  <h2 class="spazio">{{ sez.titolo }}{% if sez.aperte %} ({{ sez.aperte|length }}){% endif %}</h2>
-  {% if not sez.aperte %}<p class="sotto">Niente da fare: tutto in ordine.</p>{% endif %}
-  {% for n in sez.aperte %}
-  <section class="scheda spazio">
-    <div class="intestazione">
-      <h3>{{ soggetto(n) }}</h3>
-      <span class="badge {{ classi.get(n.tipo, '') }}">{{ titoli.get(n.tipo, n.tipo) }}</span>
+  <section class="sezione">
+    <div class="sezione-testa">
+      <span class="sezione-icona">{{ icona(icone_sezione[sez.ruolo]) }}</span>
+      <h2>{{ sez.titolo }}</h2>
+      <span class="contatore-sezione{% if sez.aperte %} acceso{% endif %}">{{ sez.aperte|length }}</span>
     </div>
-    {% if n.nota %}<p>{{ n.nota }}</p>{% endif %}
-    <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
-    <div class="azioni">
-      {% if n.tipo == "da_rimuovere" %}
-        {{ azione(n, "rimosso", "Rimosso dallo scaffale" if n.ruolo_destinatario == "dipendente" else "Rimosso dal magazzino") }}
-      {% elif n.tipo == "riempi" %}
-        <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">Vai a rifornire</a>
-      {% elif n.tipo == "sconto" %}
-        {{ azione(n, "bollino", "Bollino applicato") }}
-      {% elif n.tipo == "freschezza" %}
-        {{ azione(n, "ok", "Tutto ok") }}
-        <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" class="riga"
-              hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" hx-target="#notifiche" hx-swap="outerHTML">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input name="quantita" inputmode="decimal" autocomplete="off"
-                 placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare (vuoto = tutto)">
-          <button type="submit" class="secondario">Butta</button>
-        </form>
-      {% elif n.tipo == "esaurito" %}
-        {{ azione(n, "visto", "Riordinerò") }}
-        {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
-      {% elif n.tipo == "da_approvare" %}
-        <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
-      {% elif n.tipo == "reset_password" %}
-        <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="piccolo">Genera password temporanea</button>
-        </form>
-        {{ azione(n, "ignora", "Ignora", "piccolo secondario") }}
+    {% if not sez.aperte %}
+    <div class="vuoto">{{ icona("circle-check") }}<span>Tutto in ordine</span></div>
+    {% endif %}
+    {% for n in sez.aperte %}
+    <article class="scheda notifica {{ classi.get(n.tipo, '') }}">
+      <div class="intestazione">
+        <h3>{{ soggetto(n) }}</h3>
+        <span class="badge {{ classi.get(n.tipo, '') }}">{{ titoli.get(n.tipo, n.tipo) }}</span>
+      </div>
+      {% if n.nota %}<p>{{ n.nota }}</p>{% endif %}
+      <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
+      <div class="azioni">
+        {% if n.tipo == "da_rimuovere" %}
+          {{ azione(n, "rimosso", "Rimosso dallo scaffale" if n.ruolo_destinatario == "dipendente" else "Rimosso dal magazzino") }}
+        {% elif n.tipo == "riempi" %}
+          <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">Vai a rifornire</a>
+        {% elif n.tipo == "sconto" %}
+          {{ azione(n, "bollino", "Bollino applicato") }}
+        {% elif n.tipo == "freschezza" %}
+          {{ azione(n, "ok", "Tutto ok") }}
+          <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" class="riga"
+                hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" hx-target="#notifiche" hx-swap="outerHTML">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input name="quantita" inputmode="decimal" autocomplete="off"
+                   placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare (vuoto = tutto)">
+            <button type="submit" class="secondario">Butta</button>
+          </form>
+        {% elif n.tipo == "esaurito" %}
+          {{ azione(n, "visto", "Riordinerò") }}
+          {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
+        {% elif n.tipo == "da_approvare" %}
+          <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
+        {% elif n.tipo == "reset_password" %}
+          <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="piccolo">Genera password temporanea</button>
+          </form>
+          {{ azione(n, "ignora", "Ignora", "piccolo secondario") }}
+        {% else %}
+          {{ azione(n, "visto", "Presa visione") }}
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+    {% if admin %}
+    <details class="storico">
+      <summary>{{ icona("history") }} Storico ({{ sez.storico|length }})</summary>
+      {% if sez.storico %}
+      <div class="tabella-wrap">
+        <table>
+          <tr><th>Chiusa il</th><th>Cosa</th><th>Gestita da</th></tr>
+          {% for n in sez.storico %}
+          <tr>
+            <td>{{ n.chiusa_il|data_ora }}</td>
+            <td><strong>{{ titoli.get(n.tipo, n.tipo) }}</strong><br><span class="sotto">{{ soggetto(n) }}</span></td>
+            <td>{{ n.chiusa_da_utente.username if n.chiusa_da_utente else "Sistema" }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
       {% else %}
-        {{ azione(n, "visto", "Presa visione") }}
+      <p class="sotto">Nessuna attivita' registrata.</p>
       {% endif %}
-    </div>
+    </details>
+    {% endif %}
   </section>
   {% endfor %}
-  {% if admin %}
-  <details class="spazio">
-    <summary>Storico: {{ sez.titolo }}</summary>
-    {% if sez.storico %}
-    <div class="tabella-wrap spazio">
-      <table>
-        <tr><th>Chiusa il</th><th>Cosa</th><th>Dettaglio</th><th>Gestita da</th></tr>
-        {% for n in sez.storico %}
-        <tr>
-          <td>{{ n.chiusa_il|data_ora }}</td>
-          <td>{{ titoli.get(n.tipo, n.tipo) }} &middot; {{ soggetto(n) }}</td>
-          <td>{{ n.nota or "" }}</td>
-          <td>{{ n.chiusa_da_utente.username if n.chiusa_da_utente else "Sistema" }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-    {% else %}
-    <p class="sotto">Nessuna attivita' registrata.</p>
-    {% endif %}
-  </details>
-  {% endif %}
-  {% endfor %}
+  </div>
 </div>

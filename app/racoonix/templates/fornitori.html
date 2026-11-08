@@ -2,7 +2,6 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Fornitori - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
 <h1>Fornitori</h1>
 <section class="scheda">
   <h2>Nuovo fornitore</h2>
@@ -17,6 +16,7 @@
     <button type="submit">Aggiungi</button>
   </form>
 </section>
+<div class="lista-schede">
 {% for f in fornitori %}
 <section class="scheda spazio">
   <form method="post" action="{{ url_for('anagrafica.salva_fornitore', fid=f.id) }}">
@@ -32,4 +32,5 @@
   </form>
 </section>
 {% endfor %}
+</div>
 {% endblock %}

@@ -2,7 +2,6 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Inventario - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
 <h1>Inventario</h1>
 <form id="modulo-codice" method="get" action="{{ url_for('inventario.pagina') }}" class="riga"
       hx-get="{{ url_for('inventario.risultati') }}" hx-trigger="submit" hx-target="#risultati">

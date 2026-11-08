@@ -1,5 +1,7 @@
 {% if not schede %}<p class="sotto spazio">Nessun prodotto trovato.</p>{% endif %}
 {% for nome_categoria, gruppo in schede|groupby("p.categoria.nome") %}
 <h2 class="spazio">{{ nome_categoria }}</h2>
+<div class="lista-schede">
 {% for s in gruppo %}{% include "_scheda_prodotto.html" %}{% endfor %}
+</div>
 {% endfor %}

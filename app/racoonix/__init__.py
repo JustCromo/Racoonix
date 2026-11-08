@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
@@ -33,14 +33,17 @@ def create_app():
     from .notifiche_web import bp as notifiche_bp, conta_notifiche
     from .anagrafica import bp as anagrafica_bp
     from .banco import bp as banco_bp
+    from .dashboard import bp as dashboard_bp
     from .inventario import bp as inventario_bp
     from .prodotti import bp as prodotti_bp
     from .utenti import bp as utenti_bp
-    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp, anagrafica_bp, banco_bp):
+    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp, anagrafica_bp, banco_bp, dashboard_bp):
         app.register_blueprint(blueprint)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)
     app.context_processor(conta_notifiche)
+    from .interfaccia import contesto as contesto_interfaccia
+    app.context_processor(contesto_interfaccia)
 
     if os.environ.get("RACOONIX_TEST_SCANNER") == "1":
         from .scanner_test import bp as scanner_bp
@@ -54,14 +57,10 @@ def create_app():
     @app.get("/")
     @auth.login_richiesto
     def home():
-        ruoli = auth.ruoli_attivi()
-        da_approvare = 0
-        if "admin" in ruoli:
-            da_approvare = db.session.scalar(
-                db.select(db.func.count(models.Prodotto.id)).filter_by(stato="in_attesa"))
-        return render_template("home.html", ruoli=sorted(ruoli), ip=request.remote_addr,
-                               test_scanner="scanner_test" in app.blueprints,
-                               da_approvare=da_approvare)
+        """Ognuno entra dove lavora: l'admin sulla dashboard, gli altri sulle cose da fare."""
+        if "admin" in auth.ruoli_attivi():
+            return redirect(url_for("dashboard.pagina"))
+        return redirect(url_for("notifiche.pagina"))
 
     @app.get("/health")
     def health():

@@ -2,13 +2,13 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Categorie - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
 <h1>Categorie</h1>
 <form method="post" action="{{ url_for('anagrafica.nuova_categoria') }}" class="riga">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input name="nome" placeholder="Nuova categoria" maxlength="50" required>
   <button type="submit">Aggiungi</button>
 </form>
+<div class="lista-schede">
 {% for c in categorie %}
 <section class="scheda spazio">
   <h2>{{ c.nome }}{% if not c.attiva %} <span class="badge spento">disattivata</span>{% endif %}</h2>
@@ -41,4 +41,5 @@
   </form>
 </section>
 {% endfor %}
+</div>
 {% endblock %}

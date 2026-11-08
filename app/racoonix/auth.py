@@ -223,3 +223,14 @@ def password_dimenticata():
         registra("richiesta_reset_password", utente.id)
     db.session.commit()
     return render_template("password_dimenticata.html", inviata=True)
+
+
+@bp.post("/tema")
+@login_richiesto
+def cambia_tema():
+    """Il tema si salva nel profilo: segue l'utente su ogni dispositivo."""
+    from urllib.parse import urlsplit
+    g.utente.tema = "scuro" if g.utente.tema == "chiaro" else "chiaro"
+    db.session.commit()
+    ritorno = urlsplit(request.referrer or "").path
+    return redirect(ritorno if _percorso_interno(ritorno) else url_for("home"))

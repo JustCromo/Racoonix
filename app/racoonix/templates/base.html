@@ -1,21 +1,76 @@
+{% from "_icone.html" import icona %}
 <!doctype html>
-<html lang="it">
+<html lang="it" data-theme="{{ tema }}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="htmx-config" content='{"allowEval": false, "includeIndicatorStyles": false, "allowScriptTags": false}'>
   <title>{% block titolo %}Racoonix{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script src="{{ url_for('static', filename='vendor/htmx.min.js') }}" defer></script>
 </head>
 <body>
-  <main class="{% block classe_main %}{% endblock %}">
+{% if g.utente %}
+<div class="guscio">
+  <aside class="barra-laterale">
+    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span>Racoonix</span></a>
+    <p class="market">{{ market }}</p>
+    <nav class="menu" aria-label="Menu principale">
+      {% for v in menu %}
+      <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" and notifiche_aperte %}<span class="contatore">{{ notifiche_aperte }}</span>{% endif %}</a>
+      {% endfor %}
+    </nav>
+    <div class="piede">
+      <p class="utente">{{ icona("user") }} {{ g.utente.username }}</p>
+      <form method="post" action="{{ url_for('auth.cambia_tema') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="voce">{{ icona("moon" if tema == "chiaro" else "sun") }}<span>Tema {{ "scuro" if tema == "chiaro" else "chiaro" }}</span></button>
+      </form>
+      {% if admin_attivo %}<a class="voce" href="{{ url_for('auth.cambia_password') }}">{{ icona("key") }}<span>Cambia password</span></a>{% endif %}
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="voce">{{ icona("logout") }}<span>Esci</span></button>
+      </form>
+    </div>
+  </aside>
+
+  <header class="barra-alto">
+    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span>Racoonix</span></a>
+    <div class="azioni-alto">
+      <form method="post" action="{{ url_for('auth.cambia_tema') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="voce" aria-label="Cambia tema">{{ icona("moon" if tema == "chiaro" else "sun") }}</button>
+      </form>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="voce" aria-label="Esci">{{ icona("logout") }}</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="contenuto {% block classe_main %}{% endblock %}">
     {% with messaggi = get_flashed_messages(with_categories=true) %}
     {% for categoria, messaggio in messaggi %}<p class="flash {{ categoria }}">{{ messaggio }}</p>{% endfor %}
     {% endwith %}
     {% block contenuto %}{% endblock %}
   </main>
-  {% block script %}{% endblock %}
+
+  <nav class="barra-basso" aria-label="Menu">
+    {% for v in menu %}
+    <a class="voce-basso{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" and notifiche_aperte %}<span class="contatore">{{ notifiche_aperte }}</span>{% endif %}</a>
+    {% endfor %}
+  </nav>
+</div>
+{% else %}
+<main class="accesso">
+  {% with messaggi = get_flashed_messages(with_categories=true) %}
+  {% for categoria, messaggio in messaggi %}<p class="flash {{ categoria }} stretta">{{ messaggio }}</p>{% endfor %}
+  {% endwith %}
+  {% block contenuto_accesso %}{{ self.contenuto() }}{% endblock %}
+</main>
+{% endif %}
+{% block script %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}Dashboard - Racoonix{% endblock %}
+{% block contenuto %}
+<div class="intestazione">
+  <h1>{{ saluto }}, {{ g.utente.username }}</h1>
+  <nav class="azioni">
+    {% for n, etichetta in periodi.items() %}
+    <a class="pulsante{% if n != giorni %} spento-link{% endif %}" href="{{ url_for('dashboard.pagina', giorni=n) }}">{{ etichetta }}</a>
+    {% endfor %}
+  </nav>
+</div>
+<p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}</p>
+
+<div class="kpi">
+  <div class="scheda"><p class="sotto">Incasso</p><p class="numero">{{ incasso|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Scontrini</p><p class="numero">{{ scontrini }}</p></div>
+  <div class="scheda"><p class="sotto">Scontrino medio</p><p class="numero">{{ medio|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Sconti concessi</p><p class="numero">{{ sconti|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Valore scarti</p><p class="numero">{{ valore_scarti|euro }}</p></div>
+  <div class="scheda"><p class="sotto">Merce in negozio (a prezzo di vendita)</p><p class="numero">{{ valore_merce|euro }}</p></div>
+</div>
+
+<h2 class="spazio">Da fare ora</h2>
+<div class="kpi">
+  {% for tipo, etichetta in [("da_rimuovere", "Da rimuovere"), ("riempi", "Scaffali da riempire"), ("esaurito", "Da riordinare"), ("sconto", "Bollini da applicare"), ("in_scadenza", "In scadenza"), ("freschezza", "Freschezza da controllare"), ("da_approvare", "Prodotti da approvare"), ("reset_password", "Richieste password")] %}
+  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}">
+    <p class="sotto">{{ etichetta }}</p>
+    <p class="numero{% if aperte.get(tipo) %} acceso{% endif %}">{{ aperte.get(tipo, 0) }}</p>
+  </a>
+  {% endfor %}
+</div>
+
+<h2 class="spazio">{{ titolo_grafico }}</h2>
+<section class="scheda">
+  <svg class="grafico" viewBox="0 0 600 200" role="img" aria-label="{{ titolo_grafico }}">
+    <line x1="0" y1="170" x2="600" y2="170" class="asse"></line>
+    {% for b in barre %}
+    <rect class="barra" x="{{ b.x }}" y="{{ 170 - b.h }}" width="{{ b.w }}" height="{{ b.h }}" rx="4"><title>{{ b.titolo }}: {{ b.valore|euro }}</title></rect>
+    {% if b.mostra %}<text class="etichetta-grafico" x="{{ b.centro }}" y="190" text-anchor="middle">{{ b.etichetta }}</text>{% endif %}
+    {% if barre|length <= 14 and b.valore %}<text class="valore-grafico" x="{{ b.centro }}" y="{{ [170 - b.h - 7, 14]|max }}" text-anchor="middle">{{ b.valore|euro }}</text>{% endif %}
+    {% endfor %}
+  </svg>
+</section>
+
+<div class="due-colonne spazio">
+  <section class="scheda">
+    <h2>Incasso per aliquota IVA</h2>
+    {% if iva %}
+    <table>
+      <tr><th>IVA</th><th>Totale</th><th>Imponibile</th><th>Imposta</th></tr>
+      {% for r in iva %}<tr><td>{{ r.aliquota }}%</td><td>{{ r.totale|euro }}</td><td>{{ r.imponibile|euro }}</td><td>{{ r.imposta|euro }}</td></tr>{% endfor %}
+    </table>
+    <p class="sotto">Scorporo dai prezzi IVA inclusa, a titolo indicativo.</p>
+    {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endif %}
+  </section>
+  <section class="scheda">
+    <h2>Prodotti piu' venduti</h2>
+    {% if top %}
+    <table>
+      <tr><th>Prodotto</th><th>Quantita'</th><th>Incasso</th></tr>
+      {% for v in top %}<tr><td>{{ v.p.descrizione }}</td><td>{{ v.quantita|quantita(v.p.unita) }}</td><td>{{ v.incasso|euro }}</td></tr>{% endfor %}
+    </table>
+    {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endif %}
+  </section>
+</div>
+
+<section class="scheda spazio">
+  <h2>Scarti per motivo</h2>
+  <table>
+    <tr><th>Motivo</th><th>Operazioni</th><th>Valore perso</th></tr>
+    {% for s in scarti %}<tr><td>{{ s.etichetta }}</td><td>{{ s.numero }}</td><td>{{ s.valore|euro }}</td></tr>{% endfor %}
+  </table>
+  <p class="sotto">Valore calcolato al prezzo di vendita attuale.</p>
+</section>
+{% endblock %}

@@ -2,7 +2,6 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Prodotti da approvare - Racoonix{% endblock %}
 {% block contenuto %}
-<p><a href="{{ url_for('home') }}">&larr; Home</a></p>
 <h1>Prodotti da approvare</h1>
 {% if not prodotti %}<p class="sotto">Nessun prodotto in attesa.</p>{% endif %}
 {% for p in prodotti %}
