@@ -129,6 +129,7 @@ class Lotto(db.Model):
     qta_esposta = db.Column(db.Integer, nullable=False, default=0)
     qta_magazzino = db.Column(db.Integer, nullable=False, default=0)
     bollino_sconto = db.Column(db.Boolean, nullable=False, default=False)
+    bollino_perc = db.Column(db.Integer, nullable=False, default=0)
     data_carico = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     caricato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     prodotto = db.relationship("Prodotto", back_populates="lotti")
@@ -195,6 +196,8 @@ class Notifica(db.Model):
     creata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     chiusa_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     chiusa_il = db.Column(db.DateTime(timezone=True))
+    prodotto = db.relationship("Prodotto")
+    lotto = db.relationship("Lotto")
 
     __table_args__ = (
         CheckConstraint(

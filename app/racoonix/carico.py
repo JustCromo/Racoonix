@@ -8,6 +8,7 @@ from flask import (Blueprint, current_app, flash, g, redirect, render_template,
 from . import codici, db
 from .auth import registra, richiede_ruolo
 from .models import Categoria, Lotto, Notifica, Prodotto
+from .notifiche import controlla_scaffali
 
 bp = Blueprint("carico", __name__, url_prefix="/carico")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
@@ -189,5 +190,6 @@ def conferma():
              f"prodotto {prodotto.id}, lotto {codice_lotto}, esposta {esposta}, magazzino {magazzino}")
     db.session.commit()
     session.pop(CHIAVE, None)
+    controlla_scaffali([prodotto.id])
     flash(f"Caricato: {prodotto.nome}", "ok")
     return redirect(url_for(".pagina"))

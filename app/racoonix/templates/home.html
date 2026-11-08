@@ -5,6 +5,7 @@
   <p>Market: {{ market }}</p>
   <p>Ruoli attivi: {{ ruoli|join(", ") if ruoli else "nessuno" }}</p>
   <p class="sotto">IP visto dal server: {{ ip }}</p>
+  {% if ruoli %}<p><a href="{{ url_for('notifiche.pagina') }}">Cose da fare{% if notifiche_aperte %} ({{ notifiche_aperte }}){% endif %}</a></p>{% endif %}
   {% if ruoli %}<p><a href="{{ url_for('inventario.pagina') }}">Inventario</a></p>{% endif %}
   {% if "admin" in ruoli or "dipendente" in ruoli %}<p><a href="{{ url_for('cassa.pagina') }}">Cassa (demo)</a></p>{% endif %}
   {% if "admin" in ruoli or "magazziniere" in ruoli %}

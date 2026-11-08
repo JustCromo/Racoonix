@@ -12,6 +12,7 @@ from . import codici, db
 from .auth import registra, richiede_ruolo
 from .models import Lotto, Prodotto, RigaVendita, Vendita
 from .notifiche import controlla_scaffali
+from .regole import perc_sconto as _perc_sconto
 
 bp = Blueprint("cassa", __name__, url_prefix="/cassa")
 CHIAVE = "carrello"
@@ -32,15 +33,6 @@ def _vendibile(lotto, oggi):
     return lotto.qta_esposta > 0 and (lotto.data_scadenza is None or lotto.data_scadenza > oggi)
 
 
-def _perc_sconto(prodotto, lotto, oggi):
-    if lotto is None or lotto.data_scadenza is None:
-        return 0
-    giorni = (lotto.data_scadenza - oggi).days
-    perc = 0
-    for limite, p in prodotto.fasce_sconto():
-        if p and limite and giorni <= limite:
-            perc = max(perc, p)
-    return perc
 
 
 def _importo(prodotto, quantita, perc):

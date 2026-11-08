@@ -56,13 +56,15 @@ def _scheda(p, oggi):
     }
 
 
-def _cerca(q, categoria_id):
+def _cerca(q, categoria_id, tutti=False):
     stmt = (db.select(Prodotto).join(Categoria)
             .where(Prodotto.stato.in_(("attivo", "in_attesa")))
             .options(selectinload(Prodotto.lotti), selectinload(Prodotto.categoria))
             .order_by(Categoria.nome, Prodotto.nome).limit(200))
     if categoria_id:
         stmt = stmt.where(Prodotto.categoria_id == categoria_id)
+    if not tutti:
+        stmt = stmt.where(Prodotto.lotti.any((Lotto.qta_esposta + Lotto.qta_magazzino) > 0))
     if q:
         try:
             info = codici.riconosci(q, current_app.config["BILANCIA_PREFISSI"])
@@ -89,7 +91,7 @@ def pagina():
     q, categoria_id = _filtri(request.args)
     categorie = db.session.scalars(db.select(Categoria).filter_by(attiva=True)
                                    .order_by(Categoria.nome)).all()
-    return render_template("inventario.html", schede=_cerca(q, categoria_id), categorie=categorie,
+    return render_template("inventario.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1"), categorie=categorie,
                            q=_q_mostrabile(q), categoria_id=categoria_id)
 
 
@@ -97,7 +99,7 @@ def pagina():
 @richiede_ruolo("dipendente", "magazziniere")
 def risultati():
     q, categoria_id = _filtri(request.args)
-    return render_template("_risultati.html", schede=_cerca(q, categoria_id),
+    return render_template("_risultati.html", schede=_cerca(q, categoria_id, request.args.get("tutti") == "1"),
                            q=_q_mostrabile(q), categoria_id=categoria_id)
 
 

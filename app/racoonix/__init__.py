@@ -29,13 +29,15 @@ def create_app():
     from . import auth
     from .carico import bp as carico_bp
     from .cassa import bp as cassa_bp
+    from .notifiche_web import bp as notifiche_bp, conta_notifiche
     from .inventario import bp as inventario_bp
     from .prodotti import bp as prodotti_bp
     from .utenti import bp as utenti_bp
-    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp):
+    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp):
         app.register_blueprint(blueprint)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)
+    app.context_processor(conta_notifiche)
 
     if os.environ.get("RACOONIX_TEST_SCANNER") == "1":
         from .scanner_test import bp as scanner_bp
