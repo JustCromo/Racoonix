@@ -257,3 +257,14 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 @keyframes avviso-entra { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 @media (max-width: 900px) { .avvisi { top: 4.4rem; left: .8rem; right: .8rem; width: auto; } }
 @media (prefers-reduced-motion: reduce) { .avviso { animation: none; } .avviso.via { transition: none; } }
+
+/* --- Nome del negozio in evidenza --- */
+:root { --miele-testo: #8A5F0E; }
+[data-theme="scuro"] { --miele-testo: #D9A441; }
+.market { display: flex; align-items: center; gap: .55rem; margin: .5rem 0 1.1rem; padding: .6rem .75rem; border-radius: 12px;
+          background: rgba(246, 240, 228, .08); border: 1px solid rgba(246, 240, 228, .14);
+          color: #F6F0E4; font-size: 1.08rem; font-weight: 800; line-height: 1.25; }
+.market .icona { color: #D9A441; }
+.market-alto { display: block; font-size: .78rem; font-weight: 700; color: #E9E1D2; line-height: 1.15; }
+.occhiello { margin: 0 0 .1rem; font-size: .85rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--miele-testo); }
+.market-accesso { text-align: center; font-size: 1.3rem; font-weight: 800; color: var(--miele-testo); margin: -.2rem 0 1rem; }

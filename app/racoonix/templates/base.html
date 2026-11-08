@@ -17,7 +17,7 @@
 <div class="guscio">
   <aside class="barra-laterale">
     <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix</span></a>
-    <p class="market">{{ market }}</p>
+    <p class="market">{{ icona("building-store") }}<span>{{ market }}</span></p>
     <nav class="menu" aria-label="Menu principale">
       {% for v in menu %}
       <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" and notifiche_aperte %}<span class="contatore">{{ notifiche_aperte }}</span>{% endif %}</a>
@@ -38,7 +38,7 @@
   </aside>
 
   <header class="barra-alto">
-    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix</span></a>
+    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix<small class="market-alto">{{ market }}</small></span></a>
     <div class="azioni-alto">
       <form method="post" action="{{ url_for('auth.cambia_tema') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

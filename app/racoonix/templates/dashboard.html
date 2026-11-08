@@ -19,6 +19,7 @@
 
 <div class="intestazione">
   <div>
+    <p class="occhiello">{{ market }}</p>
     <h1>{{ saluto }}, {{ g.utente.username }}</h1>
     <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}
       &middot; <span class="badge{% if vendite_attive %} ok{% endif %}">{{ "Cassa collegata" if vendite_attive else "Modalita' autonoma" }}</span></p>
