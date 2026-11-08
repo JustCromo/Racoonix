@@ -8,7 +8,7 @@ from sqlalchemy import func
 from . import db
 from .auth import richiede_ruolo
 from .formato import euro
-from .models import AuditLog, Dispositivo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
+from .models import AuditLog, Dispositivo, Fornitore, Impostazione, Ruolo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
 
 bp = Blueprint("dashboard", __name__, url_prefix="/admin/dashboard")
 PERIODI = {1: "Oggi", 7: "Ultimi 7 giorni", 30: "Ultimi 30 giorni"}
@@ -164,9 +164,61 @@ def pagina():
         valore_scarti=sum(s["valore"] for s in scarti.values()),
         aperte=aperte, valore_merce=valore_merce, attenzione=attenzione,
         in_scadenza=in_scadenza, ultime=ultime, sconti_attivi=sconti_attivi,
-        vendite_attive=cassa_collegata, autonoma=autonoma, etichette_attivita=ETICHETTE_ATTIVITA)
+        vendite_attive=cassa_collegata, autonoma=autonoma, etichette_attivita=ETICHETTE_ATTIVITA, guida=_guida())
 
 
 def _saluto():
     ora = datetime.now().hour
     return "Buongiorno" if ora < 13 else ("Buon pomeriggio" if ora < 18 else "Buonasera")
+
+
+def _impostazione(chiave):
+    voce = db.session.get(Impostazione, chiave)
+    return voce.valore if voce else None
+
+
+def _imposta(chiave, valore):
+    voce = db.session.get(Impostazione, chiave) or Impostazione(chiave=chiave, valore=valore)
+    voce.valore = valore
+    db.session.add(voce)
+
+
+def _guida():
+    """Primi passi: ogni passo si completa da solo guardando i dati, tranne il backup (che vive sul server)."""
+    if _impostazione("guida_nascosta") == "1":
+        return None
+    conta = lambda stmt: db.session.scalar(stmt) or 0
+    telefoni = db.session.scalar(
+        db.select(AuditLog.id).join(Utente, AuditLog.utente_id == Utente.id)
+        .where(AuditLog.azione == "login_ok", ~Utente.ruoli.any(Ruolo.nome == "admin")).limit(1))
+    passi = [
+        {"titolo": "Crea gli account dei dipendenti", "testo": "Ognuno con i suoi ruoli: dipendente, magazziniere o entrambi.",
+         "link": url_for("utenti.nuovo"),
+         "fatto": conta(db.select(func.count(Utente.id)).where(Utente.eliminato.is_(False))) > 1},
+        {"titolo": "Aggiungi i fornitori", "testo": "Serviranno per sapere a chi riordinare.",
+         "link": url_for("anagrafica.fornitori"), "fatto": conta(db.select(func.count(Fornitore.id))) > 0},
+        {"titolo": "Carica la prima merce", "testo": "Con il lettore o la fotocamera: lotti e scadenze partono da qui.",
+         "link": url_for("carico.pagina"), "fatto": conta(db.select(func.count(Lotto.id))) > 0},
+        {"titolo": "Collega i telefoni", "testo": "Certificato e primo accesso dei dipendenti.",
+         "link": url_for("collega.pagina"), "fatto": telefoni is not None},
+        {"titolo": "Attiva i backup notturni", "testo": "Sul server: ./racoonix.sh backup-automatico",
+         "azione": "backup", "fatto": _impostazione("backup_confermato") == "1"},
+    ]
+    fatti = sum(1 for p in passi if p["fatto"])
+    if fatti == len(passi):
+        return None
+    return {"passi": passi, "fatti": fatti, "totale": len(passi)}
+
+
+@bp.post("/guida/<azione>")
+@richiede_ruolo("admin")
+def guida(azione):
+    from flask import abort, g, redirect
+    from .auth import registra
+    chiavi = {"nascondi": "guida_nascosta", "backup": "backup_confermato"}
+    if azione not in chiavi:
+        abort(404)
+    _imposta(chiavi[azione], "1")
+    registra(f"guida_{azione}", g.utente.id)
+    db.session.commit()
+    return redirect(url_for(".pagina"))

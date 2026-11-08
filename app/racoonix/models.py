@@ -366,3 +366,11 @@ class RichiestaApi(db.Model):
     creata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
 
     __table_args__ = (UniqueConstraint("dispositivo_id", "chiave", name="uq_richiesta_api"),)
+
+
+class Impostazione(db.Model):
+    """Impostazioni del negozio salvate nel db (es. guida al primo avvio nascosta)."""
+    __tablename__ = "impostazioni"
+    chiave = db.Column(db.String(50), primary_key=True)
+    valore = db.Column(db.String(255), nullable=False)
+    aggiornata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso, onupdate=adesso)

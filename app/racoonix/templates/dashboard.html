@@ -31,6 +31,40 @@
   </nav>
 </div>
 
+{% if guida %}
+<section class="scheda guida spazio">
+  <div class="intestazione">
+    <h2>Primi passi con Racoonix</h2>
+    <span class="sotto">{{ guida.fatti }} di {{ guida.totale }}</span>
+  </div>
+  <progress value="{{ guida.fatti }}" max="{{ guida.totale }}">{{ guida.fatti }} di {{ guida.totale }}</progress>
+  <div class="passi">
+    {% for p in guida.passi %}
+    <div class="passo{% if p.fatto %} fatto{% endif %}">
+      <span class="numero-passo">{% if p.fatto %}{{ icona("check") }}{% else %}{{ loop.index }}{% endif %}</span>
+      <div>
+        <strong>{{ p.titolo }}</strong>
+        <p class="sotto">{{ p.testo }}</p>
+        {% if not p.fatto %}
+          {% if p.link %}<a class="pulsante piccolo" href="{{ p.link }}">Vai</a>
+          {% elif p.azione %}
+          <form method="post" action="{{ url_for('dashboard.guida', azione=p.azione) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="piccolo secondario">Fatto</button>
+          </form>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <form method="post" action="{{ url_for('dashboard.guida', azione='nascondi') }}" class="spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="piccolo secondario">Nascondi la guida</button>
+  </form>
+</section>
+{% endif %}
+
 <div class="kpi">
   {% if vendite_attive %}
   <div class="scheda"><p class="sotto">Incasso</p><p class="numero">{{ incasso|euro }}</p></div>
