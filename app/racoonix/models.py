@@ -284,7 +284,7 @@ class Notifica(db.Model):
     __table_args__ = (
         CheckConstraint(
             "tipo IN ('riempi','esaurito','in_scadenza','da_rimuovere','da_approvare',"
-            "'sconto','freschezza','reset_password')",
+            "'sconto','freschezza','reset_password','dispositivo')",
             name="ck_notifica_tipo",
         ),
         CheckConstraint("ruolo_destinatario IN ('admin','magazziniere','dipendente')", name="ck_notifica_ruolo"),
@@ -374,3 +374,28 @@ class Impostazione(db.Model):
     chiave = db.Column(db.String(50), primary_key=True)
     valore = db.Column(db.String(255), nullable=False)
     aggiornata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso, onupdate=adesso)
+
+
+class DispositivoAccesso(db.Model):
+    """Dispositivo personale da cui un utente puo' entrare, approvato dall'admin.
+    Del browser si salva solo una descrizione breve; della chiave solo l'impronta."""
+    __tablename__ = "dispositivi_accesso"
+    id = db.Column(db.Integer, primary_key=True)
+    utente_id = db.Column(db.Integer, db.ForeignKey("utenti.id"), nullable=False)
+    token_hash = db.Column(db.String(64), nullable=False)
+    descrizione = db.Column(db.String(80), nullable=False)
+    nome = db.Column(db.String(60))
+    stato = db.Column(db.String(12), nullable=False, default="in_attesa")
+    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+    approvato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    approvato_il = db.Column(db.DateTime(timezone=True))
+    ultimo_uso = db.Column(db.DateTime(timezone=True))
+    ultimo_ip = db.Column(db.String(45))
+    utente = db.relationship("Utente", foreign_keys=[utente_id],
+                             backref=db.backref("dispositivi_accesso", order_by="DispositivoAccesso.creato_il"))
+
+    __table_args__ = (
+        CheckConstraint("stato IN ('in_attesa','approvato','revocato')", name="ck_dispaccesso_stato"),
+        UniqueConstraint("utente_id", "token_hash", name="uq_dispaccesso"),
+        Index("ix_dispaccesso_token", "token_hash"),
+    )

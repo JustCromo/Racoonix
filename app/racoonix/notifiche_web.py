@@ -14,7 +14,7 @@ from .sconti import applica_programmati
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
 SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali e cassa"),
            ("magazziniere", "Magazzinieri: magazzino")]
-URGENZA = {"reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3, "esaurito": 4,
+URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3, "esaurito": 4,
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
 AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto", "esaurimento"}, "sconto": {"bollino"},
           "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
@@ -133,3 +133,18 @@ def agisci(nid, azione):
     if azione in ("rimosso", "deteriorato", "verifica"):
         controlla_scaffali([notifica.prodotto_id])
     return _vista("Fatto", "ok")
+
+
+@bp.get("/lista")
+def lista():
+    """Ricaricata in automatico dalla pagina. Senza sessione non restituisce niente (204)."""
+    if g.get("utente") is None:
+        return "", 204
+    return render_template("_notifiche.html", **_dati())
+
+
+@bp.get("/contatore")
+def contatore():
+    if g.get("utente") is None:
+        return "", 204
+    return render_template("_contatore.html")

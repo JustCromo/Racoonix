@@ -62,7 +62,10 @@ def _cerca_utenti():
         stmt = stmt.where(Utente.bloccato_fino > adesso)
     elif stato == "temporanea":
         stmt = stmt.where(Utente.deve_cambiare_password.is_(True))
-    return db.session.scalars(stmt).all(), q, ruolo, stato
+    utenti = db.session.scalars(stmt).all()
+    # Chi ha una richiesta di dispositivo in attesa sale in cima all'elenco.
+    utenti.sort(key=lambda u: not any(d.stato == "in_attesa" for d in u.dispositivi_accesso))
+    return utenti, q, ruolo, stato
 
 
 def _elenco(errore=None, codice=200):
@@ -152,6 +155,8 @@ def attivo(utente_id):
     utente.attivo = not utente.attivo
     if not utente.attivo:
         utente.token_sessione = None
+        from .accessi import revoca_tutti
+        revoca_tutti(utente.id)
     registra("utente_riattivato" if utente.attivo else "utente_disattivato",
              g.utente.id, utente.username)
     db.session.commit()
@@ -199,10 +204,10 @@ def _chiudi_richieste_reset(utente_id):
 
 def _ha_storico(utente_id):
     """True se l'utente compare in qualche operazione: in quel caso non si cancella, si archivia."""
-    from .models import AuditLog, Dispositivo, Lotto, Notifica, Prodotto, Scarto, Sconto, Vendita
+    from .models import AuditLog, Dispositivo, DispositivoAccesso, Lotto, Notifica, Prodotto, Scarto, Sconto, Vendita
     colonne = [AuditLog.utente_id, Vendita.utente_id, Lotto.caricato_da, Scarto.utente_id,
                Notifica.chiusa_da, Notifica.utente_id, Prodotto.creato_da, Prodotto.approvato_da,
-               Sconto.creato_da, Dispositivo.creato_da]
+               Sconto.creato_da, Dispositivo.creato_da, DispositivoAccesso.utente_id]
     return any(db.session.scalar(db.select(c).where(c == utente_id).limit(1)) for c in colonne)
 
 
@@ -229,6 +234,8 @@ def elimina(utente_id):
         utente.attivo = False
         utente.token_sessione = None
         utente.ruoli = []
+        from .accessi import revoca_tutti
+        revoca_tutti(utente.id)
         registra("utente_archiviato", g.utente.id, nome)
         messaggio = f"{nome} eliminato dall'elenco: le sue operazioni restano nello storico"
     else:
@@ -238,3 +245,44 @@ def elimina(utente_id):
     db.session.commit()
     flash(messaggio, "ok")
     return redirect(url_for(".elenco"))
+
+
+@bp.post("/dispositivi/<int:did>/<azione>")
+@richiede_ruolo("admin")
+def dispositivo(did, azione):
+    """Approva (con un nome facoltativo) o revoca un dispositivo personale di un utente."""
+    from flask import abort
+    from .models import DispositivoAccesso, Notifica
+    if azione not in ("approva", "revoca"):
+        abort(404)
+    voce = db.get_or_404(DispositivoAccesso, did)
+    utente = voce.utente
+    if azione == "approva":
+        if voce.stato != "in_attesa":
+            flash("Dispositivo gia' gestito", "errore")
+            return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
+        nome = (request.form.get("nome") or "").strip()
+        if nome and not re.fullmatch(r"[\w .'()/-]{1,60}", nome):
+            flash("Nome del dispositivo non valido", "errore")
+            return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
+        voce.stato = "approvato"
+        voce.nome = nome or None
+        voce.approvato_da = g.utente.id
+        voce.approvato_il = datetime.now(timezone.utc)
+        registra("dispositivo_approvato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
+        messaggio = f"Dispositivo di {utente.username} approvato"
+    else:
+        voce.stato = "revocato"
+        registra("dispositivo_revocato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
+        messaggio = f"Dispositivo di {utente.username} revocato: e' bloccato per qualunque account"
+    ancora_in_attesa = db.session.scalar(db.select(DispositivoAccesso.id).filter_by(
+        utente_id=utente.id, stato="in_attesa").limit(1))
+    if not ancora_in_attesa:
+        for notifica in db.session.scalars(db.select(Notifica).filter_by(
+                tipo="dispositivo", utente_id=utente.id, stato="aperta")):
+            notifica.stato = "chiusa"
+            notifica.chiusa_da = g.utente.id
+            notifica.chiusa_il = datetime.now(timezone.utc)
+    db.session.commit()
+    flash(messaggio, "ok")
+    return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))

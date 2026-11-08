@@ -5,7 +5,7 @@ from functools import wraps
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
-from flask import (Blueprint, abort, current_app, g, redirect, render_template,
+from flask import (Blueprint, abort, current_app, g, make_response, redirect, render_template,
                    request, session, url_for)
 
 from . import db, limiter
@@ -73,13 +73,18 @@ def carica_utente():
         return
     utente = db.session.get(Utente, uid)
     if (utente and utente.attivo and utente.token_sessione
-            and secrets.compare_digest(utente.token_sessione, token)):
+            and secrets.compare_digest(utente.token_sessione, token) and _dispositivo_ok(utente)):
         g.utente = utente
     else:
         destinazione = session.get("dopo_login")
         session.clear()
         if destinazione:
             session["dopo_login"] = destinazione
+
+
+def _dispositivo_ok(utente):
+    from .accessi import sessione_valida
+    return sessione_valida(utente)
 
 
 def obbligo_cambio_password():
@@ -136,6 +141,13 @@ def login():
         esito = "fallito"
 
     if esito == "ok":
+        from .accessi import controlla_al_login, imposta_cookie
+        controllo = controlla_al_login(utente)
+        if not controllo.ammesso:
+            utente.tentativi_falliti = 0
+            db.session.commit()
+            risposta = make_response(render_template("login.html", errore=controllo.messaggio), 403)
+            return imposta_cookie(risposta, controllo.token_nuovo)
         if ph.check_needs_rehash(utente.password_hash):
             utente.password_hash = ph.hash(password)
         utente.tentativi_falliti = 0
@@ -150,9 +162,10 @@ def login():
         session.permanent = True
         session["uid"] = utente.id
         session["token"] = utente.token_sessione
+        session["dispositivo"] = controllo.dispositivo_id
         if _percorso_interno(destinazione):
-            return redirect(destinazione)
-        return redirect(url_for("home"))
+            return imposta_cookie(redirect(destinazione), controllo.token_nuovo)
+        return imposta_cookie(redirect(url_for("home")), controllo.token_nuovo)
 
     if esito == "fallito" and utente is not None and utente.attivo:
         utente.tentativi_falliti += 1

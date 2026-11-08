@@ -283,3 +283,14 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 .numero-passo { width: 32px; height: 32px; border-radius: 50%; flex: none; display: inline-flex; align-items: center; justify-content: center;
                 background: var(--avviso-sfondo); color: var(--avviso-testo); font-weight: 800; }
 .passo.fatto .numero-passo { background: var(--ok-sfondo); color: var(--ok-testo); }
+
+/* --- Contatore che si aggiorna e righe dei dispositivi --- */
+.contatore.vuoto { display: none; }
+.voce-dispositivo { flex-direction: column; align-items: stretch; }
+.voce-dispositivo .azioni { margin-top: .5rem; }
+.voce-dispositivo .mini { flex: 1 1 100%; }
+.voce-dispositivo .mini input { flex: 1 1 14rem; width: auto; }
+
+/* --- Scheda utente evidenziata quando ci si arriva da un link --- */
+.scheda-utente { scroll-margin-top: 1.5rem; }
+.scheda-utente:target { border-color: var(--miele); box-shadow: 0 0 0 3px rgba(217, 164, 65, .35); }

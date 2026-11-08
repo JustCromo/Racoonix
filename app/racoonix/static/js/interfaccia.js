@@ -95,6 +95,23 @@
     });
   }
 
+  // Le liste con data-aggiorna (Cose da fare, Utenti) si ricaricano ogni 20 secondi, conservando i filtri
+  // e i riquadri aperti. Mai mentre stai scrivendo, ne' con la scheda del browser in secondo piano.
+  setInterval(() => {
+    if (!window.htmx || document.hidden) return;
+    const attivo = document.activeElement;
+    const scrivendo = attivo && ["INPUT", "SELECT", "TEXTAREA"].includes(attivo.tagName);
+    document.querySelectorAll("[data-aggiorna]").forEach((contenitore) => {
+      const modulo = contenitore.dataset.modulo && document.getElementById(contenitore.dataset.modulo);
+      if (scrivendo && (contenitore.contains(attivo) || (modulo && modulo.contains(attivo)))) return;
+      let url = contenitore.dataset.aggiorna;
+      if (modulo) url += "?" + new URLSearchParams(new FormData(modulo)).toString();
+      const aperti = [...contenitore.querySelectorAll("details[open][id]")].map((d) => d.id);
+      window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML" })
+        .then(() => aperti.forEach((id) => { const d = document.getElementById(id); if (d) d.open = true; }));
+    });
+  }, 20000);
+
   const applica = (radice) => { occhi(radice); copie(radice); avvisi(radice); };
   document.addEventListener("DOMContentLoaded", () => applica(document));
   document.addEventListener("htmx:afterSettle", (evento) => applica(evento.target));

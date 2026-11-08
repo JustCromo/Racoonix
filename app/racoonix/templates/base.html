@@ -20,7 +20,7 @@
     <p class="market">{{ icona("building-store") }}<span>{{ market }}</span></p>
     <nav class="menu" aria-label="Menu principale">
       {% for v in menu %}
-      <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" and notifiche_aperte %}<span class="contatore">{{ notifiche_aperte }}</span>{% endif %}</a>
+      <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" %}{% include "_contatore.html" %}{% endif %}</a>
       {% endfor %}
     </nav>
     <div class="piede">
@@ -61,7 +61,7 @@
 
   <nav class="barra-basso" aria-label="Menu">
     {% for v in menu %}
-    <a class="voce-basso{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" and notifiche_aperte %}<span class="contatore">{{ notifiche_aperte }}</span>{% endif %}</a>
+    <a class="voce-basso{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" %}{% include "_contatore.html" %}{% endif %}</a>
     {% endfor %}
   </nav>
 </div>

@@ -1,6 +1,6 @@
 {% from "_icone.html" import icona %}
-{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password"} %}
-{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso"} %}
+{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password", "dispositivo": "Nuovo dispositivo"} %}
+{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento"} %}
 {% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
 <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
@@ -18,7 +18,7 @@
 </form>
 {% endmacro %}
 {% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
-<div id="notifiche">
+<div id="notifiche" data-aggiorna="{{ url_for('notifiche.lista') }}">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
   {% if not sezioni %}<p class="sotto spazio">Il tuo account non ha ancora un ruolo: chiedi all'amministratore di assegnartene uno.</p>{% endif %}
   <div class="lista-sezioni">
@@ -71,6 +71,8 @@
           {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
         {% elif n.tipo == "da_approvare" %}
           <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
+        {% elif n.tipo == "dispositivo" %}
+          <a class="pulsante" href="{{ url_for('utenti.elenco', _anchor='utente-' ~ n.utente_id) }}">Vai all'approvazione</a>
         {% elif n.tipo == "reset_password" %}
           <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -84,7 +86,7 @@
     </article>
     {% endfor %}
     {% if admin %}
-    <details class="storico">
+    <details class="storico" id="storico-{{ sez.ruolo }}">
       <summary>{{ icona("history") }} Storico ({{ sez.storico|length }})</summary>
       {% if sez.storico %}
       <div class="tabella-wrap">

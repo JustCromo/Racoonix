@@ -1,0 +1,1 @@
+<span class="contatore{% if not notifiche_aperte %} vuoto{% endif %}" hx-get="{{ url_for('notifiche.contatore') }}" hx-trigger="every 20s" hx-swap="outerHTML">{{ notifiche_aperte or "" }}</span>

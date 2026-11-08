@@ -7,7 +7,7 @@
   <a class="pulsante" href="{{ url_for('utenti.nuovo') }}">{{ icona("user-plus") }} Nuovo utente</a>
 </div>
 {% if errore %}<p class="errore">{{ errore }}</p>{% endif %}
-<form method="get" action="{{ url_for('utenti.elenco') }}" class="riga"
+<form method="get" action="{{ url_for('utenti.elenco') }}" class="riga" id="filtri-utenti"
       hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="submit" hx-target="#risultati">
   <input name="q" value="{{ q }}" maxlength="40" placeholder="Cerca per username" autocomplete="off"
          hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="input changed delay:300ms"
@@ -23,5 +23,5 @@
     {% endfor %}
   </select>
 </form>
-<div id="risultati">{% include "_utenti_risultati.html" %}</div>
+<div id="risultati" data-aggiorna="{{ url_for('utenti.risultati') }}" data-modulo="filtri-utenti" data-swap="innerHTML">{% include "_utenti_risultati.html" %}</div>
 {% endblock %}
