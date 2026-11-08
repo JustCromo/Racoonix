@@ -20,6 +20,7 @@ VOCI = [
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria")),
     ("collega.pagina", "Collega dispositivi", "device-mobile", {"admin"}, ("collega.",)),
     ("dispositivi.elenco", "Casse e bilance", "plug-connected", {"admin"}, ("dispositivi.",)),
+    ("registro.pagina", "Registro attivita'", "history", {"admin"}, ("registro.",)),
     ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",)),
 ]
 

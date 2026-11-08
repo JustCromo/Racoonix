@@ -61,7 +61,7 @@
         </span>
       </div>
       {% endfor %}
-      {% if revocati %}<p class="sotto">{{ revocati }} {{ 'dispositivo revocato' if revocati == 1 else 'dispositivi revocati' }}: restano bloccati per qualunque account.</p>{% endif %}
+      {% if revocati %}<p class="sotto">{{ revocati }} {{ 'dispositivo revocato' if revocati == 1 else 'dispositivi revocati' }}: restano bloccati per qualunque account. <a href="{{ url_for('registro.pagina', utente=u.id, categoria='utenti', periodo='tutto') }}">Vedi nel registro</a></p>{% endif %}
     </details>
     {% endif %}
     {% if u.id != g.utente.id %}

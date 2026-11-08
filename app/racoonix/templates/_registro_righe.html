@@ -1,0 +1,28 @@
+{% if not righe %}
+<p class="sotto spazio">Nessuna attivita' con questi filtri.</p>
+{% else %}
+<div class="tabella-wrap spazio">
+  <table>
+    <tr><th>Quando</th><th>Cosa</th><th>Chi</th><th>Dettaglio</th><th>Da dove</th></tr>
+    {% for r in righe %}
+    <tr>
+      <td>{{ r.voce.data_ora|data_ora }}</td>
+      <td>{% if r.attenzione %}<span class="badge spento">{{ r.etichetta }}</span>{% else %}<strong>{{ r.etichetta }}</strong>{% endif %}<br><span class="sotto">{{ categorie[r.categoria] }}</span></td>
+      <td>{{ r.username or "—" }}</td>
+      <td>{{ r.voce.dettaglio or "" }}</td>
+      <td>{{ r.voce.ip or "—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<div class="azioni">
+  {% if pagina > 0 %}
+  <button type="button" class="piccolo secondario" hx-get="{{ url_for('registro.risultati') }}" hx-include="#filtri-registro"
+          hx-vals='{"pagina": "{{ pagina - 1 }}"}' hx-target="#registro">&larr; Piu' recenti</button>
+  {% endif %}
+  {% if altre %}
+  <button type="button" class="piccolo secondario" hx-get="{{ url_for('registro.risultati') }}" hx-include="#filtri-registro"
+          hx-vals='{"pagina": "{{ pagina + 1 }}"}' hx-target="#registro">Meno recenti &rarr;</button>
+  {% endif %}
+</div>
+{% endif %}

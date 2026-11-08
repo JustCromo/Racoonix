@@ -154,7 +154,7 @@
       </div>
       {% else %}<p class="sotto">Nessuna vendita.</p>{% endfor %}
       {% else %}
-      <h2>Attivita' recenti</h2>
+      <div class="intestazione"><h2>Attivita' recenti</h2><a href="{{ url_for('registro.pagina') }}">Vedi tutto</a></div>
       {% for voce, utente in autonoma.attivita %}
       <div class="voce-elenco">
         <span>{{ etichette_attivita.get(voce.azione, voce.azione) }}<br><span class="sotto">{{ voce.data_ora|data_ora }} &middot; {{ utente or "Sistema" }}</span></span>
