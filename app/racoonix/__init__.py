@@ -16,29 +16,34 @@ def create_app():
     app = Flask(__name__)
     from .config import Config
     app.config.from_object(Config)
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     db.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
-    from .formato import data_it, data_ora_it, euro, quantita
+    from .formato import data_it, data_ora_it, euro, quantita, quantita_input
     app.add_template_filter(quantita, "quantita")
     app.add_template_filter(euro, "euro")
     app.add_template_filter(data_it, "data")
     app.add_template_filter(data_ora_it, "data_ora")
+    app.add_template_filter(quantita_input, "quantita_input")
 
     from . import models  # noqa: F401
     from . import auth
     from .carico import bp as carico_bp
-    from .cassa import bp as cassa_bp
     from .notifiche_web import bp as notifiche_bp, conta_notifiche
     from .anagrafica import bp as anagrafica_bp
-    from .banco import bp as banco_bp
     from .dashboard import bp as dashboard_bp
     from .inventario import bp as inventario_bp
     from .prodotti import bp as prodotti_bp
     from .utenti import bp as utenti_bp
-    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, cassa_bp, notifiche_bp, anagrafica_bp, banco_bp, dashboard_bp):
+    for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, notifiche_bp, anagrafica_bp, dashboard_bp):
         app.register_blueprint(blueprint)
+    from .api import bp as api_bp
+    from .dispositivi import bp as dispositivi_bp
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(dispositivi_bp)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)
     app.context_processor(conta_notifiche)

@@ -95,7 +95,6 @@ button.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9px; 
 .azioni { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .7rem; }
 .azioni form, div.azioni form { display: inline-flex; margin: 0; }
 td.azioni form { display: inline-block; margin: 0 .25rem .25rem 0; }
-td.azioni strong { display: inline-block; min-width: 1.6rem; text-align: center; }
 .mini { display: inline-flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin: 0 .3rem .3rem 0; }
 .mini input { display: inline-block; width: 4.6rem; margin: 0; padding: .38rem .5rem; }
 .griglia { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 1rem; }
@@ -122,7 +121,6 @@ tr:last-child td { border-bottom: 0; }
 pre { background: #2E3A59; color: #F6F0E4; padding: 1rem; border-radius: 12px; white-space: pre-wrap; word-break: break-all; }
 #lettore { margin: .8rem 0; border-radius: 12px; overflow: hidden; }
 #avvia { margin-top: .4rem; }
-.totale { font-size: 1.35rem; text-align: right; }
 
 /* --- Dashboard --- */
 .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: .8rem; margin-top: .8rem; }
@@ -185,3 +183,52 @@ label.scelta { margin: 0; display: inline-flex; position: relative; }
 .storico { margin-top: 1rem; border-top: 1px solid var(--bordo); padding-top: .8rem; }
 .storico summary { display: flex; align-items: center; gap: .4rem; }
 .storico table { margin-top: .6rem; font-size: .92rem; }
+
+/* --- Riquadro fotocamera --- */
+#lettore { max-width: 440px; }
+#lettore video { width: 100% !important; height: auto !important; max-height: 320px; object-fit: cover; border-radius: 12px; }
+
+/* --- Logo --- */
+.marchio img, .logo-accesso { object-fit: contain; }
+
+/* --- Logo in filigrana: si vede negli spazi vuoti, mai sopra i contenuti --- */
+.contenuto, .accesso { position: relative; isolation: isolate; }
+.contenuto::before, .accesso::before {
+  content: ""; position: fixed; inset: 0 0 0 236px; z-index: -1; pointer-events: none;
+  background: url("../img/logo.png") center / min(40vw, 520px) no-repeat;
+  opacity: .07;
+}
+.accesso::before { inset: 0; background-size: min(70vw, 560px); opacity: .06; }
+[data-theme="scuro"] .contenuto::before { opacity: .09; }
+@media (max-width: 900px) {
+  .contenuto::before { inset: 0; background-size: 75vw; }
+}
+
+/* --- Tabelle: ogni riga e' una cornice piena --- */
+table { border-collapse: separate; border-spacing: 0 .45rem; }
+th { border-bottom: 0; padding-bottom: .1rem; }
+td { background: var(--superficie); border-top: 1px solid var(--bordo); border-bottom: 1px solid var(--bordo); }
+tr:last-child td { border-bottom: 1px solid var(--bordo); }
+td:first-child { border-left: 1px solid var(--bordo); border-radius: 12px 0 0 12px; }
+td:last-child { border-right: 1px solid var(--bordo); border-radius: 0 12px 12px 0; }
+.scheda td, .sezione td { background: var(--superficie-2); }
+tr:hover td { border-color: var(--miele); }
+
+/* --- Cruscotto della dashboard --- */
+.cruscotto { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 1100px) { .cruscotto { grid-template-columns: 1fr; } }
+.avviso-riga { display: flex; justify-content: space-between; align-items: center; padding: .6rem .85rem; margin-top: .5rem;
+               border-radius: 11px; background: var(--avviso-sfondo); color: var(--avviso-testo); text-decoration: none; font-weight: 700; }
+.avviso-riga.urgente { background: var(--errore-sfondo); color: var(--mattone); }
+.avviso-riga strong { font-size: 1.15rem; }
+.voce-elenco { display: flex; justify-content: space-between; align-items: center; gap: .8rem; padding: .6rem 0; border-bottom: 1px solid var(--bordo); }
+.voce-elenco:last-child { border-bottom: 0; }
+
+/* --- Occhio sulle password e pulsante Copia --- */
+.campo-password { position: relative; display: block; }
+.campo-password input { padding-right: 2.9rem; }
+button.occhio { position: absolute; right: .35rem; top: calc(50% + .15rem); transform: translateY(-50%);
+                background: transparent; border: 0; color: var(--testo-2); padding: .35rem; }
+.blocco-copia { position: relative; }
+.blocco-copia pre { padding-right: 7rem; }
+.blocco-copia button.copia { position: absolute; top: .55rem; right: .55rem; background: #F6F0E4; color: #2E3A59; border-color: transparent; }

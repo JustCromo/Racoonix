@@ -119,7 +119,6 @@ class Prodotto(db.Model):
     sconto2_giorni = db.Column(db.Integer)
     sconto2_perc = db.Column(db.Integer)
     stato = db.Column(db.String(20), nullable=False, default="in_attesa")
-    nota_admin = db.Column(db.String(255))
     creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     approvato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
@@ -131,7 +130,7 @@ class Prodotto(db.Model):
                                         cascade="all, delete-orphan")
 
     __table_args__ = (
-        CheckConstraint("stato IN ('in_attesa','da_correggere','attivo','rimosso')", name="ck_prodotto_stato"),
+        CheckConstraint("stato IN ('in_attesa','attivo','rimosso')", name="ck_prodotto_stato"),
         CheckConstraint("unita IN ('pezzo','kg')", name="ck_prodotto_unita"),
         CheckConstraint("gtin IS NULL OR gtin ~ '^[0-9]{14}$'", name="ck_prodotto_gtin"),
         CheckConstraint("codice_bilancia IS NULL OR codice_bilancia ~ '^[0-9]{5}$'", name="ck_prodotto_bilancia"),
@@ -211,8 +210,6 @@ class Lotto(db.Model):
     codice_etichetta = db.Column(db.String(13))
     qta_esposta = db.Column(db.Integer, nullable=False, default=0)
     qta_magazzino = db.Column(db.Integer, nullable=False, default=0)
-    bollino_sconto = db.Column(db.Boolean, nullable=False, default=False)
-    bollino_perc = db.Column(db.Integer, nullable=False, default=0)
     data_carico = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     caricato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     prodotto = db.relationship("Prodotto", back_populates="lotti")
@@ -227,11 +224,15 @@ class Vendita(db.Model):
     __tablename__ = "vendite"
     id = db.Column(db.Integer, primary_key=True)
     data_ora = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
-    utente_id = db.Column(db.Integer, db.ForeignKey("utenti.id"), nullable=False)
+    utente_id = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    dispositivo_id = db.Column(db.Integer, db.ForeignKey("dispositivi.id"))
     totale_centesimi = db.Column(db.Integer, nullable=False, default=0)
     righe = db.relationship("RigaVendita", back_populates="vendita")
 
-    __table_args__ = (CheckConstraint("totale_centesimi >= 0", name="ck_vendita_totale"),)
+    __table_args__ = (
+        CheckConstraint("totale_centesimi >= 0", name="ck_vendita_totale"),
+        CheckConstraint("utente_id IS NOT NULL OR dispositivo_id IS NOT NULL", name="ck_vendita_origine"),
+    )
 
 
 class RigaVendita(db.Model):
@@ -289,7 +290,7 @@ class Notifica(db.Model):
     __table_args__ = (
         CheckConstraint(
             "tipo IN ('riempi','esaurito','in_scadenza','da_rimuovere','da_approvare',"
-            "'da_correggere','sconto','freschezza','reset_password')",
+            "'sconto','freschezza','reset_password')",
             name="ck_notifica_tipo",
         ),
         CheckConstraint("ruolo_destinatario IN ('admin','magazziniere','dipendente')", name="ck_notifica_ruolo"),
@@ -341,3 +342,32 @@ class Sconto(db.Model):
     @property
     def residuo(self):
         return self.quantita - self.venduti
+
+
+class Dispositivo(db.Model):
+    """Cassa o bilancia collegata via API. Della chiave si salva solo l'impronta SHA-256."""
+    __tablename__ = "dispositivi"
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(60), unique=True, nullable=False)
+    tipo = db.Column(db.String(10), nullable=False)
+    token_hash = db.Column(db.String(64), unique=True, nullable=False)
+    prefisso = db.Column(db.String(12), nullable=False)
+    attivo = db.Column(db.Boolean, nullable=False, default=True)
+    creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+    ultimo_uso = db.Column(db.DateTime(timezone=True))
+
+    __table_args__ = (CheckConstraint("tipo IN ('cassa','bilancia')", name="ck_dispositivo_tipo"),)
+
+
+class RichiestaApi(db.Model):
+    """Memoria delle operazioni gia' eseguite: la stessa transazione non viene mai applicata due volte."""
+    __tablename__ = "richieste_api"
+    id = db.Column(db.Integer, primary_key=True)
+    dispositivo_id = db.Column(db.Integer, db.ForeignKey("dispositivi.id"), nullable=False)
+    chiave = db.Column(db.String(64), nullable=False)
+    codice_http = db.Column(db.Integer, nullable=False)
+    risposta = db.Column(db.Text, nullable=False)
+    creata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+
+    __table_args__ = (UniqueConstraint("dispositivo_id", "chiave", name="uq_richiesta_api"),)

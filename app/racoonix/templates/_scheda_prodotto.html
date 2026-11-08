@@ -65,6 +65,28 @@
   <p class="sotto">Nessuna giacenza.</p>
   {% endif %}
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  {% if s.lotti %}
+  <details class="spazio">
+    <summary>Conta la merce</summary>
+    <form method="post" action="{{ url_for('inventario.conteggio', prodotto_id=p.id) }}"
+          hx-post="{{ url_for('inventario.conteggio', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
+      {{ nascosti() }}
+      <div class="tabella-wrap">
+        <table>
+          <tr><th>Lotto</th><th>Sullo scaffale</th><th>In magazzino</th></tr>
+          {% for r in s.lotti %}
+          <tr>
+            <td>{{ r.l.codice_lotto }}<br><span class="sotto">{{ r.l.data_scadenza|data }}</span></td>
+            <td><input name="esp_{{ r.l.id }}" inputmode="decimal" autocomplete="off" value="{{ r.l.qta_esposta|quantita_input(p.unita) }}"></td>
+            <td><input name="mag_{{ r.l.id }}" inputmode="decimal" autocomplete="off" value="{{ r.l.qta_magazzino|quantita_input(p.unita) }}"></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <button type="submit" class="piccolo">Salva conteggio</button>
+    </form>
+  </details>
+  {% endif %}
   {% if p.stato == "attivo" and s.rifornibile > 0 %}
   <form method="post" action="{{ url_for('inventario.rifornisci', prodotto_id=p.id) }}" class="riga"
         hx-post="{{ url_for('inventario.rifornisci', prodotto_id=p.id) }}"

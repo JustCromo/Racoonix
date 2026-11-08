@@ -1,5 +1,5 @@
 {% from "_icone.html" import icona %}
-{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "da_correggere": "Da correggere", "reset_password": "Nuova password"} %}
+{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password"} %}
 {% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso"} %}
 {% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
@@ -7,6 +7,14 @@
       hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" hx-target="#notifiche" hx-swap="outerHTML">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button type="submit" class="{{ classe }}">{{ testo }}</button>
+</form>
+{% endmacro %}
+{% macro con_quantita(n, nome, segnaposto, valore, testo) %}
+<form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" class="riga"
+      hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" hx-target="#notifiche" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input name="quantita" inputmode="decimal" autocomplete="off" value="{{ valore }}" placeholder="{{ segnaposto }}">
+  <button type="submit" class="piccolo">{{ testo }}</button>
 </form>
 {% endmacro %}
 {% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
@@ -33,7 +41,17 @@
       <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
       <div class="azioni">
         {% if n.tipo == "da_rimuovere" %}
-          {{ azione(n, "rimosso", "Rimosso dallo scaffale" if n.ruolo_destinatario == "dipendente" else "Rimosso dal magazzino") }}
+          {% set registrato = n.lotto.qta_esposta if n.ruolo_destinatario == "dipendente" else n.lotto.qta_magazzino %}
+          {{ con_quantita(n, "rimosso", "Kg tolti" if n.prodotto.unita == "kg" else "Pezzi tolti", registrato|quantita_input(n.prodotto.unita), "Tolti e buttati") }}
+          <p class="sotto">Se ne trovi meno, scrivi quanti: gli altri risultano venduti.</p>
+        {% elif n.tipo == "in_scadenza" %}
+          {{ con_quantita(n, "verifica", "Quanti ne restano?", "", "Conferma") }}
+          <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione='verifica') }}"
+                hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='verifica') }}" hx-target="#notifiche" hx-swap="outerHTML">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="quantita" value="0">
+            <button type="submit" class="piccolo secondario">Finiti</button>
+          </form>
         {% elif n.tipo == "riempi" %}
           <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">Vai a rifornire</a>
         {% elif n.tipo == "sconto" %}

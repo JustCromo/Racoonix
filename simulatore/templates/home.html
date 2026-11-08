@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block contenuto %}
+<h1>Apparecchiature del negozio</h1>
+<div class="griglia">
+  <a class="scheda scelta" href="{{ url_for('cassa') }}"><h2>Cassa</h2><p>Legge i prodotti, chiede prezzi e sconti a Racoonix e invia la vendita conclusa.</p></a>
+  <a class="scheda scelta" href="{{ url_for('bilancia') }}"><h2>Bilancia del banco</h2><p>Dopo aver stampato l'etichetta di una vaschetta, la invia a Racoonix.</p></a>
+</div>
+{% endblock %}

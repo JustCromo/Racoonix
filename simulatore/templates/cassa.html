@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titolo %}Cassa - Simulatore{% endblock %}
+{% macro bottone(azione, testo, classe="piccolo secondario") %}
+<form method="post" action="{{ azione }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="{{ classe }}">{{ testo }}</button></form>
+{% endmacro %}
+{% block contenuto %}
+<h1>Cassa</h1>
+<section class="scheda">
+  {% with azione=url_for('cassa_leggi'), testo="Leggi o scrivi il codice del prodotto" %}{% include "_lettore.html" %}{% endwith %}
+</section>
+
+{% if scontrino %}
+<section class="scheda scontrino spazio">
+  <h2>Scontrino n. {{ scontrino.vendita_id }}</h2>
+  {% for r in scontrino.righe %}
+  <p class="riga-scontrino"><span>{{ r.descrizione }}<br><small>{{ r.quantita|peso if r.unita == "kg" else r.quantita ~ " pz" }}{% if r.sconto_perc %} &middot; sconto -{{ r.sconto_perc }}%{% endif %}</small></span><strong>{{ r.importo_centesimi|euro }}</strong></p>
+  {% endfor %}
+  <p class="totale">Totale <strong>{{ scontrino.totale_centesimi|euro }}</strong></p>
+  <p class="piccola">Calcolato e registrato da Racoonix.</p>
+</section>
+{% endif %}
+
+<section class="scheda spazio">
+  <h2>Spesa in corso</h2>
+  {% if not righe %}<p class="piccola">Nessun prodotto: leggi un codice per iniziare.</p>{% endif %}
+  {% for r in righe %}
+  <div class="riga-cassa">
+    <div>
+      <strong>{{ r.descrizione }}</strong>
+      <small>{{ r.prezzo|euro }}{{ "/kg" if r.unita == "kg" }}{% if r.perc %} &middot; <span class="sconto">-{{ r.perc }}%</span>{% endif %}</small>
+    </div>
+    <div class="comandi">
+      {% if r.unita == "pezzo" %}
+      {{ bottone(url_for('cassa_riga', indice=r.indice, azione='meno'), '−') }}
+      <strong class="q">{{ r.quantita }}</strong>
+      {{ bottone(url_for('cassa_riga', indice=r.indice, azione='piu'), '+') }}
+      {% else %}<strong class="q">{{ r.quantita|peso }}</strong>{% endif %}
+      <strong class="importo">{{ r.importo|euro }}</strong>
+      {% if not r.lotto_fisso and r.scadenza_perc %}{{ bottone(url_for('cassa_riga', indice=r.indice, azione='sconto'), 'Togli bollino' if r.sconto else 'Bollino -' ~ r.scadenza_perc ~ '%') }}{% endif %}
+      {{ bottone(url_for('cassa_riga', indice=r.indice, azione='rimuovi'), '✕') }}
+    </div>
+  </div>
+  {% endfor %}
+  {% if righe %}
+  <p class="totale">Totale stimato <strong>{{ totale|euro }}</strong></p>
+  <div class="riga">
+    {{ bottone(url_for('cassa_annulla'), 'Annulla spesa', 'secondario') }}
+    {{ bottone(url_for('cassa_paga'), 'Paga', '') }}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+{% endblock %}

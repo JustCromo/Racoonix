@@ -5,7 +5,7 @@ from pathlib import Path
 
 VERSIONE = "3.19.0"
 NOMI = ["chart-bar", "bell", "box", "truck", "shopping-cart", "scale", "tags",
-        "building-warehouse", "category", "users", "camera", "moon", "sun", "key", "logout", "user", "circle-check", "history", "user-plus", "shield"]
+        "building-warehouse", "category", "users", "camera", "moon", "sun", "key", "logout", "user", "circle-check", "history", "user-plus", "shield", "plug-connected", "eye", "eye-off", "copy", "check"]
 DESTINAZIONE = Path("app/racoonix/static/img/icone.svg")
 
 simboli = []

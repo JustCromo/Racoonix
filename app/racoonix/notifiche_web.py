@@ -15,9 +15,9 @@ bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
 SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali e cassa"),
            ("magazziniere", "Magazzinieri: magazzino")]
 URGENZA = {"reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3, "esaurito": 4,
-           "sconto": 5, "in_scadenza": 6, "freschezza": 7, "da_correggere": 8}
+           "sconto": 5, "in_scadenza": 6, "freschezza": 7}
 AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto", "esaurimento"}, "sconto": {"bollino"},
-          "in_scadenza": {"visto"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
+          "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
 STORICO_MAX = 30
 
 
@@ -89,23 +89,39 @@ def agisci(nid, azione):
     if notifica.stato != "aperta":
         return _vista("Gia' gestita da qualcun altro", "errore")
 
-    if azione in ("rimosso", "deteriorato"):
+    if azione in ("rimosso", "deteriorato", "verifica"):
         if notifica.lotto_id is None:
             abort(404)
         lotto = db.session.get(Lotto, notifica.lotto_id, with_for_update=True)
         campo = "qta_esposta" if notifica.ruolo_destinatario == "dipendente" else "qta_magazzino"
-        disponibile = getattr(lotto, campo)
-        da_togliere = disponibile
+        registrato = getattr(lotto, campo)
+        unita = notifica.prodotto.unita
         testo = (request.form.get("quantita") or "").strip()
-        if azione == "deteriorato" and testo:
-            da_togliere = leggi_quantita(testo, notifica.prodotto.unita)
-            if not da_togliere or da_togliere > disponibile:
+        if azione == "verifica":
+            if not testo:
+                return _vista("Scrivi quanti ne restano (0 se sono finiti)", "errore")
+            contati = leggi_quantita(testo, unita)
+            if contati is None:
                 return _vista("Quantita' non valida", "errore")
-        if da_togliere > 0:
-            setattr(lotto, campo, disponibile - da_togliere)
-            db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
-                                  motivo="scaduto" if azione == "rimosso" else "deteriorato",
-                                  utente_id=g.utente.id))
+            setattr(lotto, campo, contati)
+            if contati != registrato:
+                registra("rettifica", g.utente.id,
+                         f"lotto {lotto.id} {campo}: {registrato} -> {contati} (verifica scadenza)")
+        else:
+            da_togliere = leggi_quantita(testo, unita) if testo else registrato
+            if da_togliere is None or (azione == "deteriorato" and da_togliere > registrato):
+                return _vista("Quantita' non valida", "errore")
+            if azione == "rimosso":
+                setattr(lotto, campo, 0)
+                if da_togliere != registrato:
+                    registra("rettifica", g.utente.id,
+                             f"lotto {lotto.id} {campo}: registrati {registrato}, trovati {da_togliere} (rimozione)")
+            else:
+                setattr(lotto, campo, registrato - da_togliere)
+            if da_togliere > 0:
+                db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
+                                      motivo="scaduto" if azione == "rimosso" else "deteriorato",
+                                      utente_id=g.utente.id))
     if azione == "esaurimento":
         notifica.prodotto.in_esaurimento = True
 
@@ -114,6 +130,6 @@ def agisci(nid, azione):
     notifica.chiusa_il = datetime.now(timezone.utc)
     registra(f"notifica_{azione}", g.utente.id, f"notifica {notifica.id}, tipo {notifica.tipo}")
     db.session.commit()
-    if azione in ("rimosso", "deteriorato"):
+    if azione in ("rimosso", "deteriorato", "verifica"):
         controlla_scaffali([notifica.prodotto_id])
     return _vista("Fatto", "ok")

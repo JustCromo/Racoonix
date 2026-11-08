@@ -10,8 +10,6 @@ VOCI = [
     ("notifiche.pagina", "Cose da fare", "bell", TUTTI, ("notifiche.",)),
     ("inventario.pagina", "Inventario", "box", {"dipendente", "magazziniere"}, ("inventario.",)),
     ("carico.pagina", "Carico", "truck", {"magazziniere"}, ("carico.",)),
-    ("cassa.pagina", "Cassa", "shopping-cart", {"dipendente"}, ("cassa.",)),
-    ("banco.pagina", "Banco", "scale", {"dipendente"}, ("banco.",)),
     ("anagrafica.catalogo", "Catalogo", "tags", {"admin"},
      ("anagrafica.catalogo", "anagrafica.scheda", "anagrafica.salva", "anagrafica.aggiungi_codice",
       "anagrafica.rimuovi_codice", "prodotti.")),
@@ -20,6 +18,7 @@ VOCI = [
     ("anagrafica.categorie", "Categorie", "category", {"admin"},
      ("anagrafica.categorie", "anagrafica.nuova_categoria", "anagrafica.salva_categoria",
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria")),
+    ("dispositivi.elenco", "Dispositivi", "plug-connected", {"admin"}, ("dispositivi.",)),
     ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",)),
     ("scanner_test.pagina", "Test scanner", "camera", {"admin"}, ("scanner_test.",)),
 ]

@@ -12,6 +12,7 @@ from .carico import _quantita as leggi_quantita
 from .formato import quantita as mostra_quantita
 from .models import Categoria, CodiceAggiuntivo, Lotto, Prodotto
 from .prodotti import _chiudi_notifiche
+from .notifiche import controlla_scaffali
 from .sconti import applica_programmati, crea_sconto, sconto_attivo, togli_sconto
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
@@ -217,3 +218,43 @@ def programma(prodotto_id):
     db.session.commit()
     applica_programmati()
     return _risposta(prodotto, "Sconto programmato", "ok", q, categoria_id)
+
+
+@bp.post("/<int:prodotto_id>/conteggio")
+@richiede_ruolo("dipendente", "magazziniere")
+def conteggio(prodotto_id):
+    """Il conteggio fisico e' la verita': corregge le quantita' e lascia traccia della differenza."""
+    q, categoria_id = _filtri(request.form)
+    prodotto = db.get_or_404(Prodotto, prodotto_id)
+    lotti = db.session.scalars(
+        db.select(Lotto).where(Lotto.prodotto_id == prodotto.id,
+                               (Lotto.qta_esposta + Lotto.qta_magazzino) > 0)
+        .order_by(Lotto.id).with_for_update()).all()
+    nuovi = {}
+    for lotto in lotti:
+        valori = []
+        for campo, attuale in (("esp", lotto.qta_esposta), ("mag", lotto.qta_magazzino)):
+            testo = (request.form.get(f"{campo}_{lotto.id}") or "").strip()
+            valori.append(leggi_quantita(testo, prodotto.unita) if testo else attuale)
+        if None in valori:
+            return _risposta(prodotto, "Quantita' non valida", "errore", q, categoria_id)
+        nuovi[lotto.id] = valori
+
+    differenza, dettagli = 0, []
+    for lotto in lotti:
+        esposta, magazzino = nuovi[lotto.id]
+        if (esposta, magazzino) != (lotto.qta_esposta, lotto.qta_magazzino):
+            dettagli.append(f"lotto {lotto.id}: {lotto.qta_esposta}/{lotto.qta_magazzino} -> {esposta}/{magazzino}")
+            differenza += (esposta + magazzino) - (lotto.qta_esposta + lotto.qta_magazzino)
+            lotto.qta_esposta, lotto.qta_magazzino = esposta, magazzino
+    if not dettagli:
+        return _risposta(prodotto, "Nessuna differenza: tutto torna", "ok", q, categoria_id)
+    registra("rettifica", g.utente.id, f"conteggio prodotto {prodotto.id}; " + "; ".join(dettagli))
+    db.session.commit()
+    controlla_scaffali([prodotto.id])
+    if differenza:
+        segno = "+" if differenza > 0 else "−"
+        messaggio = f"Conteggio salvato: differenza {segno}{mostra_quantita(abs(differenza), prodotto.unita)}"
+    else:
+        messaggio = "Conteggio salvato: merce spostata tra scaffale e magazzino"
+    return _risposta(prodotto, messaggio, "ok", q, categoria_id)

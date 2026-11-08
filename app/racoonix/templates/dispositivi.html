@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_icone.html" import icona %}
+{% block titolo %}Dispositivi - Racoonix{% endblock %}
+{% block contenuto %}
+<h1>Dispositivi collegati</h1>
+<p class="sotto">Facoltativo: Racoonix funziona anche senza. Casse e bilance che lo permettono possono inviare i dati tramite API, cosi' le quantita' si aggiornano da sole. Ogni dispositivo ha una sua chiave: se viene compromessa, si revoca solo quella.</p>
+<section class="scheda spazio">
+  <h2>Nuovo dispositivo</h2>
+  <form method="post" action="{{ url_for('dispositivi.nuovo') }}" class="riga">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input name="nome" placeholder="Nome (es. Cassa 1)" maxlength="60" required>
+    <select name="tipo">
+      <option value="cassa">Cassa</option>
+      <option value="bilancia">Bilancia del banco</option>
+    </select>
+    <button type="submit">Crea e genera chiave</button>
+  </form>
+</section>
+<div class="lista-schede">
+  {% for d in dispositivi %}
+  <section class="scheda">
+    <div class="intestazione">
+      <div class="utente-nome">
+        <span class="avatar">{{ icona("plug-connected") }}</span>
+        <div>
+          <h3>{{ d.nome }}</h3>
+          <span class="sotto">{{ "Cassa" if d.tipo == "cassa" else "Bilancia del banco" }} &middot; chiave {{ d.prefisso }}…</span>
+        </div>
+      </div>
+      {% if d.attivo %}<span class="badge ok">attivo</span>{% else %}<span class="badge spento">revocato</span>{% endif %}
+    </div>
+    <p class="sotto">Creato il {{ d.creato_il|data_ora }} &middot; ultimo utilizzo: {{ d.ultimo_uso|data_ora }}</p>
+    {% if d.attivo %}
+    <form method="post" action="{{ url_for('dispositivi.revoca', did=d.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="piccolo secondario">Revoca chiave</button>
+    </form>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

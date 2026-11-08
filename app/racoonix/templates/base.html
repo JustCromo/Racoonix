@@ -7,15 +7,16 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="htmx-config" content='{"allowEval": false, "includeIndicatorStyles": false, "allowScriptTags": false}'>
   <title>{% block titolo %}Racoonix{% endblock %}</title>
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" type="image/png">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script src="{{ url_for('static', filename='vendor/htmx.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/interfaccia.js') }}" defer></script>
 </head>
-<body>
+<body data-icone="{{ url_for('static', filename='img/icone.svg') }}">
 {% if g.utente %}
 <div class="guscio">
   <aside class="barra-laterale">
-    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span>Racoonix</span></a>
+    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix</span></a>
     <p class="market">{{ market }}</p>
     <nav class="menu" aria-label="Menu principale">
       {% for v in menu %}
@@ -37,7 +38,7 @@
   </aside>
 
   <header class="barra-alto">
-    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span>Racoonix</span></a>
+    <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix</span></a>
     <div class="azioni-alto">
       <form method="post" action="{{ url_for('auth.cambia_tema') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

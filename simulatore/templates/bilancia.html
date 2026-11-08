@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titolo %}Bilancia - Simulatore{% endblock %}
+{% block contenuto %}
+<h1>Bilancia del banco</h1>
+{% if esito %}
+<section class="scheda scontrino">
+  <h2>Vaschetta registrata</h2>
+  <p>{{ esito.descrizione }}</p>
+  <p class="piccola">{{ esito.peso_g|peso }} &middot; lotto {{ esito.lotto }} &middot; scade il {{ esito.scadenza|data }}</p>
+</section>
+{% endif %}
+{% if etichetta %}
+<section class="scheda spazio">
+  <h2>{{ etichetta.descrizione }}</h2>
+  <p>Vaschetta da <strong>{{ etichetta.peso_g|peso }}</strong></p>
+  <p class="piccola">Disponibile al banco: {{ etichetta.disponibile_g|peso }}{% if etichetta.limite %} &middot; il pezzo intero scade il {{ etichetta.limite|data }}{% endif %}</p>
+  <form method="post" action="{{ url_for('bilancia_registra') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if etichetta.scadenza_fissa %}
+    <p>Scadenza dall'etichetta: <strong>{{ etichetta.scadenza_proposta|data }}</strong></p>
+    {% else %}
+    <label>Scadenza <input type="date" name="scadenza" value="{{ etichetta.scadenza_proposta }}" {% if etichetta.limite %}max="{{ etichetta.limite }}"{% endif %} required></label>
+    {% endif %}
+    <div class="riga">
+      <button type="submit">Invia a Racoonix</button>
+    </div>
+  </form>
+  <form method="post" action="{{ url_for('bilancia_annulla') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="secondario">Annulla</button>
+  </form>
+</section>
+{% else %}
+<section class="scheda spazio">
+  {% with azione=url_for('bilancia_leggi'), testo="Leggi l'etichetta appena stampata" %}{% include "_lettore.html" %}{% endwith %}
+</section>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+{% endblock %}

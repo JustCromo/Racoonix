@@ -7,7 +7,7 @@ from sqlalchemy import func
 
 from . import db
 from .auth import richiede_ruolo
-from .models import Lotto, Notifica, Prodotto, RigaVendita, Scarto, Vendita
+from .models import Dispositivo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
 
 bp = Blueprint("dashboard", __name__, url_prefix="/admin/dashboard")
 PERIODI = {1: "Oggi", 7: "Ultimi 7 giorni", 30: "Ultimi 30 giorni"}
@@ -94,12 +94,34 @@ def pagina():
         .where(Prodotto.stato == "attivo", (Lotto.qta_esposta + Lotto.qta_magazzino) > 0)).all()
     valore_merce = sum(_valore(p, l.qta_esposta + l.qta_magazzino) for l, p in giacenze)
 
+    voci = [("da_rimuovere", "Da rimuovere", True), ("reset_password", "Richieste di nuova password", True),
+            ("da_approvare", "Prodotti da approvare", True), ("esaurito", "Da riordinare", True),
+            ("riempi", "Scaffali da riempire", False), ("sconto", "Bollini da applicare", False),
+            ("in_scadenza", "Lotti in scadenza", False), ("freschezza", "Freschezza da controllare", False)]
+    attenzione = [{"etichetta": e, "numero": aperte[tipo], "urgente": u} for tipo, e, u in voci if aperte.get(tipo)]
+    in_scadenza = db.session.execute(
+        db.select(Lotto, Prodotto).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
+        .where(Prodotto.stato == "attivo", (Lotto.qta_esposta + Lotto.qta_magazzino) > 0,
+               Lotto.data_scadenza >= oggi, Lotto.data_scadenza <= oggi + timedelta(days=3))
+        .order_by(Lotto.data_scadenza).limit(6)).all()
+    ultime = db.session.execute(
+        db.select(Vendita, Dispositivo.nome, Utente.username)
+        .outerjoin(Dispositivo, Vendita.dispositivo_id == Dispositivo.id)
+        .outerjoin(Utente, Vendita.utente_id == Utente.id)
+        .order_by(Vendita.data_ora.desc()).limit(6)).all()
+    cassa_collegata = db.session.scalar(db.select(func.count(Dispositivo.id)).where(
+        Dispositivo.tipo == "cassa", Dispositivo.attivo.is_(True))) > 0
+    sconti_attivi = db.session.scalar(db.select(func.count(Sconto.id)).where(
+        Sconto.attivo.is_(True), Sconto.venduti < Sconto.quantita))
+
     return render_template(
         "dashboard.html", giorni=giorni, titolo_grafico=titolo_grafico, saluto=_saluto(), periodi=PERIODI, primo=primo, oggi=oggi,
         incasso=incasso, scontrini=scontrini, medio=incasso // scontrini if scontrini else 0,
         sconti=sconti, iva=iva, top=top, barre=barre, scarti=scarti.values(),
         valore_scarti=sum(s["valore"] for s in scarti.values()),
-        aperte=aperte, valore_merce=valore_merce)
+        aperte=aperte, valore_merce=valore_merce, attenzione=attenzione,
+        in_scadenza=in_scadenza, ultime=ultime, sconti_attivi=sconti_attivi,
+        vendite_attive=cassa_collegata or scontrini > 0)
 
 
 def _saluto():

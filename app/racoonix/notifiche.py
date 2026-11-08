@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from . import db
 from .formato import data_it, quantita
 from .models import Lotto, Notifica, Prodotto
-from .regole import perc_sconto, vendibile
+from .regole import vendibile
 
 
 def _adesso():

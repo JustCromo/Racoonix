@@ -31,7 +31,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks: [backend, frontend]
+    networks: [backend, frontend, integrazione]
 
   scheduler:
     image: racoonix-app:latest
@@ -47,24 +47,39 @@ services:
         condition: service_started
     networks: [backend]
 
+  simulatore:
+    build: ./simulatore
+    image: racoonix-simulatore:latest
+    restart: unless-stopped
+    environment:
+      RACOONIX_API: http://app:8000/api/v1
+      TZ: Europe/Rome
+    secrets: [sim_secret, cassa_token, bilancia_token]
+    depends_on: [app]
+    networks: [demo, integrazione]
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
-    ports: ["80:80", "443:443"]
+    ports: ["80:80", "443:443", "8443:8443"]
     environment:
       RACOONIX_HOST: ${RACOONIX_HOST:-localhost}
       RACOONIX_SNI: ${RACOONIX_SNI:-localhost}
+      RACOONIX_SIM_HOST: ${RACOONIX_SIM_HOST:-localhost:8443}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [app]
-    networks: [frontend]
+    depends_on: [app, simulatore]
+    networks: [frontend, demo]
 
 networks:
   backend:
     internal: true
   frontend:
+  demo:
+  integrazione:
+    internal: true
 
 volumes:
   db_data:
@@ -78,3 +93,9 @@ secrets:
     file: ./secrets/flask_secret
   admin_credentials:
     file: ./secrets/admin_credentials
+  sim_secret:
+    file: ./secrets/sim_secret
+  cassa_token:
+    file: ./secrets/cassa_token
+  bilancia_token:
+    file: ./secrets/bilancia_token

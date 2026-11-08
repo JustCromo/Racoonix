@@ -35,3 +35,12 @@ def misura(valore, unita):
 def data_ora_it(valore):
     """Data e ora nel fuso del server (Europe/Rome nei container)."""
     return valore.astimezone().strftime("%d/%m/%Y %H:%M") if valore else "—"
+
+
+def quantita_input(valore, unita):
+    """Valore pronto per un campo modificabile: 12 oppure 2,500 (kg)."""
+    valore = valore or 0
+    if unita == "kg":
+        kg, grammi = divmod(valore, 1000)
+        return f"{kg},{grammi:03d}"
+    return str(valore)
