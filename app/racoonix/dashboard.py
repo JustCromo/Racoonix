@@ -164,7 +164,8 @@ def pagina():
         valore_scarti=sum(s["valore"] for s in scarti.values()),
         aperte=aperte, valore_merce=valore_merce, attenzione=attenzione,
         in_scadenza=in_scadenza, ultime=ultime, sconti_attivi=sconti_attivi,
-        vendite_attive=cassa_collegata, autonoma=autonoma, etichette_attivita=ETICHETTE_ATTIVITA, guida=_guida())
+        vendite_attive=cassa_collegata, autonoma=autonoma, etichette_attivita=ETICHETTE_ATTIVITA, guida=_guida(),
+        guida_nascosta=_impostazione("guida_nascosta") == "1" and _guida(True) is not None)
 
 
 def _saluto():
@@ -183,9 +184,9 @@ def _imposta(chiave, valore):
     db.session.add(voce)
 
 
-def _guida():
+def _guida(ignora_nascosta=False):
     """Primi passi: ogni passo si completa da solo guardando i dati, tranne il backup (che vive sul server)."""
-    if _impostazione("guida_nascosta") == "1":
+    if not ignora_nascosta and _impostazione("guida_nascosta") == "1":
         return None
     conta = lambda stmt: db.session.scalar(stmt) or 0
     telefoni = db.session.scalar(
@@ -215,6 +216,13 @@ def _guida():
 def guida(azione):
     from flask import abort, g, redirect
     from .auth import registra
+    if azione == "mostra":
+        voce = db.session.get(Impostazione, "guida_nascosta")
+        if voce:
+            db.session.delete(voce)
+        registra("guida_mostra", g.utente.id)
+        db.session.commit()
+        return redirect(url_for(".pagina"))
     chiavi = {"nascondi": "guida_nascosta", "backup": "backup_confermato"}
     if azione not in chiavi:
         abort(404)

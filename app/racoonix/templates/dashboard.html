@@ -164,4 +164,10 @@
     </section>
   </aside>
 </div>
+{% if guida_nascosta %}
+<form method="post" action="{{ url_for('dashboard.guida', azione='mostra') }}" class="spazio">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="piccolo secondario">Mostra di nuovo la guida ai primi passi</button>
+</form>
+{% endif %}
 {% endblock %}
