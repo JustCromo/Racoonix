@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Collega un telefono - Racoonix{% endblock %}
+{% block titolo %}Collega un dispositivo - Racoonix{% endblock %}
 {% block contenuto %}
-<h1>Collega un telefono</h1>
-<p class="sotto">Da fare una volta sola per ogni telefono o tablet, collegato alla stessa rete Wi-Fi del negozio.</p>
+<h1>Collega un telefono o un PC</h1>
+<p class="sotto">Da fare una volta sola per ogni telefono, tablet o computer, collegato alla stessa rete Wi-Fi del negozio.</p>
 
 <div class="due-colonne spazio">
   <section class="scheda">
@@ -27,6 +27,16 @@
         <li>Impostazioni → Profilo scaricato → <strong>Installa</strong>.</li>
         <li>Impostazioni → Generali → Info → Impostazioni attendibilita' certificati → attiva il certificato.</li>
       </ol>
+    </details>
+    <details class="spazio">
+      <summary>Computer (Windows, Mac, Linux)</summary>
+      <p>Apri sul computer l'indirizzo sotto il QR per scaricare il certificato, poi:</p>
+      <ul>
+        <li><strong>Windows</strong>: doppio clic sul file → Installa certificato → Utente corrente → "Colloca tutti i certificati nel seguente archivio" → <strong>Autorita' di certificazione radice attendibili</strong> → Fine.</li>
+        <li><strong>Mac</strong>: doppio clic sul file → si apre Accesso Portachiavi → doppio clic sul certificato → Fidati → <strong>Fidati sempre</strong>.</li>
+        <li><strong>Linux</strong>: <code>sudo trust anchor racoonix-ca.crt</code> (Arch, Fedora) oppure copialo in <code>/usr/local/share/ca-certificates/</code> e lancia <code>sudo update-ca-certificates</code> (Ubuntu, Debian).</li>
+      </ul>
+      <p class="sotto">Firefox puo' usare un archivio suo: se mostra ancora l'avviso, importalo da Impostazioni → Privacy e sicurezza → Certificati → Mostra certificati → Autorita' → Importa.</p>
     </details>
   </section>
 
