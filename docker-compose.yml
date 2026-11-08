@@ -1,9 +1,15 @@
 name: racoonix
 
+# Indurimento comune: nessun privilegio aggiuntivo e nessun "superpotere" Linux.
+x-indurito: &indurito
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
     environment:
       POSTGRES_DB: racoonix
       POSTGRES_USER: racoonix
@@ -22,6 +28,9 @@ services:
     build: ./app
     image: racoonix-app:latest
     restart: unless-stopped
+    <<: *indurito
+    read_only: true
+    tmpfs: [/tmp]
     environment:
       MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
       ADMIN_IP_CONSENTITI: ${ADMIN_IP_CONSENTITI:-127.0.0.1/32}
@@ -37,6 +46,9 @@ services:
     image: racoonix-app:latest
     pull_policy: never
     restart: unless-stopped
+    <<: *indurito
+    read_only: true
+    tmpfs: [/tmp]
     command: ["python", "-m", "racoonix.scheduler"]
     environment:
       MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
@@ -52,6 +64,9 @@ services:
     build: ./simulatore
     image: racoonix-simulatore:latest
     restart: unless-stopped
+    <<: *indurito
+    read_only: true
+    tmpfs: [/tmp]
     environment:
       RACOONIX_API: http://app:8000/api/v1
       TZ: Europe/Rome
@@ -62,6 +77,9 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
     ports: ["80:80", "443:443", "8443:8443"]
     environment:
       RACOONIX_HOST: ${RACOONIX_HOST:-localhost}

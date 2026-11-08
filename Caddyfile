@@ -28,6 +28,9 @@
 		Referrer-Policy "same-origin"
 		Permissions-Policy "camera=(self), microphone=(), geolocation=()"
 		Content-Security-Policy "default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		Cross-Origin-Embedder-Policy "require-corp"
 		-Server
 	}
 }
@@ -36,7 +39,7 @@
 :80 {
 	import certificato
 	handle {
-		redir https://{host}{uri} permanent
+		redir https://{$RACOONIX_SNI}{uri} permanent
 	}
 }
 

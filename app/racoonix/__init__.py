@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, render_template, request, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
@@ -63,6 +63,13 @@ def create_app():
     def contesto():
         return {"market": app.config["MARKET_NAME"]}
 
+
+    @app.after_request
+    def niente_cache(risposta):
+        """Le pagine non restano nella cache: su un dispositivo condiviso, "indietro" dopo il logout non mostra niente."""
+        if request.endpoint != "static" and risposta.mimetype == "text/html":
+            risposta.headers["Cache-Control"] = "no-store"
+        return risposta
 
     @app.get("/")
     @auth.login_richiesto

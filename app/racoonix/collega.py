@@ -16,7 +16,7 @@ bp = Blueprint("collega", __name__, url_prefix="/admin/collega")
 def _impronta_certificato():
     """Chiede il certificato a Caddy come un visitatore qualsiasi: l'app non tocca i file di Caddy."""
     try:
-        with urllib.request.urlopen("http://caddy/racoonix-ca.crt", timeout=3) as risposta:
+        with urllib.request.urlopen("http://caddy/racoonix-ca.crt", timeout=3) as risposta:  # nosec B310 - URL fisso interno, nessun input dell'utente
             pem = risposta.read(10_000).decode("ascii")
     except (OSError, ValueError):
         return None
@@ -31,7 +31,7 @@ def _impronta_certificato():
 
 def _qr(testo):
     # Il contenuto e' generato dal server a partire dalla configurazione, mai da input dell'utente.
-    return Markup(segno.make(testo, error="m").svg_inline(scale=5, dark="#2E3A59", light="#FFFFFF", border=2))
+    return Markup(segno.make(testo, error="m").svg_inline(scale=5, dark="#2E3A59", light="#FFFFFF", border=2))  # nosec B704 - SVG generato dal server da un URL di configurazione
 
 
 @bp.get("/")

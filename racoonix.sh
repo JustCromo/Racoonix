@@ -171,7 +171,9 @@ aggiorna() {
     git diff --quiet && git diff --cached --quiet || errore "Ci sono modifiche locali al codice: salvale o annullale prima di aggiornare"
     git pull --ff-only
   fi
-  dc build
+  info "Scarico le immagini aggiornate (correzioni di sicurezza di Caddy e PostgreSQL)"
+  dc pull db caddy
+  dc build --pull
   dc up -d
   attendi_avvio
   ok "Aggiornato: le modifiche al database sono state applicate in automatico"
