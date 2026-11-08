@@ -18,3 +18,15 @@ def euro(centesimi):
 
 def data_it(valore):
     return valore.strftime("%d/%m/%Y") if valore else "—"
+
+
+def misura(valore, unita):
+    """500 g, 1,5 kg, 750 ml, 1 l, 6 pz"""
+    if unita == "pz":
+        return f"{valore} pz"
+    grande = {"g": "kg", "ml": "l"}[unita]
+    if valore >= 1000:
+        intero, resto = divmod(valore, 1000)
+        decimali = f"{resto:03d}".rstrip("0")
+        return f"{intero},{decimali} {grande}" if decimali else f"{intero} {grande}"
+    return f"{valore} {unita}"

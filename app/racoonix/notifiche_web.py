@@ -10,11 +10,12 @@ from .carico import _quantita as leggi_quantita
 from .models import Lotto, Notifica, Scarto
 from .notifiche import controlla_scaffali, controllo_giornaliero
 from .regole import perc_sconto
+from .sconti import applica_programmati
 
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
 URGENZA = {"da_rimuovere": 0, "riempi": 1, "esaurito": 2, "sconto": 3,
            "in_scadenza": 4, "freschezza": 5, "da_approvare": 6, "da_correggere": 7}
-AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto"}, "sconto": {"bollino"},
+AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto", "esaurimento"}, "sconto": {"bollino"},
           "in_scadenza": {"visto"}, "freschezza": {"ok", "deteriorato"}}
 
 
@@ -27,9 +28,9 @@ def _query_visibili(ruoli):
 
 def conta_notifiche():
     if g.get("utente") is None:
-        return {"notifiche_aperte": 0}
+        return {"notifiche_aperte": 0, "admin_attivo": False}
     stmt = _query_visibili(ruoli_attivi()).with_only_columns(db.func.count(Notifica.id))
-    return {"notifiche_aperte": db.session.scalar(stmt)}
+    return {"notifiche_aperte": db.session.scalar(stmt), "admin_attivo": "admin" in ruoli_attivi()}
 
 
 def _dati(messaggio=None, esito="ok"):
@@ -54,6 +55,7 @@ def _vista(messaggio=None, esito="ok"):
 def pagina():
     try:
         controllo_giornaliero()
+        applica_programmati()
     except Exception:
         db.session.rollback()
         current_app.logger.exception("controllo notifiche non riuscito")
@@ -89,10 +91,9 @@ def agisci(nid, azione):
             db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
                                   motivo="scaduto" if azione == "rimosso" else "deteriorato",
                                   utente_id=g.utente.id))
-    elif azione == "bollino":
-        lotto = notifica.lotto
-        lotto.bollino_perc = max(lotto.bollino_perc, perc_sconto(notifica.prodotto, lotto, date.today()))
 
+    if azione == "esaurimento":
+        notifica.prodotto.in_esaurimento = True
     notifica.stato = "chiusa"
     notifica.chiusa_da = g.utente.id
     notifica.chiusa_il = datetime.now(timezone.utc)

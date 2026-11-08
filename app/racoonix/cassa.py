@@ -10,9 +10,9 @@ from flask import (Blueprint, abort, current_app, flash, g, redirect, render_tem
 
 from . import codici, db
 from .auth import registra, richiede_ruolo
-from .models import Lotto, Prodotto, RigaVendita, Vendita
+from .catalogo import trova_per_gtin
+from .models import Lotto, Prodotto, RigaVendita, Sconto, Vendita
 from .notifiche import controlla_scaffali
-from .regole import perc_sconto as _perc_sconto
 
 bp = Blueprint("cassa", __name__, url_prefix="/cassa")
 CHIAVE = "carrello"
@@ -33,8 +33,6 @@ def _vendibile(lotto, oggi):
     return lotto.qta_esposta > 0 and (lotto.data_scadenza is None or lotto.data_scadenza > oggi)
 
 
-
-
 def _importo(prodotto, quantita, perc):
     if prodotto.unita == "kg":
         lordo = (prodotto.prezzo_centesimi * quantita + 500) // 1000
@@ -43,17 +41,30 @@ def _importo(prodotto, quantita, perc):
     return (lordo * (100 - perc) + 50) // 100
 
 
-def _lotti_in_sconto(prodotto, oggi):
-    return sorted((l for l in prodotto.lotti if _vendibile(l, oggi) and _perc_sconto(prodotto, l, oggi) > 0),
-                  key=lambda l: l.data_scadenza)
+def _sconti_attivi(lotto_ids, per_aggiornare=False):
+    if not lotto_ids:
+        return {}
+    stmt = db.select(Sconto).where(Sconto.lotto_id.in_(list(lotto_ids)), Sconto.attivo.is_(True))
+    if per_aggiornare:
+        stmt = stmt.with_for_update()
+    return {s.lotto_id: s for s in db.session.scalars(stmt)}
+
+
+def _in_sconto(prodotto, oggi):
+    """Lotti vendibili con pezzi scontati ancora disponibili, dal piu' vicino alla scadenza."""
+    vendibili = [l for l in prodotto.lotti if _vendibile(l, oggi)]
+    sconti = _sconti_attivi([l.id for l in vendibili])
+    coppie = [(l, sconti[l.id]) for l in vendibili if l.id in sconti and sconti[l.id].residuo > 0]
+    return sorted(coppie, key=lambda c: (c[0].data_scadenza is None, c[0].data_scadenza or oggi))
 
 
 def _anteprima_perc(riga, prodotto, oggi):
     if riga["l"]:
-        return _perc_sconto(prodotto, db.session.get(Lotto, riga["l"]), oggi)
+        sconto = _sconti_attivi([riga["l"]]).get(riga["l"])
+        return sconto.perc if sconto and sconto.residuo > 0 else 0
     if riga["s"]:
-        candidati = _lotti_in_sconto(prodotto, oggi)
-        return _perc_sconto(prodotto, candidati[0], oggi) if candidati else 0
+        coppie = _in_sconto(prodotto, oggi)
+        return coppie[0][1].perc if coppie else 0
     return 0
 
 
@@ -80,7 +91,7 @@ def _dati(messaggio=None, esito="ok", scontrino=None):
         totale += importo
         righe.append({"id": r["i"], "p": prodotto, "q": r["q"], "perc": perc, "importo": importo,
                       "sconto_richiesto": bool(r["s"]), "lotto_fisso": bool(r["l"]),
-                      "sconto_possibile": bool(r["s"]) or bool(_lotti_in_sconto(prodotto, oggi))})
+                      "sconto_possibile": bool(r["s"]) or bool(_in_sconto(prodotto, oggi))})
     return {"righe": righe, "totale": totale, "messaggio": messaggio,
             "esito": esito, "scontrino": scontrino}
 
@@ -122,7 +133,7 @@ def leggi():
     if info["tipo"] == "bilancia":
         prodotto = db.session.scalar(db.select(Prodotto).filter_by(codice_bilancia=info["codice_bilancia"]))
     else:
-        prodotto = db.session.scalar(db.select(Prodotto).filter_by(gtin=info["gtin"]))
+        prodotto = trova_per_gtin(info["gtin"])
     if prodotto is None or prodotto.stato != "attivo" or prodotto.prezzo_centesimi is None:
         return _vista("Prodotto non vendibile", "errore")
 
@@ -152,7 +163,7 @@ def leggi():
             righe.append({"i": secrets.token_hex(4), "p": prodotto.id, "l": lotto_id, "q": 1, "s": 0})
 
     if not _disponibile(prodotto, righe, oggi):
-        return _vista(f"Sullo scaffale non c'e' abbastanza {prodotto.nome}", "errore")
+        return _vista(f"Sullo scaffale non c'e' abbastanza {prodotto.descrizione}", "errore")
     session[CHIAVE] = righe
     return _vista()
 
@@ -179,13 +190,13 @@ def riga(rid, azione):
             righe.remove(r)
     else:
         if r["l"]:
-            return _vista("Per questo lotto lo sconto e' automatico", "errore")
-        if not r["s"] and not _lotti_in_sconto(prodotto, oggi):
-            return _vista(f"Nessun lotto di {prodotto.nome} e' in fascia di sconto", "errore")
+            return _vista("Per questo lotto lo sconto e' gia' gestito dal codice", "errore")
+        if not r["s"] and not _in_sconto(prodotto, oggi):
+            return _vista(f"Nessuno sconto attivo su {prodotto.descrizione}", "errore")
         r["s"] = 0 if r["s"] else 1
 
     if prodotto and not _disponibile(prodotto, righe, oggi):
-        return _vista(f"Sullo scaffale non c'e' abbastanza {prodotto.nome}", "errore")
+        return _vista(f"Sullo scaffale non c'e' abbastanza {prodotto.descrizione}", "errore")
     session[CHIAVE] = righe
     return _vista()
 
@@ -210,6 +221,10 @@ def finalizza():
     for lotto in db.session.scalars(db.select(Lotto).where(Lotto.prodotto_id.in_(prodotto_ids))
                                     .order_by(Lotto.id).with_for_update()):
         lotti[lotto.prodotto_id].append(lotto)
+    sconti = _sconti_attivi([l.id for gruppo in lotti.values() for l in gruppo], per_aggiornare=True)
+
+    def scontabile(lotto):
+        return lotto.id in sconti and sconti[lotto.id].residuo > 0
 
     vendita = Vendita(utente_id=g.utente.id, totale_centesimi=0)
     db.session.add(vendita)
@@ -219,36 +234,53 @@ def finalizza():
         for r in ordine:
             p = prodotti.get(r["p"])
             if p is None or p.stato != "attivo" or p.prezzo_centesimi is None:
-                raise NonDisponibile(p.nome if p else "un prodotto")
+                raise NonDisponibile("un prodotto")
             vendibili = [l for l in lotti[p.id] if _vendibile(l, oggi)]
+            restante, parti = r["q"], []
+
             if r["l"]:
-                candidati, con_sconto = [l for l in vendibili if l.id == r["l"]], True
+                lotto = next((l for l in vendibili if l.id == r["l"]), None)
+                if lotto is None or lotto.qta_esposta < restante:
+                    raise NonDisponibile(p.descrizione)
+                scontati = min(restante, sconti[lotto.id].residuo) if scontabile(lotto) else 0
+                if scontati:
+                    parti.append((lotto, scontati, sconti[lotto.id].perc))
+                    sconti[lotto.id].venduti += scontati
+                parti.append((lotto, restante - scontati, 0))
+                restante = 0
             elif r["s"]:
-                candidati = sorted((l for l in vendibili if _perc_sconto(p, l, oggi) > 0),
-                                   key=lambda l: l.data_scadenza)
-                con_sconto = True
+                for lotto in sorted(filter(scontabile, vendibili),
+                                    key=lambda l: (l.data_scadenza is None, l.data_scadenza or oggi)):
+                    parte = min(restante, lotto.qta_esposta, sconti[lotto.id].residuo)
+                    if parte > 0:
+                        parti.append((lotto, parte, sconti[lotto.id].perc))
+                        sconti[lotto.id].venduti += parte
+                        restante -= parte
+                    if restante == 0:
+                        break
             else:
-                candidati = sorted(vendibili, key=lambda l: (_perc_sconto(p, l, oggi) > 0, l.data_scadenza is None,
-                                                             l.data_scadenza or oggi, l.data_carico))
-                con_sconto = False
-            restante = r["q"]
-            for lotto in candidati:
-                parte = min(restante, lotto.qta_esposta)
+                for lotto in sorted(vendibili, key=lambda l: (scontabile(l), l.data_scadenza is None,
+                                                              l.data_scadenza or oggi, l.data_carico)):
+                    parte = min(restante, lotto.qta_esposta)
+                    if parte > 0:
+                        parti.append((lotto, parte, 0))
+                        restante -= parte
+                    if restante == 0:
+                        break
+            if restante > 0:
+                raise NonDisponibile(p.descrizione)
+
+            for lotto, parte, perc in parti:
                 if parte <= 0:
                     continue
-                perc = _perc_sconto(p, lotto, oggi) if con_sconto else 0
                 importo = _importo(p, parte, perc)
                 lotto.qta_esposta -= parte
                 db.session.add(RigaVendita(vendita=vendita, lotto_id=lotto.id, quantita=parte,
                                            prezzo_unitario_centesimi=p.prezzo_centesimi,
                                            sconto_perc=perc, totale_centesimi=importo))
                 totale += importo
-                scontrino.append({"nome": p.nome, "unita": p.unita, "q": parte, "perc": perc, "importo": importo})
-                restante -= parte
-                if restante == 0:
-                    break
-            if restante > 0:
-                raise NonDisponibile(p.nome)
+                scontrino.append({"nome": p.descrizione, "unita": p.unita, "q": parte,
+                                  "perc": perc, "importo": importo})
     except NonDisponibile as errore:
         db.session.rollback()
         return _vista(f"Disponibilita' cambiata: {errore} non basta. Nessuna modifica eseguita", "errore")

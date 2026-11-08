@@ -4,7 +4,7 @@
 {% set tipi = {"ean": "EAN", "editoriale": "Editoriale", "gs1": "GS1", "gs1_digital_link": "QR GS1 Digital Link", "manuale": "Senza codice"} %}
 <section class="scheda">
   <p><a href="{{ url_for('carico.pagina') }}">&larr; Nuovo codice</a></p>
-  <h1>{% if prodotto %}{{ prodotto.nome }}{% else %}Prodotto nuovo{% endif %}</h1>
+  <h1>{% if prodotto %}{{ prodotto.descrizione }}{% else %}Prodotto nuovo{% endif %}</h1>
   <p class="sotto">Codice: {{ tipi.get(info.tipo, info.tipo) }}{% if info.gtin %} &middot; GTIN {{ info.gtin }}{% endif %}</p>
   {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
   {% if not prodotto %}

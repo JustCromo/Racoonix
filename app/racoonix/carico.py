@@ -9,6 +9,7 @@ from . import codici, db
 from .auth import registra, richiede_ruolo
 from .models import Categoria, Lotto, Notifica, Prodotto
 from .notifiche import controlla_scaffali
+from .catalogo import trova_per_gtin
 
 bp = Blueprint("carico", __name__, url_prefix="/carico")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
@@ -46,7 +47,7 @@ def _prodotto_da_info(info):
     if info.get("prodotto_id"):
         return db.session.get(Prodotto, info["prodotto_id"])
     if info.get("gtin"):
-        return db.session.scalar(db.select(Prodotto).filter_by(gtin=info["gtin"]))
+        return trova_per_gtin(info["gtin"])
     return None
 
 

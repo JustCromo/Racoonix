@@ -13,7 +13,7 @@
   {% for n in notifiche %}
   <section class="scheda spazio">
     <div class="intestazione">
-      <h3>{{ n.prodotto.nome }}</h3>
+      <h3>{{ n.prodotto.descrizione }}</h3>
       <span class="badge {{ classi.get(n.tipo, '') }}">{{ titoli.get(n.tipo, n.tipo) }}</span>
     </div>
     {% if n.nota %}<p>{{ n.nota }}</p>{% endif %}
@@ -34,6 +34,9 @@
                  placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare (vuoto = tutto)">
           <button type="submit" class="secondario">Butta</button>
         </form>
+      {% elif n.tipo == "esaurito" %}
+        {{ azione(n, "visto", "Riordinerò") }}
+        {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
       {% elif n.tipo == "da_approvare" %}
         <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
       {% else %}

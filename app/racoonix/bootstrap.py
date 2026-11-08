@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from . import create_app, db
-from .models import AuditLog, Categoria, Ruolo, Utente
+from .models import AuditLog, Categoria, Ruolo, Sottocategoria, Utente
 
 RUOLI = ["admin", "magazziniere", "dipendente"]
 
@@ -21,6 +21,21 @@ CATEGORIE = [
     ("Edicola", False, None, (0, 0), (0, 0)),
     ("Casa e igiene", False, None, (0, 0), (0, 0)),
 ]
+
+SOTTOCATEGORIE = {
+    "Carne": ["Bovino", "Pollame", "Suino"],
+    "Salumi e formaggi": ["Salumi", "Formaggi"],
+    "Latticini": ["Latte", "Yogurt", "Formaggi freschi"],
+    "Forno": ["Pane", "Prodotti da forno"],
+    "Ortofrutta": ["Frutta", "Verdura"],
+    "Pasta": ["Pasta secca", "Pasta fresca"],
+    "Dolci": ["Biscotti", "Merendine"],
+    "Conserve": ["Pomodoro", "Legumi"],
+    "Bevande": ["Acqua", "Bibite"],
+    "Surgelati": ["Verdure surgelate", "Pesce surgelato"],
+    "Edicola": ["Riviste", "Figurine e carte"],
+    "Casa e igiene": ["Detersivi", "Igiene personale"],
+}
 CREDENZIALI = Path("/run/secrets/admin_credentials")
 
 
@@ -38,6 +53,12 @@ def main():
                     nome=nome, richiede_scadenza=scadenza, giorni_freschezza=freschezza,
                     sconto1_giorni=g1, sconto1_perc=p1, sconto2_giorni=g2, sconto2_perc=p2,
                 ))
+        if not db.session.scalar(db.select(Sottocategoria).limit(1)):
+            for nome_categoria, nomi in SOTTOCATEGORIE.items():
+                categoria = db.session.scalar(db.select(Categoria).filter_by(nome=nome_categoria))
+                if categoria:
+                    for nome in nomi:
+                        db.session.add(Sottocategoria(categoria_id=categoria.id, nome=nome))
         db.session.commit()
 
         ruolo_admin = db.session.scalar(db.select(Ruolo).filter_by(nome="admin"))

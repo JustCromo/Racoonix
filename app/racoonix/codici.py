@@ -196,3 +196,13 @@ def riconosci(grezzo, prefissi_bilancia=()):
         return _lineare(testo, prefissi_bilancia)
     campi = _campi_parentesi(testo) if testo.startswith("(") else _campi_stringa(testo)
     return _da_campi(campi, "gs1")
+
+
+def piva_valida(piva) -> bool:
+    """Partita IVA italiana: 11 cifre, l'ultima e' di controllo (simile all'algoritmo di Luhn)."""
+    if not isinstance(piva, str) or not re.fullmatch(r"[0-9]{11}", piva):
+        return False
+    cifre = [int(c) for c in piva]
+    dispari = sum(cifre[0:10:2])
+    pari = sum(d * 2 - 9 if d * 2 > 9 else d * 2 for d in cifre[1:10:2])
+    return (10 - (dispari + pari) % 10) % 10 == cifre[10]

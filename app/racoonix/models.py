@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import CheckConstraint, Index, text
+from sqlalchemy import CheckConstraint, Index, UniqueConstraint, text
 
 from . import db
+from .formato import misura
 
 
 def adesso():
@@ -56,6 +57,8 @@ class Categoria(db.Model):
     sconto1_perc = db.Column(db.Integer, nullable=False, default=0)
     sconto2_giorni = db.Column(db.Integer, nullable=False, default=0)
     sconto2_perc = db.Column(db.Integer, nullable=False, default=0)
+    sottocategorie = db.relationship("Sottocategoria", back_populates="categoria",
+                                     order_by="Sottocategoria.nome")
 
     __table_args__ = (
         CheckConstraint("giorni_freschezza IS NULL OR giorni_freschezza > 0", name="ck_cat_freschezza"),
@@ -66,15 +69,48 @@ class Categoria(db.Model):
     )
 
 
+class Sottocategoria(db.Model):
+    __tablename__ = "sottocategorie"
+    id = db.Column(db.Integer, primary_key=True)
+    categoria_id = db.Column(db.Integer, db.ForeignKey("categorie.id"), nullable=False)
+    nome = db.Column(db.String(50), nullable=False)
+    attiva = db.Column(db.Boolean, nullable=False, default=True)
+    categoria = db.relationship("Categoria", back_populates="sottocategorie")
+
+    __table_args__ = (UniqueConstraint("categoria_id", "nome", name="uq_sottocategoria"),)
+
+
+class Fornitore(db.Model):
+    __tablename__ = "fornitori"
+    id = db.Column(db.Integer, primary_key=True)
+    ragione_sociale = db.Column(db.String(120), unique=True, nullable=False)
+    partita_iva = db.Column(db.String(11), unique=True)
+    telefono = db.Column(db.String(30))
+    email = db.Column(db.String(120))
+    attivo = db.Column(db.Boolean, nullable=False, default=True)
+
+    __table_args__ = (
+        CheckConstraint("partita_iva IS NULL OR partita_iva ~ '^[0-9]{11}$'", name="ck_fornitore_piva"),
+    )
+
+
 class Prodotto(db.Model):
     __tablename__ = "prodotti"
     id = db.Column(db.Integer, primary_key=True)
     gtin = db.Column(db.String(14), unique=True)
     codice_bilancia = db.Column(db.String(5), unique=True)
     nome = db.Column(db.String(120), nullable=False)
+    marca = db.Column(db.String(60))
     categoria_id = db.Column(db.Integer, db.ForeignKey("categorie.id"), nullable=False)
+    sottocategoria_id = db.Column(db.Integer, db.ForeignKey("sottocategorie.id"))
+    fornitore_id = db.Column(db.Integer, db.ForeignKey("fornitori.id"))
     unita = db.Column(db.String(5), nullable=False, default="pezzo")
+    formato_pezzi = db.Column(db.Integer, nullable=False, default=1)
+    formato_quantita = db.Column(db.Integer)
+    formato_unita = db.Column(db.String(2))
     prezzo_centesimi = db.Column(db.Integer)
+    aliquota_iva = db.Column(db.Integer, nullable=False, default=22)
+    in_esaurimento = db.Column(db.Boolean, nullable=False, default=False)
     soglia_esposti = db.Column(db.Integer, nullable=False, default=5)
     giorni_preavviso = db.Column(db.Integer, nullable=False, default=3)
     giorni_validita = db.Column(db.Integer)
@@ -88,7 +124,11 @@ class Prodotto(db.Model):
     approvato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
     creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     categoria = db.relationship("Categoria")
+    sottocategoria = db.relationship("Sottocategoria")
+    fornitore = db.relationship("Fornitore")
     lotti = db.relationship("Lotto", back_populates="prodotto")
+    codici_aggiuntivi = db.relationship("CodiceAggiuntivo", back_populates="prodotto",
+                                        cascade="all, delete-orphan")
 
     __table_args__ = (
         CheckConstraint("stato IN ('in_attesa','da_correggere','attivo','rimosso')", name="ck_prodotto_stato"),
@@ -97,24 +137,67 @@ class Prodotto(db.Model):
         CheckConstraint("codice_bilancia IS NULL OR codice_bilancia ~ '^[0-9]{5}$'", name="ck_prodotto_bilancia"),
         CheckConstraint("gtin IS NOT NULL OR codice_bilancia IS NOT NULL", name="ck_prodotto_codice"),
         CheckConstraint("prezzo_centesimi IS NULL OR prezzo_centesimi >= 0", name="ck_prodotto_prezzo"),
+        CheckConstraint("aliquota_iva IN (4, 5, 10, 22)", name="ck_prodotto_iva"),
+        CheckConstraint("formato_pezzi >= 1", name="ck_prodotto_pezzi"),
+        CheckConstraint("formato_quantita IS NULL OR formato_quantita > 0", name="ck_prodotto_formato_q"),
+        CheckConstraint("formato_unita IS NULL OR formato_unita IN ('g','ml','pz')", name="ck_prodotto_formato_u"),
+        CheckConstraint("(formato_quantita IS NULL) = (formato_unita IS NULL)", name="ck_prodotto_formato"),
         CheckConstraint("soglia_esposti >= 0 AND giorni_preavviso >= 0", name="ck_prodotto_soglie"),
+        CheckConstraint("giorni_validita IS NULL OR giorni_validita > 0", name="ck_prodotto_validita"),
         CheckConstraint("(sconto1_perc IS NULL OR sconto1_perc BETWEEN 0 AND 90) AND "
                         "(sconto2_perc IS NULL OR sconto2_perc BETWEEN 0 AND 90)", name="ck_prodotto_sconto_perc"),
         CheckConstraint("(sconto1_giorni IS NULL OR sconto1_giorni >= 0) AND "
                         "(sconto2_giorni IS NULL OR sconto2_giorni >= 0)", name="ck_prodotto_sconto_giorni"),
     )
 
+    @property
+    def formato_testo(self):
+        if not self.formato_quantita or not self.formato_unita:
+            return ""
+        singolo = misura(self.formato_quantita, self.formato_unita)
+        return f"{self.formato_pezzi} × {singolo}" if self.formato_pezzi > 1 else singolo
+
+    @property
+    def descrizione(self):
+        return " · ".join(x for x in (self.marca, self.nome, self.formato_testo) if x)
+
+    @property
+    def prezzo_misura(self):
+        """Prezzo per unita' di misura (obbligatorio in etichetta): (centesimi, 'kg'|'l'|'pz')."""
+        if self.prezzo_centesimi is None:
+            return None
+        if self.unita == "kg":
+            return self.prezzo_centesimi, "kg"
+        if not self.formato_quantita or not self.formato_unita:
+            return None
+        totale = self.formato_quantita * self.formato_pezzi
+        if self.formato_unita == "pz":
+            return (self.prezzo_centesimi + totale // 2) // totale, "pz"
+        per_mille = (self.prezzo_centesimi * 1000 + totale // 2) // totale
+        return per_mille, "kg" if self.formato_unita == "g" else "l"
+
     def fasce_sconto(self):
         """Fasce effettive: valori del prodotto se presenti, altrimenti della categoria."""
         c = self.categoria
 
         def scegli(proprio, ereditato):
-            return proprio if proprio is not None else ereditato
+            return proprio or 0
 
         return [
             (scegli(self.sconto1_giorni, c.sconto1_giorni), scegli(self.sconto1_perc, c.sconto1_perc)),
             (scegli(self.sconto2_giorni, c.sconto2_giorni), scegli(self.sconto2_perc, c.sconto2_perc)),
         ]
+
+
+class CodiceAggiuntivo(db.Model):
+    __tablename__ = "codici_aggiuntivi"
+    id = db.Column(db.Integer, primary_key=True)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey("prodotti.id"), nullable=False)
+    gtin = db.Column(db.String(14), unique=True, nullable=False)
+    descrizione = db.Column(db.String(60))
+    prodotto = db.relationship("Prodotto", back_populates="codici_aggiuntivi")
+
+    __table_args__ = (CheckConstraint("gtin ~ '^[0-9]{14}$'", name="ck_codice_gtin"),)
 
 
 class Lotto(db.Model):
@@ -225,3 +308,31 @@ class AuditLog(db.Model):
     dettaglio = db.Column(db.Text)
     ip = db.Column(db.String(45))
     data_ora = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+
+
+class Sconto(db.Model):
+    """Sconto deciso dall'admin su un lotto: manuale oppure generato da una programmazione."""
+    __tablename__ = "sconti"
+    id = db.Column(db.Integer, primary_key=True)
+    lotto_id = db.Column(db.Integer, db.ForeignKey("lotti.id"), nullable=False)
+    perc = db.Column(db.Integer, nullable=False)
+    quantita = db.Column(db.Integer, nullable=False)
+    venduti = db.Column(db.Integer, nullable=False, default=0)
+    origine = db.Column(db.String(12), nullable=False)
+    attivo = db.Column(db.Boolean, nullable=False, default=True)
+    creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+    chiuso_il = db.Column(db.DateTime(timezone=True))
+    lotto = db.relationship("Lotto")
+
+    __table_args__ = (
+        CheckConstraint("perc BETWEEN 1 AND 90", name="ck_sconto_perc"),
+        CheckConstraint("quantita > 0", name="ck_sconto_quantita"),
+        CheckConstraint("venduti >= 0 AND venduti <= quantita", name="ck_sconto_venduti"),
+        CheckConstraint("origine IN ('manuale','programmato')", name="ck_sconto_origine"),
+        Index("uq_sconto_attivo", "lotto_id", unique=True, postgresql_where=text("attivo")),
+    )
+
+    @property
+    def residuo(self):
+        return self.quantita - self.venduti

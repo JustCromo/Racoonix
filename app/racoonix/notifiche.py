@@ -36,6 +36,16 @@ def _gia_gestita(tipo, lotto_id, ruolo):
         tipo=tipo, lotto_id=lotto_id, ruolo_destinatario=ruolo, stato="chiusa").limit(1)) is not None
 
 
+def _riordino_gia_visto(prodotto):
+    """Un 'Riordinero'' vale fino al prossimo carico: dopo, se si riesaurisce, l'avviso torna."""
+    ultimo_carico = max((l.data_carico for l in prodotto.lotti), default=None)
+    stmt = db.select(Notifica.id).where(Notifica.prodotto_id == prodotto.id, Notifica.tipo == "esaurito",
+                                        Notifica.stato == "chiusa", Notifica.chiusa_da.is_not(None))
+    if ultimo_carico:
+        stmt = stmt.where(Notifica.chiusa_il >= ultimo_carico)
+    return db.session.scalar(stmt.limit(1)) is not None
+
+
 def controlla_scaffali(prodotto_ids):
     """Dopo vendite, carichi e rimozioni: riempi lo scaffale oppure riordina."""
     oggi = date.today()
@@ -54,8 +64,12 @@ def controlla_scaffali(prodotto_ids):
                   f"Sullo scaffale: {quantita(esposta, p.unita)}, in magazzino: {quantita(magazzino, p.unita)}")
         else:
             _chiudi(p.id, "riempi")
+            if p.in_esaurimento or _riordino_gia_visto(p):
+                _chiudi(p.id, "esaurito")
+                continue
+            fornitore = f" (fornitore: {p.fornitore.ragione_sociale})" if p.fornitore else ""
             _apri("esaurito", p.id, "magazziniere",
-                  f"Sullo scaffale: {quantita(esposta, p.unita)} e magazzino vuoto: da riordinare")
+                  f"Sullo scaffale: {quantita(esposta, p.unita)} e magazzino vuoto: da riordinare{fornitore}")
     db.session.commit()
 
 
@@ -87,11 +101,6 @@ def controllo_giornaliero():
                         creati += _apri("in_scadenza", p.id, ruolo,
                                         f"Scade il {data_it(l.data_scadenza)} (tra {giorni} gg): "
                                         f"{quantita(q, p.unita)} {dove[ruolo]}", l.id)
-            perc = perc_sconto(p, l, oggi)
-            if perc > l.bollino_perc and l.qta_esposta > 0:
-                creati += _apri("sconto", p.id, "dipendente",
-                                f"Applica il bollino -{perc}% su {quantita(l.qta_esposta, p.unita)} "
-                                f"(lotto {l.codice_lotto})", l.id)
         elif p.categoria.giorni_freschezza:
             limite = p.categoria.giorni_freschezza
             giorni = (oggi - l.data_carico.date()).days
@@ -113,5 +122,6 @@ def controllo_giornaliero():
         notifica.stato = "chiusa"
         notifica.chiusa_il = _adesso()
     db.session.commit()
-    controlla_scaffali(db.session.scalars(db.select(Prodotto.id).where(Prodotto.stato == "attivo", Prodotto.lotti.any())).all())
+    controlla_scaffali(db.session.scalars(db.select(Prodotto.id).where(
+        Prodotto.stato == "attivo", Prodotto.lotti.any())).all())
     return creati

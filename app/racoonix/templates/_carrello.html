@@ -12,7 +12,7 @@
       <tr><th>Prodotto</th><th>Quantita'</th><th>Prezzo</th><th>Importo</th><th></th></tr>
       {% for r in righe %}
       <tr>
-        <td>{{ r.p.nome }}{% if r.perc %} <span class="badge avviso">-{{ r.perc }}%</span>{% endif %}</td>
+        <td>{{ r.p.descrizione }}{% if r.perc %} <span class="badge avviso">-{{ r.perc }}%</span>{% endif %}</td>
         <td class="azioni">
           {% if r.p.unita == "pezzo" %}
           {{ azione(url_for('cassa.riga', rid=r.id, azione='meno'), '−') }}

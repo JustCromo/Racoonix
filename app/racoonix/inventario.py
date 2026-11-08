@@ -10,8 +10,9 @@ from . import codici, db
 from .auth import registra, richiede_ruolo
 from .carico import _quantita as leggi_quantita
 from .formato import quantita as mostra_quantita
-from .models import Categoria, Lotto, Prodotto
+from .models import Categoria, CodiceAggiuntivo, Lotto, Prodotto
 from .prodotti import _chiudi_notifiche
+from .sconti import applica_programmati, crea_sconto, sconto_attivo, togli_sconto
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
 ID_OK = re.compile(r"^[0-9]{1,9}$")
@@ -48,7 +49,7 @@ def _scheda(p, oggi):
     esposta = sum(l.qta_esposta for l in lotti)
     return {
         "p": p,
-        "lotti": [{"l": l, "stato": _stato_lotto(l, p, oggi)} for l in lotti],
+        "lotti": [{"l": l, "stato": _stato_lotto(l, p, oggi), "sconto": sconto_attivo(l)} for l in lotti],
         "esposta": esposta,
         "magazzino": sum(l.qta_magazzino for l in lotti),
         "rifornibile": sum(l.qta_magazzino for l in lotti if _vendibile(l, oggi)),
@@ -71,12 +72,12 @@ def _cerca(q, categoria_id, tutti=False):
         except codici.CodiceNonValido:
             info = None
         if info and info.get("gtin"):
-            stmt = stmt.where(Prodotto.gtin == info["gtin"])
+            stmt = stmt.where(or_(Prodotto.gtin == info["gtin"], Prodotto.codici_aggiuntivi.any(CodiceAggiuntivo.gtin == info["gtin"])))
         elif info and info.get("codice_bilancia"):
             stmt = stmt.where(Prodotto.codice_bilancia == info["codice_bilancia"])
         else:
             sicuro = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-            stmt = stmt.where(Prodotto.nome.ilike(f"%{sicuro}%", escape="\\"))
+            stmt = stmt.where(or_(Prodotto.nome.ilike(f"%{sicuro}%", escape="\\"), Prodotto.marca.ilike(f"%{sicuro}%", escape="\\")))
     oggi = date.today()
     return [_scheda(p, oggi) for p in db.session.scalars(stmt)]
 
@@ -151,3 +152,68 @@ def rifornisci(prodotto_id):
     db.session.commit()
     return _risposta(prodotto, f"Spostati sullo scaffale: {mostra_quantita(quantita, prodotto.unita)}",
                      "ok", q, categoria_id)
+
+
+def _intero(testo, minimo, massimo):
+    testo = (testo or "").strip()
+    if not re.fullmatch(r"[0-9]{1,3}", testo):
+        return None
+    valore = int(testo)
+    return valore if minimo <= valore <= massimo else None
+
+
+@bp.post("/lotto/<int:lotto_id>/sconto")
+@richiede_ruolo("admin")
+def sconta(lotto_id):
+    q, categoria_id = _filtri(request.form)
+    lotto = db.get_or_404(Lotto, lotto_id)
+    prodotto = lotto.prodotto
+    if request.form.get("azione") == "togli":
+        togli_sconto(lotto)
+        registra("sconto_tolto", g.utente.id, f"lotto {lotto.id}")
+        db.session.commit()
+        return _risposta(prodotto, "Sconto tolto", "ok", q, categoria_id)
+
+    perc = _intero(request.form.get("perc"), 1, 90)
+    totale = lotto.qta_esposta + lotto.qta_magazzino
+    testo_q = (request.form.get("quantita") or "").strip()
+    quantita = leggi_quantita(testo_q, prodotto.unita) if testo_q else totale
+    if lotto.data_scadenza is None or lotto.data_scadenza <= date.today():
+        return _risposta(prodotto, "Si possono scontare solo lotti con scadenza futura", "errore", q, categoria_id)
+    if perc is None or not quantita or quantita > totale:
+        return _risposta(prodotto, "Percentuale (1-90) o quantita' non valida", "errore", q, categoria_id)
+    crea_sconto(lotto, perc, quantita, "manuale", g.utente.id)
+    registra("sconto_manuale", g.utente.id, f"lotto {lotto.id}, {perc}%, quantita {quantita}")
+    db.session.commit()
+    return _risposta(prodotto, f"Sconto -{perc}% registrato: il dipendente ricevera' l'avviso del bollino",
+                     "ok", q, categoria_id)
+
+
+@bp.post("/<int:prodotto_id>/programma")
+@richiede_ruolo("admin")
+def programma(prodotto_id):
+    q, categoria_id = _filtri(request.form)
+    prodotto = db.get_or_404(Prodotto, prodotto_id)
+    f = request.form
+    if f.get("azione") == "rimuovi":
+        prodotto.sconto1_giorni = prodotto.sconto1_perc = None
+        prodotto.sconto2_giorni = prodotto.sconto2_perc = None
+        registra("programmazione_rimossa", g.utente.id, f"prodotto {prodotto.id}")
+        db.session.commit()
+        return _risposta(prodotto, "Programmazione rimossa", "ok", q, categoria_id)
+
+    g1, p1 = _intero(f.get("g1"), 1, 60), _intero(f.get("p1"), 1, 90)
+    testo_g2, testo_p2 = (f.get("g2") or "").strip(), (f.get("p2") or "").strip()
+    g2 = _intero(testo_g2, 0, 60) if testo_g2 else None
+    p2 = _intero(testo_p2, 1, 90) if testo_p2 else None
+    if g1 is None or p1 is None:
+        return _risposta(prodotto, "Prima fascia non valida (giorni 1-60, sconto 1-90%)", "errore", q, categoria_id)
+    if (testo_g2 or testo_p2) and (g2 is None or p2 is None or g2 >= g1 or p2 <= p1):
+        return _risposta(prodotto, "Seconda fascia: meno giorni e sconto piu' alto della prima", "errore",
+                         q, categoria_id)
+    prodotto.sconto1_giorni, prodotto.sconto1_perc = g1, p1
+    prodotto.sconto2_giorni, prodotto.sconto2_perc = g2, p2
+    registra("programmazione_sconto", g.utente.id, f"prodotto {prodotto.id}: {g1}gg {p1}%, {g2}gg {p2}%")
+    db.session.commit()
+    applica_programmati()
+    return _risposta(prodotto, "Sconto programmato", "ok", q, categoria_id)
