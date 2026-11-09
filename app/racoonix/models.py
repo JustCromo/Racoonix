@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from sqlalchemy import CheckConstraint, Index, UniqueConstraint, text
 
@@ -88,11 +88,29 @@ class Fornitore(db.Model):
     partita_iva = db.Column(db.String(11), unique=True)
     telefono = db.Column(db.String(30))
     email = db.Column(db.String(120))
+    giorni_ordine = db.Column(db.String(7))
     attivo = db.Column(db.Boolean, nullable=False, default=True)
 
     __table_args__ = (
         CheckConstraint("partita_iva IS NULL OR partita_iva ~ '^[0-9]{11}$'", name="ck_fornitore_piva"),
+        CheckConstraint("giorni_ordine IS NULL OR giorni_ordine ~ '^[0-6]{1,7}$'", name="ck_fornitore_giorni"),
     )
+
+    GIORNI = ("lunedi'", "martedi'", "mercoledi'", "giovedi'", "venerdi'", "sabato", "domenica")
+
+    @property
+    def ordina_oggi(self):
+        return bool(self.giorni_ordine) and str(date.today().weekday()) in self.giorni_ordine
+
+    @property
+    def prossimo_ordine(self):
+        if not self.giorni_ordine:
+            return None
+        oggi = date.today().weekday()
+        for avanti in range(1, 8):
+            giorno = (oggi + avanti) % 7
+            if str(giorno) in self.giorni_ordine:
+                return "domani" if avanti == 1 else self.GIORNI[giorno]
 
 
 class Prodotto(db.Model):

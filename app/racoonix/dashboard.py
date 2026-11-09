@@ -108,6 +108,15 @@ def pagina():
     if da_ordinare:
         attenzione.insert(0, {"etichetta": "Da ordinare ai fornitori", "numero": da_ordinare, "urgente": True,
                               "link": url_for("ordini.pagina")})
+    per_fornitore = db.session.execute(
+        db.select(Fornitore, func.count(Riordino.id))
+        .join(Prodotto, Prodotto.fornitore_id == Fornitore.id)
+        .join(Riordino, Riordino.prodotto_id == Prodotto.id)
+        .where(Riordino.stato == "da_ordinare").group_by(Fornitore.id)).all()
+    for fornitore, numero in per_fornitore:
+        if fornitore.ordina_oggi:
+            attenzione.insert(0, {"etichetta": f"Oggi ordina a {fornitore.ragione_sociale}", "numero": numero,
+                                  "urgente": True, "link": url_for("ordini.pagina", _anchor=f"fornitore-{fornitore.id}")})
     in_scadenza = db.session.execute(
         db.select(Lotto, Prodotto).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
         .where(Prodotto.stato == "attivo", (Lotto.qta_esposta + Lotto.qta_magazzino) > 0,

@@ -44,3 +44,11 @@ def quantita_input(valore, unita):
         kg, grammi = divmod(valore, 1000)
         return f"{kg},{grammi:03d}"
     return str(valore)
+
+
+TIPOGRAFICI = str.maketrans({"\u2019": "'", "\u2018": "'", "\u201c": '"', "\u201d": '"'})
+
+
+def testo_pulito(valore):
+    """Le tastiere dei telefoni mettono apostrofi e virgolette curvi: li riportiamo a quelli dritti."""
+    return (valore or "").translate(TIPOGRAFICI).strip()

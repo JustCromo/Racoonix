@@ -42,8 +42,9 @@ def _gruppi():
         gruppo = gruppi.setdefault(f.id if f else 0, {"id": f.id if f else 0, "fornitore": f,
                                                       "da_ordinare": [], "ordinati": []})
         gruppo["da_ordinare" if r.stato == "da_ordinare" else "ordinati"].append(r)
-    elenco = sorted(gruppi.values(), key=lambda x: (x["fornitore"] is None,
-                                                    x["fornitore"].ragione_sociale if x["fornitore"] else ""))
+    elenco = sorted(gruppi.values(), key=lambda x: (
+        not (x["fornitore"] and x["fornitore"].ordina_oggi and x["da_ordinare"]),
+        x["fornitore"] is None, x["fornitore"].ragione_sociale if x["fornitore"] else ""))
     for gruppo in elenco:
         gruppo["testo"] = _testo_ordine(gruppo)
     return elenco

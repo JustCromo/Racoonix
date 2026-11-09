@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_giorni_ordine.html" import giorni_ordine %}
+{% block titolo %}Nuovo fornitore - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('anagrafica.fornitori') }}">&larr; Fornitori</a></p>
+<h1>Nuovo fornitore</h1>
+{% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+<section class="scheda">
+  <form method="post" action="{{ url_for('anagrafica.nuovo_fornitore') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="griglia">
+      <label>Ragione sociale <input name="ragione_sociale" value="{{ valori.get('ragione_sociale', '') }}" maxlength="120" required autofocus></label>
+      <label>Partita IVA <input name="partita_iva" value="{{ valori.get('partita_iva', '') }}" inputmode="numeric" maxlength="11"></label>
+      <label>Telefono <input name="telefono" value="{{ valori.get('telefono', '') }}" maxlength="30"></label>
+      <label>Email <input name="email" type="email" value="{{ valori.get('email', '') }}" maxlength="120"></label>
+    </div>
+    <p class="sotto">La ragione sociale e' il nome ufficiale dell'azienda, con la forma giuridica (Srl, Spa, Snc...).</p>
+    {{ giorni_ordine(giorni) }}
+    <button type="submit">Aggiungi fornitore</button>
+  </form>
+</section>
+{% endblock %}

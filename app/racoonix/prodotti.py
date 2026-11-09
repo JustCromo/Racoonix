@@ -53,7 +53,8 @@ def approva(prodotto_id):
     if prodotto is None:
         flash("Prodotto gia' gestito", "errore")
         return redirect(url_for(".attesa"))
-    nome = (request.form.get("nome") or "").strip()
+    from .formato import testo_pulito
+    nome = testo_pulito(request.form.get("nome"))
     cid = (request.form.get("categoria_id") or "").strip()
     categoria = db.session.get(Categoria, int(cid)) if ID_OK.match(cid) else None
     prezzo = centesimi(request.form.get("prezzo"))

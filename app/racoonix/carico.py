@@ -119,7 +119,8 @@ def conferma():
     f = request.form
     errori = []
     if prodotto is None:
-        nome = (f.get("nome") or "").strip()
+        from .formato import testo_pulito
+        nome = testo_pulito(f.get("nome"))
         unita = f.get("unita")
         cid = _id(f.get("categoria_id"))
         categoria = db.session.get(Categoria, cid) if cid else None

@@ -1,0 +1,8 @@
+{% macro giorni_ordine(selezionati) %}
+<fieldset class="giorni">
+  <legend>Giorni in cui si ordina</legend>
+  {% for n, nome in [("0", "Lun"), ("1", "Mar"), ("2", "Mer"), ("3", "Gio"), ("4", "Ven"), ("5", "Sab"), ("6", "Dom")] %}
+  <label class="spunta"><input type="checkbox" name="giorni" value="{{ n }}" {% if selezionati and n in selezionati %}checked{% endif %}> {{ nome }}</label>
+  {% endfor %}
+</fieldset>
+{% endmacro %}

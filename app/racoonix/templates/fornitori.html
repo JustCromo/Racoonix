@@ -3,34 +3,14 @@
 {% block titolo %}Fornitori - Racoonix{% endblock %}
 {% block contenuto %}
 <h1>Fornitori</h1>
-<section class="scheda">
-  <h2>Nuovo fornitore</h2>
-  <form method="post" action="{{ url_for('anagrafica.nuovo_fornitore') }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="griglia">
-      <label>Ragione sociale <input name="ragione_sociale" maxlength="120" required></label>
-      <label>Partita IVA <input name="partita_iva" inputmode="numeric" maxlength="11"></label>
-      <label>Telefono <input name="telefono" maxlength="30"></label>
-      <label>Email <input name="email" type="email" maxlength="120"></label>
-    </div>
-    <button type="submit">Aggiungi</button>
+<div class="barra-azioni">
+  <form method="get" action="{{ url_for('anagrafica.fornitori') }}" class="cresci"
+        hx-get="{{ url_for('anagrafica.fornitori_risultati') }}" hx-trigger="submit" hx-target="#risultati">
+    <input name="q" value="{{ q }}" maxlength="100" placeholder="Cerca per nome, partita IVA, telefono o email" autocomplete="off"
+           hx-get="{{ url_for('anagrafica.fornitori_risultati') }}" hx-trigger="input changed delay:300ms"
+           hx-target="#risultati" hx-include="closest form">
   </form>
-</section>
-<div class="lista-schede">
-{% for f in fornitori %}
-<section class="scheda spazio">
-  <form method="post" action="{{ url_for('anagrafica.salva_fornitore', fid=f.id) }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="griglia">
-      <label>Ragione sociale <input name="ragione_sociale" value="{{ f.ragione_sociale }}" maxlength="120" required></label>
-      <label>Partita IVA <input name="partita_iva" value="{{ f.partita_iva or '' }}" inputmode="numeric" maxlength="11"></label>
-      <label>Telefono <input name="telefono" value="{{ f.telefono or '' }}" maxlength="30"></label>
-      <label>Email <input name="email" type="email" value="{{ f.email or '' }}" maxlength="120"></label>
-    </div>
-    <label class="spunta"><input type="checkbox" name="attivo" value="1" {% if f.attivo %}checked{% endif %}> Attivo</label>
-    <button type="submit" class="piccolo">Salva</button>
-  </form>
-</section>
-{% endfor %}
+  <a class="pulsante" href="{{ url_for('anagrafica.nuovo_fornitore') }}">+ Aggiungi fornitore</a>
 </div>
+<div id="risultati">{% include "_fornitori_risultati.html" %}</div>
 {% endblock %}

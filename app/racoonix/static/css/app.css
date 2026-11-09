@@ -319,3 +319,68 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 @supports not selector(::-webkit-scrollbar) {
   * { scrollbar-width: thin; scrollbar-color: var(--scroll-pollice) transparent; }
 }
+
+/* --- Giorni d'ordine nella scheda fornitore --- */
+fieldset.giorni { border: 0; padding: 0; margin: .3rem 0 0; grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .2rem .9rem; }
+fieldset.giorni legend { font-size: .9rem; margin-bottom: .2rem; }
+fieldset.giorni .spunta { margin: 0; }
+
+/* --- Giorni d'ordine come pillole selezionabili --- */
+fieldset.giorni { gap: .5rem; margin: .7rem 0 1.1rem; }
+fieldset.giorni legend { margin-bottom: .55rem; opacity: .85; }
+fieldset.giorni .spunta { position: relative; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 3.4rem; padding: .5rem .85rem; margin: 0; border-radius: 999px; cursor: pointer; font-weight: 700;
+  border: 1px solid rgba(107, 122, 143, .55); transition: background-color .15s, border-color .15s, color .15s; }
+fieldset.giorni .spunta:hover { border-color: #D9A441; }
+fieldset.giorni .spunta input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+fieldset.giorni .spunta:has(input:checked) { background-color: #D9A441; border-color: #D9A441; color: #2E3A59; }
+fieldset.giorni .spunta:has(input:focus-visible) { outline: 2px solid #D9A441; outline-offset: 2px; }
+
+/* --- Barra con ricerca e pulsante di aggiunta --- */
+.barra-azioni { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
+.barra-azioni .cresci { flex: 1 1 280px; margin: 0; }
+.barra-azioni .cresci input { margin: 0; }
+.barra-azioni .pulsante { white-space: nowrap; }
+.lista-schede h2 { margin: 0; }
+
+/* --- Schede fornitore leggibili --- */
+.lista-fornitori { align-items: stretch; }
+.scheda-fornitore { display: flex; flex-direction: column; gap: .9rem; }
+.scheda-fornitore.spenta { opacity: .6; }
+.testa-fornitore { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; }
+.testa-fornitore h2 { font-size: 1.15rem; line-height: 1.3; }
+.testa-fornitore .badge { flex-shrink: 0; margin-top: .1rem; }
+.dati-fornitore { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .6rem 1rem; margin: 0; }
+.dati-fornitore dt, .etichetta-dato { margin: 0 0 .25rem; font-size: .72rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; opacity: .6; }
+.dati-fornitore dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.settimana { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .35rem; }
+.settimana .giorno { min-width: 2.7rem; padding: .35rem .45rem; text-align: center; border-radius: 8px;
+  font-size: .82rem; font-weight: 700; border: 2px solid rgba(107, 122, 143, .3); opacity: .45; }
+.settimana .giorno.si { opacity: 1; background: #D9A441; border-color: #D9A441; color: #2E3A59; }
+.settimana .giorno.oggi { opacity: 1; border-color: #D9A441; }
+.scheda-fornitore > details { margin-top: auto; padding-top: .7rem; border-top: 1px solid rgba(107, 122, 143, .25); }
+
+/* --- "Oggi" come puntino sotto la casella, non come bordo --- */
+.settimana { margin-bottom: .6rem; }
+.settimana .giorno { position: relative; }
+.settimana .giorno.oggi:not(.si) { opacity: .45; border-color: rgba(107, 122, 143, .3); }
+.settimana .giorno.oggi::after { content: ""; position: absolute; left: 50%; bottom: -9px; width: 6px; height: 6px;
+  border-radius: 50%; background: #D9A441; transform: translateX(-50%); }
+.testa-fornitore .badge { padding: .2rem .6rem; font-size: .75rem; box-shadow: none; line-height: 1.4; }
+
+/* --- "Oggi": barretta interna in basso, al posto del puntino --- */
+.settimana { margin-bottom: .35rem; }
+.settimana .giorno.oggi::after { content: none; }
+.settimana .giorno.oggi { box-shadow: inset 0 -3px 0 #D9A441; }
+.settimana .giorno.oggi:not(.si) { opacity: .8; }
+.settimana .giorno.oggi.si { box-shadow: inset 0 -3px 0 #2E3A59; }
+
+/* --- Il tema lo decide Racoonix: niente ricolorazione forzata dei browser (modalita' scura automatica) --- */
+:root { color-scheme: only light; }
+[data-theme="scuro"] { color-scheme: only dark; }
+
+/* --- Sul telefono le schede strette (login, cambio password) occupano tutta la larghezza --- */
+@media (max-width: 900px) {
+  .stretta { max-width: none; margin: .5rem 0; }
+}

@@ -1,5 +1,6 @@
 """Pagine admin dell'anagrafica: catalogo, scheda prodotto, codici aggiuntivi, fornitori, categorie."""
 import re
+from datetime import date
 
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from sqlalchemy import or_
@@ -24,7 +25,8 @@ STATI = ("attivo", "in_attesa", "rimosso")
 
 
 def _campo(nome):
-    return (request.form.get(nome) or "").strip()
+    from .formato import testo_pulito
+    return testo_pulito(request.form.get(nome))
 
 
 def _intero(testo, minimo, massimo):
@@ -253,29 +255,54 @@ def _leggi_fornitore(escludi_id=None):
         errori.append("Telefono non valido")
     if email and not EMAIL_OK.match(email):
         errori.append("Email non valida")
-    return {"ragione_sociale": ragione, "partita_iva": piva, "telefono": telefono, "email": email}, errori
+    giorni = sorted({v for v in request.form.getlist("giorni") if v in "0123456" and len(v) == 1})
+    return {"ragione_sociale": ragione, "partita_iva": piva, "telefono": telefono, "email": email,
+            "giorni_ordine": "".join(giorni) or None}, errori
+
+
+def _cerca_fornitori(q):
+    stmt = db.select(Fornitore).order_by(Fornitore.attivo.desc(), Fornitore.ragione_sociale).limit(300)
+    if q:
+        modello = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        stmt = stmt.where(or_(*(campo.ilike(modello, escape="\\") for campo in (
+            Fornitore.ragione_sociale, Fornitore.partita_iva, Fornitore.telefono, Fornitore.email))))
+    return db.session.scalars(stmt).all()
+
+
+def _q_fornitori():
+    q = (request.args.get("q") or "").strip()[:100]
+    return q, "".join(c for c in q if c.isprintable())
 
 
 @bp.get("/fornitori")
 @richiede_ruolo("admin")
 def fornitori():
-    elenco = db.session.scalars(db.select(Fornitore).order_by(Fornitore.ragione_sociale)).all()
-    return render_template("fornitori.html", fornitori=elenco)
+    q, mostra = _q_fornitori()
+    return render_template("fornitori.html", fornitori=_cerca_fornitori(q), q=mostra, oggi=date.today().weekday())
 
 
-@bp.post("/fornitori/nuovo")
+@bp.get("/fornitori/risultati")
+@richiede_ruolo("admin")
+def fornitori_risultati():
+    q, _ = _q_fornitori()
+    return render_template("_fornitori_risultati.html", fornitori=_cerca_fornitori(q), oggi=date.today().weekday())
+
+
+@bp.route("/fornitori/nuovo", methods=["GET", "POST"])
 @richiede_ruolo("admin")
 def nuovo_fornitore():
+    if request.method == "GET":
+        return render_template("fornitore_nuovo.html", errori=[], valori={}, giorni="")
     dati, errori = _leggi_fornitore()
     if errori:
-        for e in errori:
-            flash(e, "errore")
-        return redirect(url_for(".fornitori"))
-    db.session.add(Fornitore(**dati))
+        return render_template("fornitore_nuovo.html", errori=errori, valori=request.form,
+                               giorni=dati["giorni_ordine"] or ""), 400
+    fornitore = Fornitore(**dati)
+    db.session.add(fornitore)
     registra("fornitore_creato", g.utente.id, dati["ragione_sociale"])
     db.session.commit()
-    flash("Fornitore aggiunto", "ok")
-    return redirect(url_for(".fornitori"))
+    flash(f"Fornitore aggiunto: {fornitore.ragione_sociale}", "ok")
+    return redirect(url_for(".fornitori", _anchor=f"fornitore-{fornitore.id}"))
 
 
 @bp.post("/fornitori/<int:fid>")
