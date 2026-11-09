@@ -302,3 +302,20 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 .gruppo-menu { margin: .9rem .8rem .2rem; font-size: .72rem; font-weight: 700; letter-spacing: .06em;
                text-transform: uppercase; opacity: .55; }
 .gruppo-menu:first-child { margin-top: .2rem; }
+
+/* --- Barre di scorrimento a tema: sottili, arrotondate, senza binario --- */
+:root { --scroll-pollice: rgba(107, 122, 143, .45); --scroll-pollice-su: #C28E2C; }
+[data-theme="scuro"] { --scroll-pollice: rgba(246, 240, 228, .16); --scroll-pollice-su: #D9A441; }
+
+/* Chrome, Edge, Safari: forma e colore al passaggio del mouse */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--scroll-pollice); border-radius: 10px;
+                            border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-pollice-su); }
+::-webkit-scrollbar-button { display: none; }
+
+/* Firefox: solo il sistema standard (barra sottile e colori) */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--scroll-pollice) transparent; }
+}
