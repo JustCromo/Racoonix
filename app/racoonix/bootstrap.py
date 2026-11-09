@@ -1,7 +1,9 @@
+import re
 import sys
 from pathlib import Path
 
 from flask_migrate import upgrade
+from sqlalchemy import text
 
 from . import MIGRAZIONI, create_app, db
 from .models import AuditLog, Categoria, Ruolo, Sottocategoria, Utente
@@ -41,10 +43,33 @@ SOTTOCATEGORIE = {
 CREDENZIALI = Path("/run/secrets/admin_credentials")
 
 
+def concedi_permessi():
+    """Minimo privilegio: racoonix_app legge e scrive dati, ma non cambia la struttura del db,
+    non crea utenti e sul registro attivita' puo' solo aggiungere righe."""
+    password = Path("/run/secrets/db_app_password").read_text().strip()
+    if not re.fullmatch(r"[A-Za-z0-9]{32,128}", password):
+        raise RuntimeError("db_app_password non valida: servono 32-128 caratteri alfanumerici")
+    for istruzione in (
+        "DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'racoonix_app') "
+        "THEN CREATE ROLE racoonix_app; END IF; END $$",
+        f"ALTER ROLE racoonix_app WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '{password}'",
+        "REVOKE CREATE ON SCHEMA public FROM PUBLIC",
+        "GRANT USAGE ON SCHEMA public TO racoonix_app",
+        "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO racoonix_app",
+        "REVOKE UPDATE, DELETE, TRUNCATE ON audit_log FROM racoonix_app",
+        "REVOKE INSERT, UPDATE, DELETE ON alembic_version FROM racoonix_app",
+        "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO racoonix_app",
+    ):
+        db.session.execute(text(istruzione))
+    db.session.commit()
+    print("[bootstrap] permessi di racoonix_app aggiornati")
+
+
 def main():
     app = create_app()
     with app.app_context():
         upgrade(directory=MIGRAZIONI)
+        concedi_permessi()
 
         for nome in RUOLI:
             if not db.session.scalar(db.select(Ruolo).filter_by(nome=nome)):

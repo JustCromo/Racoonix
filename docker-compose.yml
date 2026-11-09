@@ -24,6 +24,24 @@ services:
       timeout: 3s
       retries: 10
 
+  migrazioni:
+    image: racoonix-app:latest
+    pull_policy: never
+    restart: "no"
+    <<: *indurito
+    read_only: true
+    tmpfs: [/tmp]
+    command: ["python", "-m", "racoonix.bootstrap"]
+    environment:
+      MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
+      RACOONIX_DB_RUOLO: proprietario
+      TZ: Europe/Rome
+    secrets: [db_password, db_app_password, flask_secret, admin_credentials]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+
   app:
     build: ./app
     image: racoonix-app:latest
@@ -36,10 +54,10 @@ services:
       ADMIN_IP_CONSENTITI: ${ADMIN_IP_CONSENTITI:-127.0.0.1/32}
       RACOONIX_INDIRIZZO: ${RACOONIX_SNI:-localhost}
       TZ: Europe/Rome
-    secrets: [db_password, flask_secret, admin_credentials]
+    secrets: [db_app_password, flask_secret]
     depends_on:
-      db:
-        condition: service_healthy
+      migrazioni:
+        condition: service_completed_successfully
     networks: [backend, frontend, integrazione]
 
   scheduler:
@@ -53,7 +71,7 @@ services:
     environment:
       MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
       TZ: Europe/Rome
-    secrets: [db_password, flask_secret]
+    secrets: [db_app_password, flask_secret]
     depends_on:
       app:
         condition: service_started
@@ -110,6 +128,8 @@ secrets:
     file: ./secrets/db_password
   flask_secret:
     file: ./secrets/flask_secret
+  db_app_password:
+    file: ./secrets/db_app_password
   admin_credentials:
     file: ./secrets/admin_credentials
   sim_secret:

@@ -83,6 +83,7 @@ installa() {
   mkdir -p secrets && chmod 700 secrets
   openssl rand -base64 32 | tr -d '\n' > secrets/db_password
   openssl rand -hex 32 | tr -d '\n' > secrets/flask_secret
+  openssl rand -hex 32 | tr -d '\n' > secrets/db_app_password
   openssl rand -hex 32 | tr -d '\n' > secrets/sim_secret
   : > secrets/cassa_token; : > secrets/bilancia_token; : > secrets/admin_credentials
   chmod 644 secrets/*

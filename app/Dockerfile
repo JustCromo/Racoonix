@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 USER racoonix
 EXPOSE 8000
-CMD ["sh", "-c", "python -m racoonix.bootstrap && exec gunicorn --bind 0.0.0.0:8000 --workers 2 --worker-tmp-dir /tmp --access-logfile - wsgi:app"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:8000 --workers 2 --worker-tmp-dir /tmp --access-logfile - wsgi:app"]

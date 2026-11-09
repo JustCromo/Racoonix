@@ -19,13 +19,20 @@ def reti_admin():
     return [ipaddress.ip_network(v.strip(), strict=False) for v in valore.split(",") if v.strip()]
 
 
+def _url_db():
+    """Il proprietario del db serve solo alle migrazioni; l'app usa un utente con i soli permessi necessari."""
+    if os.environ.get("RACOONIX_DB_RUOLO") == "proprietario":
+        utente, segreto = "racoonix", "db_password"
+    else:
+        utente, segreto = "racoonix_app", "db_app_password"
+    nome = os.environ.get("RACOONIX_DB_NOME", "racoonix")
+    return f"postgresql+psycopg://{utente}:{quote_plus(leggi_secret(segreto))}@db:5432/{nome}"
+
+
 class Config:
     MARKET_NAME = os.environ.get("MARKET_NAME", "Racoonix Demo")
     SECRET_KEY = leggi_secret("flask_secret")
-    SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg://racoonix:"
-        f"{quote_plus(leggi_secret('db_password'))}@db:5432/{os.environ.get('RACOONIX_DB_NOME', 'racoonix')}"
-    )
+    SQLALCHEMY_DATABASE_URI = _url_db()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
