@@ -102,7 +102,7 @@ def _mostra_scheda(p, errori=None, valori=None, codice=200):
     soglia = _testo_kg(p.soglia_esposti) if p.unita == "kg" else str(p.soglia_esposti)
     return render_template("anagrafica_prodotto.html", p=p, categorie=categorie, fornitori=fornitori,
                            errori=errori or [], valori=valori or {}, prezzo_testo=_testo_euro(p.prezzo_centesimi),
-                           soglia_testo=soglia), codice
+                           soglia_testo=soglia, riordino_testo="" if p.soglia_riordino is None else (_testo_kg(p.soglia_riordino) if p.unita == "kg" else str(p.soglia_riordino))), codice
 
 
 @bp.get("/catalogo/<int:pid>")
@@ -155,6 +155,10 @@ def salva(pid):
     soglia = leggi_quantita(_campo("soglia"), p.unita)
     if soglia is None:
         errori.append("Soglia scaffale non valida")
+    testo_riordino = _campo("soglia_riordino")
+    soglia_riordino = leggi_quantita(testo_riordino, p.unita) if testo_riordino else None
+    if testo_riordino and soglia_riordino is None:
+        errori.append("Soglia di riordino non valida")
     preavviso = _intero(_campo("giorni_preavviso"), 0, 60)
     if preavviso is None:
         errori.append("Giorni di preavviso non validi (0-60)")
@@ -183,10 +187,13 @@ def salva(pid):
     p.formato_pezzi, p.formato_quantita = pezzi, quantita
     p.formato_unita = unita_formato if quantita else None
     p.soglia_esposti, p.giorni_preavviso, p.giorni_validita = soglia, preavviso, validita
+    p.soglia_riordino = soglia_riordino
     p.codice_bilancia = plu
     p.in_esaurimento = request.form.get("in_esaurimento") == "1"
     registra("prodotto_modificato", g.utente.id, f"prodotto {p.id}, prezzo {vecchio_prezzo} -> {prezzo}")
     db.session.commit()
+    from .notifiche import controlla_scaffali
+    controlla_scaffali([p.id])
     flash("Scheda salvata", "ok")
     return redirect(url_for(".scheda", pid=p.id))
 

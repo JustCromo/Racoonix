@@ -1,6 +1,6 @@
 {% from "_icone.html" import icona %}
-{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "esaurito": "Da riordinare", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password", "dispositivo": "Nuovo dispositivo"} %}
-{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "esaurito": "spento", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento"} %}
+{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password", "dispositivo": "Nuovo dispositivo"} %}
+{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento"} %}
 {% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
 <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
@@ -66,9 +66,6 @@
                    placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare (vuoto = tutto)">
             <button type="submit" class="secondario">Butta</button>
           </form>
-        {% elif n.tipo == "esaurito" %}
-          {{ azione(n, "visto", "Riordinerò") }}
-          {{ azione(n, "esaurimento", "Non riordinare più", "piccolo secondario") }}
         {% elif n.tipo == "da_approvare" %}
           <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
         {% elif n.tipo == "dispositivo" %}

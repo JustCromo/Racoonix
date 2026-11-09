@@ -113,6 +113,8 @@ class Prodotto(db.Model):
     aliquota_iva = db.Column(db.Integer, nullable=False, default=22)
     in_esaurimento = db.Column(db.Boolean, nullable=False, default=False)
     soglia_esposti = db.Column(db.Integer, nullable=False, default=5)
+    soglia_riordino = db.Column(db.Integer)
+    ultima_conta_il = db.Column(db.DateTime(timezone=True))
     giorni_preavviso = db.Column(db.Integer, nullable=False, default=3)
     giorni_validita = db.Column(db.Integer)
     sconto1_giorni = db.Column(db.Integer)
@@ -143,6 +145,7 @@ class Prodotto(db.Model):
         CheckConstraint("formato_unita IS NULL OR formato_unita IN ('g','ml','pz')", name="ck_prodotto_formato_u"),
         CheckConstraint("(formato_quantita IS NULL) = (formato_unita IS NULL)", name="ck_prodotto_formato"),
         CheckConstraint("soglia_esposti >= 0 AND giorni_preavviso >= 0", name="ck_prodotto_soglie"),
+        CheckConstraint("soglia_riordino IS NULL OR soglia_riordino >= 0", name="ck_prodotto_riordino"),
         CheckConstraint("giorni_validita IS NULL OR giorni_validita > 0", name="ck_prodotto_validita"),
         CheckConstraint("(sconto1_perc IS NULL OR sconto1_perc BETWEEN 0 AND 90) AND "
                         "(sconto2_perc IS NULL OR sconto2_perc BETWEEN 0 AND 90)", name="ck_prodotto_sconto_perc"),
@@ -283,7 +286,7 @@ class Notifica(db.Model):
 
     __table_args__ = (
         CheckConstraint(
-            "tipo IN ('riempi','esaurito','in_scadenza','da_rimuovere','da_approvare',"
+            "tipo IN ('riempi','in_scadenza','da_rimuovere','da_approvare',"
             "'sconto','freschezza','reset_password','dispositivo')",
             name="ck_notifica_tipo",
         ),
@@ -398,4 +401,29 @@ class DispositivoAccesso(db.Model):
         CheckConstraint("stato IN ('in_attesa','approvato','revocato')", name="ck_dispaccesso_stato"),
         UniqueConstraint("utente_id", "token_hash", name="uq_dispaccesso"),
         Index("ix_dispaccesso_token", "token_hash"),
+    )
+
+
+class Riordino(db.Model):
+    """Prodotto da ordinare al fornitore: nasce da una segnalazione "Sta finendo" o dalla soglia di magazzino."""
+    __tablename__ = "riordini"
+    id = db.Column(db.Integer, primary_key=True)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey("prodotti.id"), nullable=False)
+    quantita = db.Column(db.Integer)
+    stato = db.Column(db.String(12), nullable=False, default="da_ordinare")
+    origine = db.Column(db.String(12), nullable=False)
+    segnalato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
+    ordinato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
+    ordinato_il = db.Column(db.DateTime(timezone=True))
+    chiuso_il = db.Column(db.DateTime(timezone=True))
+    prodotto = db.relationship("Prodotto")
+    segnalato_da_utente = db.relationship("Utente", foreign_keys=[segnalato_da])
+
+    __table_args__ = (
+        CheckConstraint("stato IN ('da_ordinare','ordinato','arrivato','annullato')", name="ck_riordino_stato"),
+        CheckConstraint("origine IN ('segnalazione','soglia')", name="ck_riordino_origine"),
+        CheckConstraint("quantita IS NULL OR quantita > 0", name="ck_riordino_quantita"),
+        Index("uq_riordino_aperto", "prodotto_id", unique=True,
+              postgresql_where=text("stato IN ('da_ordinare','ordinato')")),
     )

@@ -9,6 +9,7 @@ from . import codici, db
 from .auth import registra, richiede_ruolo
 from .models import Categoria, Lotto, Notifica, Prodotto
 from .notifiche import controlla_scaffali
+from .riordini import merce_arrivata
 from .catalogo import trova_per_gtin
 
 bp = Blueprint("carico", __name__, url_prefix="/carico")
@@ -187,6 +188,7 @@ def conferma():
     lotto.qta_esposta += esposta
     lotto.qta_magazzino += magazzino
 
+    merce_arrivata(prodotto.id)
     registra("carico", g.utente.id,
              f"prodotto {prodotto.id}, lotto {codice_lotto}, esposta {esposta}, magazzino {magazzino}")
     db.session.commit()

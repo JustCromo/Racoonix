@@ -14,9 +14,9 @@ from .sconti import applica_programmati
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
 SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali e cassa"),
            ("magazziniere", "Magazzinieri: magazzino")]
-URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3, "esaurito": 4,  # nosec B105 - priorita' della notifica, non una password
+URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3,  # nosec B105 - priorita' della notifica, non una password
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
-AZIONI = {"da_rimuovere": {"rimosso"}, "esaurito": {"visto", "esaurimento"}, "sconto": {"bollino"},
+AZIONI = {"da_rimuovere": {"rimosso"}, "sconto": {"bollino"},
           "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
 STORICO_MAX = 30
 
@@ -122,8 +122,6 @@ def agisci(nid, azione):
                 db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
                                       motivo="scaduto" if azione == "rimosso" else "deteriorato",
                                       utente_id=g.utente.id))
-    if azione == "esaurimento":
-        notifica.prodotto.in_esaurimento = True
 
     notifica.stato = "chiusa"
     notifica.chiusa_da = g.utente.id

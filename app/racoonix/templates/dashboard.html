@@ -125,7 +125,7 @@
     <section class="scheda">
       <h2>Situazione</h2>
       {% for a in attenzione %}
-      <a class="avviso-riga{% if a.urgente %} urgente{% endif %}" href="{{ url_for('notifiche.pagina') }}"><span>{{ a.etichetta }}</span><strong>{{ a.numero }}</strong></a>
+      <a class="avviso-riga{% if a.urgente %} urgente{% endif %}" href="{{ a.link or url_for('notifiche.pagina') }}"><span>{{ a.etichetta }}</span><strong>{{ a.numero }}</strong></a>
       {% else %}
       <div class="vuoto">{{ icona("circle-check") }}<span>Tutto in ordine</span></div>
       {% endfor %}

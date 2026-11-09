@@ -13,11 +13,12 @@
       {% if p.stato != "attivo" %}<span class="badge avviso">in attesa di approvazione</span>{% endif %}
       {% if p.in_esaurimento %}<span class="badge">in esaurimento</span>{% endif %}
       {% if s.sotto_soglia and s.rifornibile > 0 %}<span class="badge avviso">scaffale da riempire</span>{% endif %}
+      {% if s.riordino %}<span class="badge {{ 'avviso' if s.riordino.stato == 'da_ordinare' else 'ok' }}">{{ 'da ordinare' if s.riordino.stato == 'da_ordinare' else 'ordinato' }}</span>{% endif %}
     </span>
   </div>
   <p class="sotto">
     {% if p.prezzo_centesimi is not none %}{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %} al kg{% elif p.prezzo_misura %} ({{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}){% endif %} &middot; {% endif %}
-    Esposti: <strong>{{ s.esposta|quantita(p.unita) }}</strong> &middot; Magazzino: <strong>{{ s.magazzino|quantita(p.unita) }}</strong>
+    {% if s.cassa %}Esposti{% else %}Sullo scaffale{% endif %}: <strong>{{ s.esposta|quantita(p.unita) }}</strong>{% if not s.cassa %} ({% if p.ultima_conta_il %}contati il {{ p.ultima_conta_il|data_ora }}{% else %}mai contati{% endif %}){% endif %} &middot; Magazzino: <strong>{{ s.magazzino|quantita(p.unita) }}</strong>
   </p>
   {% if p.sconto1_perc %}
   <p class="sotto">Sconto programmato: -{{ p.sconto1_perc }}% a {{ p.sconto1_giorni }} gg{% if p.sconto2_perc %}, poi -{{ p.sconto2_perc }}% a {{ p.sconto2_giorni }} gg{% endif %} dalla scadenza</p>
@@ -63,6 +64,13 @@
   </div>
   {% else %}
   <p class="sotto">Nessuna giacenza.</p>
+  {% endif %}
+  {% if p.stato == "attivo" %}
+  <form method="post" action="{{ url_for('inventario.finendo', prodotto_id=p.id) }}" class="spazio"
+        hx-post="{{ url_for('inventario.finendo', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
+    {{ nascosti() }}
+    <button type="submit" class="piccolo secondario">Sta finendo</button>
+  </form>
   {% endif %}
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
   {% if s.lotti %}

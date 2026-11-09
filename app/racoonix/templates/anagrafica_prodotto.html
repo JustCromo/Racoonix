@@ -60,7 +60,8 @@
 
     <h2 class="spazio">Scaffale e magazzino</h2>
     <div class="griglia">
-      <label>Soglia "riempi scaffale" ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia" inputmode="decimal" value="{{ val('soglia', soglia_testo) }}"></label>
+      <label>Riordina quando in magazzino ne restano ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia_riordino" inputmode="decimal" value="{{ val('soglia_riordino', riordino_testo) }}" placeholder="vuoto = solo su segnalazione"></label>
+      <label>Soglia scaffale, solo con cassa collegata ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia" inputmode="decimal" value="{{ val('soglia', soglia_testo) }}"></label>
       <label>Avviso scadenza (giorni prima) <input name="giorni_preavviso" inputmode="numeric" value="{{ val('giorni_preavviso', p.giorni_preavviso) }}"></label>
       <label>Validita' preincartati (giorni) <input name="giorni_validita" inputmode="numeric" value="{{ val('giorni_validita', p.giorni_validita) }}" placeholder="solo banco"></label>
       <label>Codice bilancia (5 cifre) <input name="codice_bilancia" inputmode="numeric" value="{{ val('codice_bilancia', p.codice_bilancia) }}" maxlength="5"></label>

@@ -8,7 +8,7 @@ from sqlalchemy import func
 from . import db
 from .auth import richiede_ruolo
 from .formato import euro
-from .models import AuditLog, Dispositivo, Fornitore, Impostazione, Ruolo, Lotto, Notifica, Prodotto, RigaVendita, Scarto, Sconto, Utente, Vendita
+from .models import AuditLog, Dispositivo, Fornitore, Impostazione, Ruolo, Lotto, Notifica, Prodotto, RigaVendita, Riordino, Scarto, Sconto, Utente, Vendita
 
 bp = Blueprint("dashboard", __name__, url_prefix="/admin/dashboard")
 PERIODI = {1: "Oggi", 7: "Ultimi 7 giorni", 30: "Ultimi 30 giorni"}
@@ -17,7 +17,7 @@ LARGHEZZA, ALTEZZA = 600, 130
 ETICHETTE_ATTIVITA = {"carico": "Carico merce", "rettifica": "Correzione quantita'",
                       "notifica_verifica": "Verifica scadenza", "notifica_rimosso": "Rimozione scaduti",
                       "notifica_deteriorato": "Scarto per freschezza", "rifornimento": "Scaffale rifornito",
-                      "prodotto_approvato": "Prodotto approvato", "sconto_manuale": "Sconto applicato"}
+                      "prodotto_approvato": "Prodotto approvato", "sconto_manuale": "Sconto applicato", "segnalazione_mancanza": "Segnalato: sta finendo"}
 
 
 def _valore(prodotto, quantita, prezzo=None):
@@ -100,10 +100,14 @@ def pagina():
     valore_merce = sum(_valore(p, l.qta_esposta + l.qta_magazzino) for l, p in giacenze)
 
     voci = [("da_rimuovere", "Da rimuovere", True), ("reset_password", "Richieste di nuova password", True),
-            ("da_approvare", "Prodotti da approvare", True), ("esaurito", "Da riordinare", True),
+            ("da_approvare", "Prodotti da approvare", True),
             ("riempi", "Scaffali da riempire", False), ("sconto", "Bollini da applicare", False),
             ("in_scadenza", "Lotti in scadenza", False), ("freschezza", "Freschezza da controllare", False)]
     attenzione = [{"etichetta": e, "numero": aperte[tipo], "urgente": u} for tipo, e, u in voci if aperte.get(tipo)]
+    da_ordinare = db.session.scalar(db.select(func.count(Riordino.id)).where(Riordino.stato == "da_ordinare"))
+    if da_ordinare:
+        attenzione.insert(0, {"etichetta": "Da ordinare ai fornitori", "numero": da_ordinare, "urgente": True,
+                              "link": url_for("ordini.pagina")})
     in_scadenza = db.session.execute(
         db.select(Lotto, Prodotto).join(Prodotto, Lotto.prodotto_id == Prodotto.id)
         .where(Prodotto.stato == "attivo", (Lotto.qta_esposta + Lotto.qta_magazzino) > 0,

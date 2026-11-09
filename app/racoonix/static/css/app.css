@@ -294,3 +294,11 @@ a.pulsante.piccolo { padding: .38rem .75rem; font-size: .88rem; border-radius: 9
 /* --- Scheda utente evidenziata quando ci si arriva da un link --- */
 .scheda-utente { scroll-margin-top: 1.5rem; }
 .scheda-utente:target { border-color: var(--miele); box-shadow: 0 0 0 3px rgba(217, 164, 65, .35); }
+
+/* --- Pulsante predefinito invisibile: Invio in un campo salva, non tocca le righe --- */
+.invisibile { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* --- Titoli dei gruppi nel menu (solo admin) --- */
+.gruppo-menu { margin: .9rem .8rem .2rem; font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+               text-transform: uppercase; opacity: .55; }
+.gruppo-menu:first-child { margin-top: .2rem; }

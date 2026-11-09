@@ -4,24 +4,26 @@ from flask import current_app, g, request, url_for
 from .auth import ruoli_attivi
 
 TUTTI = None
-# endpoint, etichetta, icona, ruoli ammessi (l'admin vede tutto), prefissi per evidenziare la voce attiva
+GIORNO, ANAGRAFICA, IMPOSTAZIONI = "Ogni giorno", "Anagrafica", "Impostazioni"
+# endpoint, etichetta, icona, ruoli ammessi (l'admin vede tutto), prefissi per la voce attiva, gruppo
 VOCI = [
-    ("dashboard.pagina", "Dashboard", "chart-bar", {"admin"}, ("dashboard.",)),
-    ("notifiche.pagina", "Cose da fare", "bell", TUTTI, ("notifiche.",)),
-    ("inventario.pagina", "Inventario", "box", {"dipendente", "magazziniere"}, ("inventario.",)),
-    ("carico.pagina", "Carico", "truck", {"magazziniere"}, ("carico.",)),
+    ("dashboard.pagina", "Dashboard", "chart-bar", {"admin"}, ("dashboard.",), GIORNO),
+    ("notifiche.pagina", "Cose da fare", "bell", TUTTI, ("notifiche.",), GIORNO),
+    ("inventario.pagina", "Inventario", "box", {"dipendente", "magazziniere"}, ("inventario.",), GIORNO),
+    ("carico.pagina", "Carico", "truck", {"magazziniere"}, ("carico.",), GIORNO),
+    ("ordini.pagina", "Ordini", "clipboard-list", {"admin"}, ("ordini.",), GIORNO),
     ("anagrafica.catalogo", "Catalogo", "tags", {"admin"},
      ("anagrafica.catalogo", "anagrafica.scheda", "anagrafica.salva", "anagrafica.aggiungi_codice",
-      "anagrafica.rimuovi_codice", "prodotti.")),
+      "anagrafica.rimuovi_codice", "prodotti."), ANAGRAFICA),
     ("anagrafica.fornitori", "Fornitori", "building-warehouse", {"admin"},
-     ("anagrafica.fornitori", "anagrafica.nuovo_fornitore", "anagrafica.salva_fornitore")),
+     ("anagrafica.fornitori", "anagrafica.nuovo_fornitore", "anagrafica.salva_fornitore"), ANAGRAFICA),
     ("anagrafica.categorie", "Categorie", "category", {"admin"},
      ("anagrafica.categorie", "anagrafica.nuova_categoria", "anagrafica.salva_categoria",
-      "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria")),
-    ("collega.pagina", "Collega dispositivi", "device-mobile", {"admin"}, ("collega.",)),
-    ("dispositivi.elenco", "Casse e bilance", "plug-connected", {"admin"}, ("dispositivi.",)),
-    ("registro.pagina", "Registro attivita'", "history", {"admin"}, ("registro.",)),
-    ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",)),
+      "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria"), ANAGRAFICA),
+    ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",), IMPOSTAZIONI),
+    ("collega.pagina", "Collega dispositivi", "device-mobile", {"admin"}, ("collega.",), IMPOSTAZIONI),
+    ("dispositivi.elenco", "Casse e bilance", "plug-connected", {"admin"}, ("dispositivi.",), IMPOSTAZIONI),
+    ("registro.pagina", "Registro attivita'", "history", {"admin"}, ("registro.",), IMPOSTAZIONI),
 ]
 
 
@@ -32,11 +34,11 @@ def contesto():
     admin = "admin" in ruoli
     attuale = request.endpoint or ""
     menu = []
-    for endpoint, etichetta, icona, ammessi, prefissi in VOCI:
+    for endpoint, etichetta, icona, ammessi, prefissi, gruppo in VOCI:
         if endpoint not in current_app.view_functions:
             continue
         if ammessi is TUTTI or admin or ruoli & ammessi:
             menu.append({"url": url_for(endpoint), "etichetta": etichetta, "icona": icona,
-                         "attiva": attuale.startswith(prefissi)})
+                         "attiva": attuale.startswith(prefissi), "gruppo": gruppo if admin else None})
     return {"menu": menu, "tema": g.utente.tema,
             "admin_limitato": g.utente.ha_ruolo("admin") and not admin}

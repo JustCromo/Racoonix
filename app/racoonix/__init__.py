@@ -52,6 +52,8 @@ def create_app():
     app.register_blueprint(collega_bp)
     from .registro import bp as registro_bp
     app.register_blueprint(registro_bp)
+    from .ordini import bp as ordini_bp
+    app.register_blueprint(ordini_bp)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)
     app.context_processor(conta_notifiche)

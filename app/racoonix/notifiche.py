@@ -9,6 +9,7 @@ from . import db
 from .formato import data_it, quantita
 from .models import Lotto, Notifica, Prodotto
 from .regole import vendibile
+from .riordini import apri_riordino, cassa_collegata, chiudi_riordini
 
 
 def _adesso():
@@ -37,44 +38,29 @@ def _gia_gestita(tipo, lotto_id, ruolo):
         tipo=tipo, lotto_id=lotto_id, ruolo_destinatario=ruolo, stato="chiusa").limit(1)) is not None
 
 
-def _riordino_gia_visto(prodotto):
-    """Un 'Riordinero'' vale fino al prossimo carico: dopo, se si riesaurisce, l'avviso torna."""
-    ultimo_carico = max((l.data_carico for l in prodotto.lotti), default=None)
-    stmt = db.select(Notifica.id).where(Notifica.prodotto_id == prodotto.id, Notifica.tipo == "esaurito",
-                                        Notifica.stato == "chiusa", Notifica.chiusa_da.is_not(None))
-    if ultimo_carico:
-        stmt = stmt.where(Notifica.chiusa_il >= ultimo_carico)
-    return db.session.scalar(stmt.limit(1)) is not None
-
-
 def controlla_scaffali(prodotto_ids):
-    """Dopo vendite, carichi e rimozioni: riempi lo scaffale oppure riordina."""
+    """Dopo carichi, conteggi, rimozioni e vendite dalla cassa.
+    Riordino: guarda il magazzino, che e' sempre affidabile.
+    Riempi automatico: solo con una cassa, l'unico caso in cui il numero sullo scaffale resta vero."""
     oggi = date.today()
+    cassa = cassa_collegata()
     prodotti = db.session.scalars(db.select(Prodotto).where(
         Prodotto.id.in_(list(prodotto_ids)), Prodotto.stato == "attivo")).all()
     for p in prodotti:
-        if not p.lotti:
-            _chiudi(p.id, "riempi")
-            _chiudi(p.id, "esaurito")
-            continue
         validi = [l for l in p.lotti if vendibile(l, oggi)]
         esposta = sum(l.qta_esposta for l in validi)
         magazzino = sum(l.qta_magazzino for l in validi)
-        if esposta > p.soglia_esposti:
+        if magazzino == 0:
             _chiudi(p.id, "riempi")
-            _chiudi(p.id, "esaurito")
-        elif magazzino > 0:
-            _chiudi(p.id, "esaurito")
-            _apri("riempi", p.id, "dipendente",
+        elif cassa and esposta <= p.soglia_esposti:
+            _apri("riempi", p.id, "magazziniere",
                   f"Sullo scaffale: {quantita(esposta, p.unita)}, in magazzino: {quantita(magazzino, p.unita)}")
-        else:
+        elif cassa:
             _chiudi(p.id, "riempi")
-            if p.in_esaurimento or _riordino_gia_visto(p):
-                _chiudi(p.id, "esaurito")
-                continue
-            fornitore = f" (fornitore: {p.fornitore.ragione_sociale})" if p.fornitore else ""
-            _apri("esaurito", p.id, "admin",
-                  f"Sullo scaffale: {quantita(esposta, p.unita)} e magazzino vuoto: da riordinare{fornitore}")
+        if p.in_esaurimento:
+            chiudi_riordini(p.id, ("da_ordinare",), "annullato")
+        elif p.soglia_riordino is not None and magazzino <= p.soglia_riordino:
+            apri_riordino(p, "soglia")
     db.session.commit()
 
 
@@ -128,5 +114,5 @@ def controllo_giornaliero():
         notifica.chiusa_il = _adesso()
     db.session.commit()
     controlla_scaffali(db.session.scalars(db.select(Prodotto.id).where(
-        Prodotto.stato == "attivo", or_(Prodotto.lotti.any(), Prodotto.id.in_(db.select(Notifica.prodotto_id).where(Notifica.stato == "aperta", Notifica.tipo.in_(("riempi", "esaurito"))))))).all())
+        Prodotto.stato == "attivo", or_(Prodotto.lotti.any(), Prodotto.id.in_(db.select(Notifica.prodotto_id).where(Notifica.stato == "aperta", Notifica.tipo.in_(("riempi",))))))).all())
     return creati

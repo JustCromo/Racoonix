@@ -20,6 +20,7 @@
     <p class="market">{{ icona("building-store") }}<span>{{ market }}</span></p>
     <nav class="menu" aria-label="Menu principale">
       {% for v in menu %}
+      {% if v.gruppo and (loop.first or v.gruppo != loop.previtem.gruppo) %}<p class="gruppo-menu">{{ v.gruppo }}</p>{% endif %}
       <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" %}{% include "_contatore.html" %}{% endif %}</a>
       {% endfor %}
     </nav>
