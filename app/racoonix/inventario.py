@@ -13,7 +13,7 @@ from .formato import data_it, quantita as mostra_quantita
 from .models import Categoria, CodiceAggiuntivo, Lotto, Prodotto, adesso
 from .prodotti import _chiudi_notifiche
 from .notifiche import _apri, controlla_scaffali
-from .riordini import apri_riordino, cassa_collegata, riordino_aperto
+from .riordini import apri_riordino, riordino_aperto
 from .sconti import applica_programmati, crea_sconto, sconto_attivo, togli_sconto
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
@@ -45,20 +45,17 @@ def _filtri(sorgente):
     return q, int(categoria) if ID_OK.match(categoria) else None
 
 
-def _scheda(p, oggi, cassa=None):
-    if cassa is None:
-        cassa = cassa_collegata()
+def _scheda(p, oggi):
+    """Il magazzino e' un numero certo e si mostra; dello scaffale si mostrano i lotti presenti, non un numero
+    (senza cassa nessuno sa quanti pezzi hanno comprato i clienti)."""
     lotti = sorted((l for l in p.lotti if l.qta_esposta + l.qta_magazzino > 0),
                    key=lambda l: (l.data_scadenza is None, l.data_scadenza or oggi, l.data_carico))
-    esposta = sum(l.qta_esposta for l in lotti)
     return {
         "p": p,
         "lotti": [{"l": l, "stato": _stato_lotto(l, p, oggi), "sconto": sconto_attivo(l)} for l in lotti],
-        "esposta": esposta,
+        "sullo_scaffale": [l for l in lotti if l.qta_esposta > 0],
         "magazzino": sum(l.qta_magazzino for l in lotti),
         "rifornibile": sum(l.qta_magazzino for l in lotti if _vendibile(l, oggi)),
-        "sotto_soglia": cassa and p.stato == "attivo" and esposta <= p.soglia_esposti,
-        "cassa": cassa,
         "riordino": riordino_aperto(p.id),
     }
 
@@ -91,8 +88,7 @@ def _cerca(q, categoria_id, tutti=False, entro=None, giorno=None):
             sicuro = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             stmt = stmt.where(or_(Prodotto.nome.ilike(f"%{sicuro}%", escape="\\"), Prodotto.marca.ilike(f"%{sicuro}%", escape="\\")))
     oggi = date.today()
-    cassa = cassa_collegata()
-    return [_scheda(p, oggi, cassa) for p in db.session.scalars(stmt)]
+    return [_scheda(p, oggi) for p in db.session.scalars(stmt)]
 
 
 def _filtri_scadenza():
@@ -246,43 +242,36 @@ def programma(prodotto_id):
 @bp.post("/<int:prodotto_id>/conteggio")
 @richiede_ruolo("dipendente", "magazziniere")
 def conteggio(prodotto_id):
-    """Il conteggio fisico e' la verita': corregge le quantita' e lascia traccia della differenza."""
+    """Il conteggio fisico del magazzino e' la verita': corregge le quantita' e lascia traccia della differenza."""
     q, categoria_id = _filtri(request.form)
     prodotto = db.get_or_404(Prodotto, prodotto_id)
     lotti = db.session.scalars(
-        db.select(Lotto).where(Lotto.prodotto_id == prodotto.id,
-                               (Lotto.qta_esposta + Lotto.qta_magazzino) > 0)
+        db.select(Lotto).where(Lotto.prodotto_id == prodotto.id, Lotto.qta_magazzino > 0)
         .order_by(Lotto.id).with_for_update()).all()
     nuovi = {}
     for lotto in lotti:
-        valori = []
-        for campo, attuale in (("esp", lotto.qta_esposta), ("mag", lotto.qta_magazzino)):
-            testo = (request.form.get(f"{campo}_{lotto.id}") or "").strip()
-            valori.append(leggi_quantita(testo, prodotto.unita) if testo else attuale)
-        if None in valori:
+        testo = (request.form.get(f"mag_{lotto.id}") or "").strip()
+        valore = leggi_quantita(testo, prodotto.unita) if testo else lotto.qta_magazzino
+        if valore is None:
             return _risposta(prodotto, "Quantita' non valida", "errore", q, categoria_id)
-        nuovi[lotto.id] = valori
+        nuovi[lotto.id] = valore
 
     differenza, dettagli = 0, []
     for lotto in lotti:
-        esposta, magazzino = nuovi[lotto.id]
-        if (esposta, magazzino) != (lotto.qta_esposta, lotto.qta_magazzino):
-            dettagli.append(f"lotto {lotto.id}: {lotto.qta_esposta}/{lotto.qta_magazzino} -> {esposta}/{magazzino}")
-            differenza += (esposta + magazzino) - (lotto.qta_esposta + lotto.qta_magazzino)
-            lotto.qta_esposta, lotto.qta_magazzino = esposta, magazzino
+        if nuovi[lotto.id] != lotto.qta_magazzino:
+            dettagli.append(f"lotto {lotto.id}: {lotto.qta_magazzino} -> {nuovi[lotto.id]}")
+            differenza += nuovi[lotto.id] - lotto.qta_magazzino
+            lotto.qta_magazzino = nuovi[lotto.id]
     prodotto.ultima_conta_il = adesso()
     if not dettagli:
         db.session.commit()
         return _risposta(prodotto, "Nessuna differenza: tutto torna", "ok", q, categoria_id)
-    registra("rettifica", g.utente.id, f"conteggio prodotto {prodotto.id}; " + "; ".join(dettagli))
+    registra("rettifica", g.utente.id, f"conteggio magazzino prodotto {prodotto.id}; " + "; ".join(dettagli))
     db.session.commit()
     controlla_scaffali([prodotto.id])
-    if differenza:
-        segno = "+" if differenza > 0 else "−"
-        messaggio = f"Conteggio salvato: differenza {segno}{mostra_quantita(abs(differenza), prodotto.unita)}"
-    else:
-        messaggio = "Conteggio salvato: merce spostata tra scaffale e magazzino"
-    return _risposta(prodotto, messaggio, "ok", q, categoria_id)
+    segno = "+" if differenza > 0 else "−"
+    return _risposta(prodotto, f"Conteggio salvato: differenza {segno}{mostra_quantita(abs(differenza), prodotto.unita)}",
+                     "ok", q, categoria_id)
 
 
 @bp.post("/<int:prodotto_id>/finendo")

@@ -39,7 +39,7 @@ def main(percorso):
         caricati = 0
         for voce in dati.get("prodotti", []):
             gtin, plu = voce.get("gtin"), voce.get("codice_bilancia")
-            unita, prezzo, iva = voce.get("unita"), voce.get("prezzo_centesimi"), voce.get("aliquota_iva")
+            unita, prezzo = voce.get("unita"), voce.get("prezzo_centesimi")
             pezzi = voce.get("formato_pezzi") or 1
             quantita, unita_formato = voce.get("formato_quantita"), voce.get("formato_unita")
             categoria = db.session.scalar(db.select(Categoria).filter_by(nome=voce.get("categoria")))
@@ -47,7 +47,7 @@ def main(percorso):
                 categoria_id=categoria.id, nome=voce.get("sottocategoria"))) if categoria else None
             valido = (
                 (not gtin or gtin_valido(gtin)) and unita in ("pezzo", "kg")
-                and isinstance(prezzo, int) and prezzo >= 0 and iva in (4, 5, 10, 22)
+                and isinstance(prezzo, int) and prezzo >= 0
                 and categoria is not None and _intero_positivo(pezzi)
                 and (quantita is None) == (unita_formato is None)
                 and (quantita is None or (_intero_positivo(quantita) and unita_formato in ("g", "ml", "pz")))
@@ -65,9 +65,7 @@ def main(percorso):
                 sottocategoria_id=sotto.id if sotto else None,
                 fornitore_id=fornitori[voce["fornitore"]].id if voce.get("fornitore") in fornitori else None,
                 unita=unita, formato_pezzi=pezzi, formato_quantita=quantita, formato_unita=unita_formato,
-                prezzo_centesimi=prezzo, aliquota_iva=iva, stato="attivo",
-                soglia_esposti=5 if unita == "pezzo" else 2000,
-                giorni_validita=3 if categoria.nome == "Salumi e formaggi" else None,
+                prezzo_centesimi=prezzo, stato="attivo",
             )
             for extra in voce.get("codici_aggiuntivi", []):
                 if gtin_valido(extra.get("gtin", "")):

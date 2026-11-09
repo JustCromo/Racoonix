@@ -84,8 +84,7 @@ installa() {
   openssl rand -base64 32 | tr -d '\n' > secrets/db_password
   openssl rand -hex 32 | tr -d '\n' > secrets/flask_secret
   openssl rand -hex 32 | tr -d '\n' > secrets/db_app_password
-  openssl rand -hex 32 | tr -d '\n' > secrets/sim_secret
-  : > secrets/cassa_token; : > secrets/bilancia_token; : > secrets/admin_credentials
+  : > secrets/admin_credentials
   chmod 644 secrets/*
   ok "Segreti generati (password del database e chiavi interne)"
 
@@ -93,7 +92,6 @@ installa() {
 MARKET_NAME=$negozio
 RACOONIX_HOST=localhost, $ip
 RACOONIX_SNI=$ip
-RACOONIX_SIM_HOST=localhost:8443, $ip:8443
 ADMIN_IP_CONSENTITI=$reti
 EOF
   chmod 600 .env
@@ -203,7 +201,6 @@ ${GRASSETTO}Racoonix${RESET} - gestione
   ./racoonix.sh backup-automatico    backup ogni notte alle 02:30
   ./racoonix.sh ripristina FILE      ripristina un backup (chiede conferma)
   ./racoonix.sh certificato          esporta il certificato per i dispositivi
-  ./racoonix.sh simulatore avvia|ferma   simulatore di cassa e bilancia (facoltativo)
 EOF
 }
 
@@ -218,13 +215,6 @@ case "${1:-aiuto}" in
   backup-automatico) backup_automatico ;;
   ripristina)        ripristina "${2:-}" ;;
   certificato)       controlla_installato; esporta_certificato ;;
-  simulatore)
-    controlla_installato
-    case "${2:-}" in
-      avvia) dc --profile integrazione up -d simulatore; info "Simulatore su https://$(indirizzo):8443" ;;
-      ferma) dc stop simulatore; ok "Simulatore fermato" ;;
-      *) errore "Usa: ./racoonix.sh simulatore avvia|ferma" ;;
-    esac ;;
   aiuto|-h|--help)   aiuto ;;
   *)                 aiuto; exit 1 ;;
 esac

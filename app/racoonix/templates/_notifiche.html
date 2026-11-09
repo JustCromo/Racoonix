@@ -17,6 +17,14 @@
   <button type="submit" class="piccolo">{{ testo }}</button>
 </form>
 {% endmacro %}
+{% macro con_quantita_fissa(n, nome, valore, testo) %}
+<form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
+      hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}" hx-target="#notifiche" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="quantita" value="{{ valore }}">
+  <button type="submit" class="piccolo secondario">{{ testo }}</button>
+</form>
+{% endmacro %}
 {% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
 <div id="notifiche" data-aggiorna="{{ url_for('notifiche.lista') }}">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
@@ -42,17 +50,16 @@
       <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
       <div class="azioni">
         {% if n.tipo == "da_rimuovere" %}
-          {% set registrato = n.lotto.qta_esposta if n.ruolo_destinatario == "dipendente" else n.lotto.qta_magazzino %}
-          {{ con_quantita(n, "rimosso", "Kg tolti" if n.prodotto.unita == "kg" else "Pezzi tolti", registrato|quantita_input(n.prodotto.unita), "Tolti e buttati") }}
-          <p class="sotto">Se ne trovi meno, scrivi quanti: gli altri risultano venduti.</p>
+          {% if n.ruolo_destinatario == "dipendente" %}
+          {{ con_quantita(n, "rimosso", "Quanti ne hai trovati?", "", "Tolti e buttati") }}
+          {{ con_quantita_fissa(n, "rimosso", "0", "Non ce n'erano") }}
+          {% else %}
+          {{ con_quantita(n, "rimosso", "Kg tolti" if n.prodotto.unita == "kg" else "Pezzi tolti", n.lotto.qta_magazzino|quantita_input(n.prodotto.unita), "Tolti e buttati") }}
+          <p class="sotto">Se ne trovi un numero diverso, scrivi quello vero.</p>
+          {% endif %}
         {% elif n.tipo == "in_scadenza" %}
           {{ con_quantita(n, "verifica", "Quanti ne restano?", "", "Conferma") }}
-          <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione='verifica') }}"
-                hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='verifica') }}" hx-target="#notifiche" hx-swap="outerHTML">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="quantita" value="0">
-            <button type="submit" class="piccolo secondario">Finiti</button>
-          </form>
+          {{ con_quantita_fissa(n, "verifica", "0", "Finiti") }}
         {% elif n.tipo == "riempi" %}
           <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">Vai a rifornire</a>
         {% elif n.tipo == "sconto" %}
@@ -63,7 +70,7 @@
                 hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" hx-target="#notifiche" hx-swap="outerHTML">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input name="quantita" inputmode="decimal" autocomplete="off"
-                   placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare (vuoto = tutto)">
+                   placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare{% if n.ruolo_destinatario != 'dipendente' %} (vuoto = tutto){% endif %}">
             <button type="submit" class="secondario">Butta</button>
           </form>
         {% elif n.tipo == "da_approvare" %}

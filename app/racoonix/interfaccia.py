@@ -22,7 +22,6 @@ VOCI = [
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria"), ANAGRAFICA),
     ("utenti.elenco", "Utenti", "users", {"admin"}, ("utenti.",), IMPOSTAZIONI),
     ("collega.pagina", "Collega dispositivi", "device-mobile", {"admin"}, ("collega.",), IMPOSTAZIONI),
-    ("dispositivi.elenco", "Casse e bilance", "plug-connected", {"admin"}, ("dispositivi.",), IMPOSTAZIONI),
     ("registro.pagina", "Registro attivita'", "history", {"admin"}, ("registro.",), IMPOSTAZIONI),
 ]
 

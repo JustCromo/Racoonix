@@ -12,7 +12,7 @@ from .notifiche import controlla_scaffali, controllo_giornaliero
 from .sconti import applica_programmati
 
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
-SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali e cassa"),
+SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali"),
            ("magazziniere", "Magazzinieri: magazzino")]
 URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3,  # nosec B105 - priorita' della notifica, non una password
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
@@ -93,7 +93,10 @@ def agisci(nid, azione):
         if notifica.lotto_id is None:
             abort(404)
         lotto = db.session.get(Lotto, notifica.lotto_id, with_for_update=True)
-        campo = "qta_esposta" if notifica.ruolo_destinatario == "dipendente" else "qta_magazzino"
+        # Il magazzino e' un numero certo: una differenza e' una rettifica da registrare.
+        # Lo scaffale no: i clienti comprano, quindi conta solo quello che il dipendente trova.
+        scaffale = notifica.ruolo_destinatario == "dipendente"
+        campo = "qta_esposta" if scaffale else "qta_magazzino"
         registrato = getattr(lotto, campo)
         unita = notifica.prodotto.unita
         testo = (request.form.get("quantita") or "").strip()
@@ -104,20 +107,22 @@ def agisci(nid, azione):
             if contati is None:
                 return _vista("Quantita' non valida", "errore")
             setattr(lotto, campo, contati)
-            if contati != registrato:
+            if not scaffale and contati != registrato:
                 registra("rettifica", g.utente.id,
                          f"lotto {lotto.id} {campo}: {registrato} -> {contati} (verifica scadenza)")
         else:
+            if scaffale and not testo:
+                return _vista("Scrivi quanti ne hai trovati (0 se non ce n'erano)", "errore")
             da_togliere = leggi_quantita(testo, unita) if testo else registrato
-            if da_togliere is None or (azione == "deteriorato" and da_togliere > registrato):
+            if da_togliere is None or (not scaffale and azione == "deteriorato" and da_togliere > registrato):
                 return _vista("Quantita' non valida", "errore")
             if azione == "rimosso":
                 setattr(lotto, campo, 0)
-                if da_togliere != registrato:
+                if not scaffale and da_togliere != registrato:
                     registra("rettifica", g.utente.id,
                              f"lotto {lotto.id} {campo}: registrati {registrato}, trovati {da_togliere} (rimozione)")
             else:
-                setattr(lotto, campo, registrato - da_togliere)
+                setattr(lotto, campo, max(0, registrato - da_togliere))
             if da_togliere > 0:
                 db.session.add(Scarto(lotto_id=lotto.id, quantita=da_togliere,
                                       motivo="scaduto" if azione == "rimosso" else "deteriorato",

@@ -79,7 +79,7 @@ def leggi():
         flash(ERRORE_CODICE, "errore")
         return redirect(url_for(".pagina"))
     if info["tipo"] == "bilancia":
-        flash("Etichetta della bilancia: si registra dalla sezione Banco", "errore")
+        flash("Etichetta di una bilancia del negozio: per i prodotti a peso scegli il prodotto dall'elenco qui sotto", "errore")
         return redirect(url_for(".pagina"))
     info = {k: (v.isoformat() if isinstance(v, date) else v) for k, v in info.items()}
     prodotto = _prodotto_da_info(info)
@@ -171,8 +171,7 @@ def conferma():
 
     if prodotto is None:
         prodotto = Prodotto(gtin=info.get("gtin"), nome=nome, categoria_id=categoria.id,
-                            unita=unita, stato="in_attesa", creato_da=g.utente.id,
-                            soglia_esposti=5 if unita == "pezzo" else 2000)
+                            unita=unita, stato="in_attesa", creato_da=g.utente.id)
         db.session.add(prodotto)
         db.session.flush()
         db.session.add(Notifica(tipo="da_approvare", prodotto_id=prodotto.id,
@@ -181,9 +180,7 @@ def conferma():
     lotto = db.session.scalar(db.select(Lotto).filter_by(
         prodotto_id=prodotto.id, codice_lotto=codice_lotto, data_scadenza=scadenza))
     if lotto is None:
-        confezionamento = info.get("confezionamento")
         lotto = Lotto(prodotto_id=prodotto.id, codice_lotto=codice_lotto, data_scadenza=scadenza,
-                      data_confezionamento=date.fromisoformat(confezionamento) if confezionamento else None,
                       qta_esposta=0, qta_magazzino=0, caricato_da=g.utente.id)
         db.session.add(lotto)
     lotto.qta_esposta += esposta

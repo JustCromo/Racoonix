@@ -3,6 +3,7 @@
 {% block classe_main %}largo{% endblock %}
 {% block titolo %}Dashboard - Racoonix{% endblock %}
 {% block contenuto %}
+<div id="cruscotto" data-aggiorna="{{ request.full_path }}" data-seleziona="#cruscotto">
 {% macro grafico(barre, titolo) %}
 <section class="scheda">
   <h2>{{ titolo }}</h2>
@@ -21,8 +22,7 @@
   <div>
     <p class="occhiello">{{ market }}</p>
     <h1>{{ saluto }}, {{ g.utente.username }}</h1>
-    <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}
-      &middot; <span class="badge{% if vendite_attive %} ok{% endif %}">{{ "Cassa collegata" if vendite_attive else "Modalita' autonoma" }}</span></p>
+    <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}</p>
   </div>
   <nav class="azioni">
     {% for n, etichetta in periodi.items() %}
@@ -66,48 +66,17 @@
 {% endif %}
 
 <div class="kpi">
-  {% if vendite_attive %}
-  <div class="scheda"><p class="sotto">Incasso</p><p class="numero">{{ incasso|euro }}</p></div>
-  <div class="scheda"><p class="sotto">Scontrini</p><p class="numero">{{ scontrini }}</p></div>
-  <div class="scheda"><p class="sotto">Scontrino medio</p><p class="numero">{{ medio|euro }}</p></div>
-  <div class="scheda"><p class="sotto">Sconti concessi</p><p class="numero">{{ sconti|euro }}</p></div>
-  {% else %}
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Lotti monitorati</p><p class="numero">{{ autonoma.lotti }}</p><p class="sotto">{{ autonoma.prodotti }} prodotti</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina', entro=7) }}"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if autonoma.scadenza_7 %} acceso{% endif %}">{{ autonoma.scadenza_7 }}</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}"><p class="sotto">Verifiche fatte</p><p class="numero">{{ autonoma.verifiche }}</p></a>
-  <div class="scheda"><p class="sotto">Correzioni quantita'</p><p class="numero">{{ autonoma.rettifiche }}</p></div>
-  {% endif %}
-  <a class="scheda kpi-link" href="#scarti"><p class="sotto">Valore scarti</p><p class="numero">{{ valore_scarti|euro }}</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Merce in negozio{% if not vendite_attive %} (stima){% endif %}</p><p class="numero">{{ valore_merce|euro }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Lotti monitorati</p><p class="numero">{{ numeri.lotti }}</p><p class="sotto">{{ numeri.prodotti }} prodotti</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina', entro=7) }}"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if numeri.scadenza_7 %} acceso{% endif %}">{{ numeri.scadenza_7 }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}"><p class="sotto">Verifiche fatte</p><p class="numero">{{ numeri.verifiche }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('ordini.pagina') }}"><p class="sotto">Segnalazioni "sta finendo"</p><p class="numero">{{ numeri.segnalazioni }}</p></a>
+  <a class="scheda kpi-link" href="#scarti"><p class="sotto">Valore scarti</p><p class="numero{% if valore_scarti %} acceso{% endif %}">{{ valore_scarti|euro }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Merce in magazzino</p><p class="numero">{{ valore_magazzino|euro }}</p></a>
 </div>
 
 <div class="cruscotto spazio">
   <div>
-    {% if vendite_attive %}
-    {{ grafico(barre, titolo_grafico) }}
-    <div class="due-colonne spazio">
-      <section class="scheda">
-        <h2>Incasso per aliquota IVA</h2>
-        {% if iva %}
-        <div class="tabella-wrap">
-          <table>
-            <tr><th>IVA</th><th>Totale</th><th>Imponibile</th><th>Imposta</th></tr>
-            {% for r in iva %}<tr><td>{{ r.aliquota }}%</td><td>{{ r.totale|euro }}</td><td>{{ r.imponibile|euro }}</td><td>{{ r.imposta|euro }}</td></tr>{% endfor %}
-          </table>
-        </div>
-        <p class="sotto">Scorporo dai prezzi IVA inclusa, a titolo indicativo.</p>
-        {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endif %}
-      </section>
-      <section class="scheda">
-        <h2>Prodotti piu' venduti</h2>
-        {% for v in top %}
-        <div class="voce-elenco"><span>{{ v.p.descrizione }}<br><span class="sotto">{{ v.quantita|quantita(v.p.unita) }}</span></span><strong>{{ v.incasso|euro }}</strong></div>
-        {% else %}<p class="sotto">Nessuna vendita nel periodo.</p>{% endfor %}
-      </section>
-    </div>
-    {% else %}
-    {{ grafico(autonoma.barre_scadenze, "Lotti in scadenza nei prossimi 14 giorni") }}
-    {% endif %}
+    {{ grafico(barre_scadenze, "Lotti in scadenza nei prossimi 14 giorni") }}
 
     <section class="scheda spazio" id="scarti">
       <h2>Scarti per motivo</h2>
@@ -118,6 +87,17 @@
         </table>
       </div>
       <p class="sotto">Valore calcolato al prezzo di vendita attuale.</p>
+    </section>
+
+    <section class="scheda spazio">
+      <h2>Prodotti piu' buttati</h2>
+      {% for v in piu_buttati %}
+      <div class="voce-elenco">
+        <span><a href="{{ url_for('anagrafica.scheda', pid=v.p.id) }}">{{ v.p.descrizione }}</a><br><span class="sotto">{{ v.quantita|quantita(v.p.unita) }} buttati</span></span>
+        <strong>{{ v.valore|euro }}</strong>
+      </div>
+      {% else %}<p class="sotto">Nessuno scarto nel periodo.</p>{% endfor %}
+      {% if piu_buttati %}<p class="sotto">Se un prodotto torna spesso qui, conviene ordinarne meno o scontarlo prima.</p>{% endif %}
     </section>
   </div>
 
@@ -136,7 +116,7 @@
       <h2>In scadenza entro 3 giorni</h2>
       {% for lotto, p in in_scadenza %}
       <div class="voce-elenco">
-        <span><a href="{{ url_for('inventario.pagina', q=p.nome) }}">{{ p.descrizione }}</a><br><span class="sotto">{{ (lotto.qta_esposta + lotto.qta_magazzino)|quantita(p.unita) }}</span></span>
+        <span><a href="{{ url_for('inventario.pagina', q=p.nome) }}">{{ p.descrizione }}</a><br><span class="sotto">lotto {{ lotto.codice_lotto }}{% if lotto.qta_esposta %} &middot; sullo scaffale{% endif %}{% if lotto.qta_magazzino %} &middot; {{ lotto.qta_magazzino|quantita(p.unita) }} in magazzino{% endif %}</span></span>
         <span class="badge {{ 'spento' if lotto.data_scadenza == oggi else 'avviso' }}">{{ lotto.data_scadenza|data }}</span>
       </div>
       {% else %}
@@ -145,22 +125,12 @@
     </section>
 
     <section class="scheda spazio">
-      {% if vendite_attive %}
-      <h2>Ultime vendite</h2>
-      {% for v, dispositivo, utente in ultime %}
-      <div class="voce-elenco">
-        <span>{{ v.data_ora|data_ora }}<br><span class="sotto">{{ dispositivo or utente or "—" }}</span></span>
-        <strong>{{ v.totale_centesimi|euro }}</strong>
-      </div>
-      {% else %}<p class="sotto">Nessuna vendita.</p>{% endfor %}
-      {% else %}
       <div class="intestazione"><h2>Attivita' recenti</h2><a href="{{ url_for('registro.pagina') }}">Vedi tutto</a></div>
-      {% for voce, utente in autonoma.attivita %}
+      {% for voce, utente in attivita %}
       <div class="voce-elenco">
         <span>{{ etichette_attivita.get(voce.azione, voce.azione) }}<br><span class="sotto">{{ voce.data_ora|data_ora }} &middot; {{ utente or "Sistema" }}</span></span>
       </div>
       {% else %}<p class="sotto">Nessuna attivita' registrata.</p>{% endfor %}
-      {% endif %}
     </section>
   </aside>
 </div>
@@ -170,4 +140,5 @@
   <button type="submit" class="piccolo secondario">Mostra di nuovo la guida ai primi passi</button>
 </form>
 {% endif %}
+</div>
 {% endblock %}

@@ -23,7 +23,7 @@
 {% endif %}
 <button id="avvia" type="button" class="secondario">Usa fotocamera</button>
 <div id="lettore"></div>
-<div id="risultati">{% include "_risultati.html" %}</div>
+<div id="risultati" data-aggiorna="{{ url_for('inventario.risultati') }}" data-modulo="modulo-codice" data-swap="innerHTML">{% include "_risultati.html" %}</div>
 {% endblock %}
 {% block script %}
 <script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>

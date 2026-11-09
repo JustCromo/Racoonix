@@ -104,10 +104,15 @@
     document.querySelectorAll("[data-aggiorna]").forEach((contenitore) => {
       const modulo = contenitore.dataset.modulo && document.getElementById(contenitore.dataset.modulo);
       if (scrivendo && (contenitore.contains(attivo) || (modulo && modulo.contains(attivo)))) return;
+      const modificato = [...contenitore.querySelectorAll("input, textarea, select")].some((c) =>
+        c.type === "checkbox" || c.type === "radio" ? c.checked !== c.defaultChecked
+          : c.tagName === "SELECT" ? [...c.options].some((o) => o.selected !== o.defaultSelected)
+          : c.value !== c.defaultValue);
+      if (modificato) return;
       let url = contenitore.dataset.aggiorna;
       if (modulo) url += "?" + new URLSearchParams(new FormData(modulo)).toString();
       const aperti = [...contenitore.querySelectorAll("details[open][id]")].map((d) => d.id);
-      window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML" })
+      window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML", select: contenitore.dataset.seleziona })
         .then(() => aperti.forEach((id) => { const d = document.getElementById(id); if (d) d.open = true; }));
     });
   }, 20000);

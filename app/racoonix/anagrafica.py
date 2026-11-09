@@ -20,7 +20,6 @@ PLU_OK = re.compile(r"^[0-9]{5}$")
 TELEFONO_OK = re.compile(r"^[0-9 +()./-]{5,30}$")
 EMAIL_OK = re.compile(r"^[^@\s<>\"']{1,64}@[^@\s<>\"']{1,100}\.[A-Za-z]{2,24}$")
 NUMERO_OK = re.compile(r"^[0-9]{1,6}$")
-ALIQUOTE = (4, 5, 10, 22)
 STATI = ("attivo", "in_attesa", "rimosso")
 
 
@@ -101,10 +100,9 @@ def _mostra_scheda(p, errori=None, valori=None, codice=200):
                                    .order_by(Categoria.nome)).all()
     fornitori = db.session.scalars(db.select(Fornitore).where(
         or_(Fornitore.attivo.is_(True), Fornitore.id == p.fornitore_id)).order_by(Fornitore.ragione_sociale)).all()
-    soglia = _testo_kg(p.soglia_esposti) if p.unita == "kg" else str(p.soglia_esposti)
     return render_template("anagrafica_prodotto.html", p=p, categorie=categorie, fornitori=fornitori,
                            errori=errori or [], valori=valori or {}, prezzo_testo=_testo_euro(p.prezzo_centesimi),
-                           soglia_testo=soglia, riordino_testo="" if p.soglia_riordino is None else (_testo_kg(p.soglia_riordino) if p.unita == "kg" else str(p.soglia_riordino))), codice
+                           riordino_testo="" if p.soglia_riordino is None else (_testo_kg(p.soglia_riordino) if p.unita == "kg" else str(p.soglia_riordino))), codice
 
 
 @bp.get("/catalogo/<int:pid>")
@@ -139,9 +137,6 @@ def salva(pid):
     prezzo = centesimi(_campo("prezzo"))
     if prezzo is None:
         errori.append("Prezzo non valido (esempio: 2,49)")
-    iva = _intero(_campo("aliquota_iva"), 0, 99)
-    if iva not in ALIQUOTE:
-        errori.append("Aliquota IVA non valida")
 
     pezzi, quantita, unita_formato = 1, None, None
     if p.unita == "pezzo":
@@ -154,9 +149,6 @@ def salva(pid):
             if quantita is None or unita_formato not in ("g", "ml", "pz"):
                 errori.append("Formato non valido: servono quantita' e unita'")
 
-    soglia = leggi_quantita(_campo("soglia"), p.unita)
-    if soglia is None:
-        errori.append("Soglia scaffale non valida")
     testo_riordino = _campo("soglia_riordino")
     soglia_riordino = leggi_quantita(testo_riordino, p.unita) if testo_riordino else None
     if testo_riordino and soglia_riordino is None:
@@ -164,11 +156,6 @@ def salva(pid):
     preavviso = _intero(_campo("giorni_preavviso"), 0, 60)
     if preavviso is None:
         errori.append("Giorni di preavviso non validi (0-60)")
-    validita = None
-    if _campo("giorni_validita"):
-        validita = _intero(_campo("giorni_validita"), 1, 60)
-        if validita is None:
-            errori.append("Giorni di validita' non validi (1-60)")
     plu = _campo("codice_bilancia") or None
     if plu and not PLU_OK.match(plu):
         errori.append("Codice bilancia: servono 5 cifre")
@@ -185,10 +172,10 @@ def salva(pid):
     p.categoria_id = categoria.id
     p.sottocategoria_id = sotto.id if sotto else None
     p.fornitore_id = fornitore.id if fornitore else None
-    p.prezzo_centesimi, p.aliquota_iva = prezzo, iva
+    p.prezzo_centesimi = prezzo
     p.formato_pezzi, p.formato_quantita = pezzi, quantita
     p.formato_unita = unita_formato if quantita else None
-    p.soglia_esposti, p.giorni_preavviso, p.giorni_validita = soglia, preavviso, validita
+    p.giorni_preavviso = preavviso
     p.soglia_riordino = soglia_riordino
     p.codice_bilancia = plu
     p.in_esaurimento = request.form.get("in_esaurimento") == "1"

@@ -34,7 +34,7 @@ def togli_sconto(lotto):
 
 def crea_sconto(lotto, perc, quantita, origine, utente_id):
     togli_sconto(lotto)
-    db.session.add(Sconto(lotto_id=lotto.id, perc=perc, quantita=quantita, venduti=0,
+    db.session.add(Sconto(lotto_id=lotto.id, perc=perc, quantita=quantita,
                           origine=origine, attivo=True, creato_da=utente_id))
     db.session.flush()
     p = lotto.prodotto

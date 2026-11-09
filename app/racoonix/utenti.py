@@ -204,10 +204,10 @@ def _chiudi_richieste_reset(utente_id):
 
 def _ha_storico(utente_id):
     """True se l'utente compare in qualche operazione: in quel caso non si cancella, si archivia."""
-    from .models import AuditLog, Dispositivo, DispositivoAccesso, Lotto, Notifica, Prodotto, Scarto, Sconto, Vendita
-    colonne = [AuditLog.utente_id, Vendita.utente_id, Lotto.caricato_da, Scarto.utente_id,
+    from .models import AuditLog, DispositivoAccesso, Lotto, Notifica, Prodotto, Riordino, Scarto, Sconto
+    colonne = [AuditLog.utente_id, Lotto.caricato_da, Scarto.utente_id,
                Notifica.chiusa_da, Notifica.utente_id, Prodotto.creato_da, Prodotto.approvato_da,
-               Sconto.creato_da, Dispositivo.creato_da, DispositivoAccesso.utente_id]
+               Sconto.creato_da, DispositivoAccesso.utente_id, Riordino.segnalato_da, Riordino.ordinato_da]
     return any(db.session.scalar(db.select(c).where(c == utente_id).limit(1)) for c in colonne)
 
 

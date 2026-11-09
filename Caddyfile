@@ -51,9 +51,3 @@
 		reverse_proxy app:8000
 	}
 }
-
-# Simulatore: le apparecchiature del negozio (ambiente demo separato)
-{$RACOONIX_SIM_HOST} {
-	import sicurezza
-	reverse_proxy simulatore:5000
-}

@@ -384,3 +384,13 @@ fieldset.giorni .spunta:has(input:focus-visible) { outline: 2px solid #D9A441; o
 @media (max-width: 900px) {
   .stretta { max-width: none; margin: .5rem 0; }
 }
+
+/* --- Notifiche sul telefono: tutto in colonna --- */
+@media (max-width: 900px) {
+  .sezione article.scheda.notifica { display: flex; flex-direction: column; align-items: stretch; gap: .45rem; }
+  .sezione article.scheda.notifica > * { grid-column: auto; width: auto; margin: 0; }
+  .sezione article.scheda.notifica .intestazione { display: flex; flex-wrap: wrap; align-items: flex-start;
+    justify-content: space-between; gap: .4rem; }
+  .sezione article.scheda.notifica .intestazione h3 { flex: 1 1 55%; }
+  .sezione article.scheda.notifica .badge { white-space: nowrap; }
+}

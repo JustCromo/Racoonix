@@ -6,19 +6,13 @@ from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import insert
 
 from . import db
-from .models import Dispositivo, Riordino
+from .models import Riordino
 
 APERTI = ("da_ordinare", "ordinato")
 
 
 def _adesso():
     return datetime.now(timezone.utc)
-
-
-def cassa_collegata():
-    """Con una cassa le vendite sono note, quindi il numero sullo scaffale resta vero."""
-    return db.session.scalar(db.select(Dispositivo.id).where(
-        Dispositivo.tipo == "cassa", Dispositivo.attivo.is_(True)).limit(1)) is not None
 
 
 def riordino_aperto(prodotto_id):

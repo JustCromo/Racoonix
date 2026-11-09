@@ -1,4 +1,4 @@
-"""Regole di business condivise da cassa e notifiche."""
+"""Regole di business condivise da inventario, sconti e notifiche."""
 
 
 def vendibile(lotto, oggi):

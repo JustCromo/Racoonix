@@ -13,7 +13,6 @@
     <div class="prezzo-riga">
       <strong>{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %}/kg{% endif %}</strong>
       {% if p.prezzo_misura and p.unita != "kg" %}<span class="sotto">{{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</span>{% endif %}
-      <span class="badge">IVA {{ p.aliquota_iva }}%</span>
     </div>
   </a>
   {% endfor %}

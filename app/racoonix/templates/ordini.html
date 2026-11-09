@@ -5,6 +5,7 @@
 {% block contenuto %}
 <h1>Ordini ai fornitori</h1>
 <p class="sotto">La lista nasce dalle segnalazioni "Sta finendo" e dalle soglie di magazzino. Quando la merce arriva con il carico, il prodotto esce da qui da solo.</p>
+<div id="ordini" data-aggiorna="{{ url_for('ordini.pagina') }}" data-seleziona="#ordini">
 {% if not gruppi %}<div class="vuoto spazio">{{ icona("circle-check") }}<span>Niente da ordinare</span></div>{% endif %}
 {% for gr in gruppi %}
 <section class="scheda spazio" id="fornitore-{{ gr.id }}">
@@ -40,7 +41,7 @@
       <button type="submit" name="azione" value="ordina">Segna come ordinato</button>
     </div>
   </form>
-  <details class="spazio">
+  <details class="spazio" id="testo-{{ gr.id }}">
     <summary>Testo dell'ordine</summary>
     <pre>{{ gr.testo }}</pre>
     {% if gr.fornitore and gr.fornitore.email %}
@@ -72,4 +73,5 @@
   {% endif %}
 </section>
 {% endfor %}
+</div>
 {% endblock %}

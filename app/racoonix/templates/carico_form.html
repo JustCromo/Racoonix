@@ -25,7 +25,7 @@
     {% endif %}
     {% set misura = ("kg" if prodotto.unita == "kg" else "pezzi") if prodotto else "pezzi, o kg se a peso" %}
     {% if prodotto and prodotto.stato == "attivo" %}
-    <label>In esposizione ({{ misura }}) <input name="esposta" inputmode="decimal" value="{{ valori.esposta or '' }}"></label>
+    <label>Messi subito sullo scaffale ({{ misura }}) <input name="esposta" inputmode="decimal" value="{{ valori.esposta or '' }}"></label>
     {% endif %}
     <label>In magazzino ({{ misura }}) <input name="magazzino" inputmode="decimal" value="{{ valori.magazzino or '' }}"></label>
     {% if info.scadenza %}

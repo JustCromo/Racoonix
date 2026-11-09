@@ -49,22 +49,15 @@
 
     <h2 class="spazio">Prezzo</h2>
     <div class="griglia">
-      <label>Prezzo IVA inclusa (€{{ "/kg" if p.unita == "kg" }}) <input name="prezzo" inputmode="decimal" value="{{ val('prezzo', prezzo_testo) }}" required></label>
-      <label>Aliquota IVA
-        <select name="aliquota_iva">
-          {% for a in [4, 5, 10, 22] %}<option value="{{ a }}" {% if val('aliquota_iva', p.aliquota_iva)|string == a|string %}selected{% endif %}>{{ a }}%</option>{% endfor %}
-        </select>
-      </label>
+      <label>Prezzo di vendita (€{{ "/kg" if p.unita == "kg" }}) <input name="prezzo" inputmode="decimal" value="{{ val('prezzo', prezzo_testo) }}" required></label>
     </div>
     {% if p.prezzo_misura and p.unita != "kg" %}<p class="sotto">Prezzo per unita' di misura: {{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</p>{% endif %}
 
-    <h2 class="spazio">Scaffale e magazzino</h2>
+    <h2 class="spazio">Magazzino e scadenze</h2>
     <div class="griglia">
       <label>Riordina quando in magazzino ne restano ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia_riordino" inputmode="decimal" value="{{ val('soglia_riordino', riordino_testo) }}" placeholder="vuoto = solo su segnalazione"></label>
-      <label>Soglia scaffale, solo con cassa collegata ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia" inputmode="decimal" value="{{ val('soglia', soglia_testo) }}"></label>
       <label>Avviso scadenza (giorni prima) <input name="giorni_preavviso" inputmode="numeric" value="{{ val('giorni_preavviso', p.giorni_preavviso) }}"></label>
-      <label>Validita' preincartati (giorni) <input name="giorni_validita" inputmode="numeric" value="{{ val('giorni_validita', p.giorni_validita) }}" placeholder="solo banco"></label>
-      <label>Codice bilancia (5 cifre) <input name="codice_bilancia" inputmode="numeric" value="{{ val('codice_bilancia', p.codice_bilancia) }}" maxlength="5"></label>
+      <label>Codice articolo a peso (5 cifre, facoltativo) <input name="codice_bilancia" inputmode="numeric" value="{{ val('codice_bilancia', p.codice_bilancia) }}" maxlength="5"></label>
     </div>
     <label class="spunta"><input type="checkbox" name="in_esaurimento" value="1" {% if (valori.get('in_esaurimento') == '1' if valori else p.in_esaurimento) %}checked{% endif %}> In esaurimento: non riordinare piu'</label>
     <p class="spazio"><button type="submit">Salva scheda</button></p>

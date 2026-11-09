@@ -43,11 +43,6 @@ def create_app():
     from .utenti import bp as utenti_bp
     for blueprint in (auth.bp, utenti_bp, carico_bp, prodotti_bp, inventario_bp, notifiche_bp, anagrafica_bp, dashboard_bp):
         app.register_blueprint(blueprint)
-    from .api import bp as api_bp
-    from .dispositivi import bp as dispositivi_bp
-    csrf.exempt(api_bp)
-    app.register_blueprint(api_bp)
-    app.register_blueprint(dispositivi_bp)
     from .collega import bp as collega_bp
     app.register_blueprint(collega_bp)
     from .registro import bp as registro_bp

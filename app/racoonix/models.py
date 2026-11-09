@@ -128,13 +128,10 @@ class Prodotto(db.Model):
     formato_quantita = db.Column(db.Integer)
     formato_unita = db.Column(db.String(2))
     prezzo_centesimi = db.Column(db.Integer)
-    aliquota_iva = db.Column(db.Integer, nullable=False, default=22)
     in_esaurimento = db.Column(db.Boolean, nullable=False, default=False)
-    soglia_esposti = db.Column(db.Integer, nullable=False, default=5)
     soglia_riordino = db.Column(db.Integer)
     ultima_conta_il = db.Column(db.DateTime(timezone=True))
     giorni_preavviso = db.Column(db.Integer, nullable=False, default=3)
-    giorni_validita = db.Column(db.Integer)
     sconto1_giorni = db.Column(db.Integer)
     sconto1_perc = db.Column(db.Integer)
     sconto2_giorni = db.Column(db.Integer)
@@ -157,14 +154,12 @@ class Prodotto(db.Model):
         CheckConstraint("codice_bilancia IS NULL OR codice_bilancia ~ '^[0-9]{5}$'", name="ck_prodotto_bilancia"),
         CheckConstraint("gtin IS NOT NULL OR codice_bilancia IS NOT NULL", name="ck_prodotto_codice"),
         CheckConstraint("prezzo_centesimi IS NULL OR prezzo_centesimi >= 0", name="ck_prodotto_prezzo"),
-        CheckConstraint("aliquota_iva IN (4, 5, 10, 22)", name="ck_prodotto_iva"),
         CheckConstraint("formato_pezzi >= 1", name="ck_prodotto_pezzi"),
         CheckConstraint("formato_quantita IS NULL OR formato_quantita > 0", name="ck_prodotto_formato_q"),
         CheckConstraint("formato_unita IS NULL OR formato_unita IN ('g','ml','pz')", name="ck_prodotto_formato_u"),
         CheckConstraint("(formato_quantita IS NULL) = (formato_unita IS NULL)", name="ck_prodotto_formato"),
-        CheckConstraint("soglia_esposti >= 0 AND giorni_preavviso >= 0", name="ck_prodotto_soglie"),
+        CheckConstraint("giorni_preavviso >= 0", name="ck_prodotto_preavviso"),
         CheckConstraint("soglia_riordino IS NULL OR soglia_riordino >= 0", name="ck_prodotto_riordino"),
-        CheckConstraint("giorni_validita IS NULL OR giorni_validita > 0", name="ck_prodotto_validita"),
         CheckConstraint("(sconto1_perc IS NULL OR sconto1_perc BETWEEN 0 AND 90) AND "
                         "(sconto2_perc IS NULL OR sconto2_perc BETWEEN 0 AND 90)", name="ck_prodotto_sconto_perc"),
         CheckConstraint("(sconto1_giorni IS NULL OR sconto1_giorni >= 0) AND "
@@ -220,9 +215,6 @@ class Lotto(db.Model):
     prodotto_id = db.Column(db.Integer, db.ForeignKey("prodotti.id"), nullable=False)
     codice_lotto = db.Column(db.String(20))
     data_scadenza = db.Column(db.Date)
-    data_confezionamento = db.Column(db.Date)
-    lotto_origine_id = db.Column(db.Integer, db.ForeignKey("lotti.id"))
-    codice_etichetta = db.Column(db.String(13))
     qta_esposta = db.Column(db.Integer, nullable=False, default=0)
     qta_magazzino = db.Column(db.Integer, nullable=False, default=0)
     data_carico = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
@@ -232,40 +224,6 @@ class Lotto(db.Model):
     __table_args__ = (
         CheckConstraint("qta_esposta >= 0", name="ck_lotto_esposta"),
         CheckConstraint("qta_magazzino >= 0", name="ck_lotto_magazzino"),
-    )
-
-
-class Vendita(db.Model):
-    __tablename__ = "vendite"
-    id = db.Column(db.Integer, primary_key=True)
-    data_ora = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
-    utente_id = db.Column(db.Integer, db.ForeignKey("utenti.id"))
-    dispositivo_id = db.Column(db.Integer, db.ForeignKey("dispositivi.id"))
-    totale_centesimi = db.Column(db.Integer, nullable=False, default=0)
-    righe = db.relationship("RigaVendita", back_populates="vendita")
-
-    __table_args__ = (
-        CheckConstraint("totale_centesimi >= 0", name="ck_vendita_totale"),
-        CheckConstraint("utente_id IS NOT NULL OR dispositivo_id IS NOT NULL", name="ck_vendita_origine"),
-    )
-
-
-class RigaVendita(db.Model):
-    __tablename__ = "righe_vendita"
-    id = db.Column(db.Integer, primary_key=True)
-    vendita_id = db.Column(db.Integer, db.ForeignKey("vendite.id"), nullable=False)
-    lotto_id = db.Column(db.Integer, db.ForeignKey("lotti.id"), nullable=False)
-    quantita = db.Column(db.Integer, nullable=False)
-    prezzo_unitario_centesimi = db.Column(db.Integer, nullable=False)
-    sconto_perc = db.Column(db.Integer, nullable=False, default=0)
-    totale_centesimi = db.Column(db.Integer, nullable=False)
-    aliquota_iva = db.Column(db.Integer, nullable=False)
-    vendita = db.relationship("Vendita", back_populates="righe")
-
-    __table_args__ = (
-        CheckConstraint("quantita > 0", name="ck_riga_quantita"),
-        CheckConstraint("prezzo_unitario_centesimi >= 0 AND totale_centesimi >= 0", name="ck_riga_importi"),
-        CheckConstraint("sconto_perc BETWEEN 0 AND 90", name="ck_riga_sconto"),
     )
 
 
@@ -338,7 +296,6 @@ class Sconto(db.Model):
     lotto_id = db.Column(db.Integer, db.ForeignKey("lotti.id"), nullable=False)
     perc = db.Column(db.Integer, nullable=False)
     quantita = db.Column(db.Integer, nullable=False)
-    venduti = db.Column(db.Integer, nullable=False, default=0)
     origine = db.Column(db.String(12), nullable=False)
     attivo = db.Column(db.Boolean, nullable=False, default=True)
     creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
@@ -349,44 +306,9 @@ class Sconto(db.Model):
     __table_args__ = (
         CheckConstraint("perc BETWEEN 1 AND 90", name="ck_sconto_perc"),
         CheckConstraint("quantita > 0", name="ck_sconto_quantita"),
-        CheckConstraint("venduti >= 0 AND venduti <= quantita", name="ck_sconto_venduti"),
         CheckConstraint("origine IN ('manuale','programmato')", name="ck_sconto_origine"),
         Index("uq_sconto_attivo", "lotto_id", unique=True, postgresql_where=text("attivo")),
     )
-
-    @property
-    def residuo(self):
-        return self.quantita - self.venduti
-
-
-class Dispositivo(db.Model):
-    """Cassa o bilancia collegata via API. Della chiave si salva solo l'impronta SHA-256."""
-    __tablename__ = "dispositivi"
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(60), unique=True, nullable=False)
-    tipo = db.Column(db.String(10), nullable=False)
-    token_hash = db.Column(db.String(64), unique=True, nullable=False)
-    prefisso = db.Column(db.String(12), nullable=False)
-    attivo = db.Column(db.Boolean, nullable=False, default=True)
-    archiviato = db.Column(db.Boolean, nullable=False, default=False)
-    creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id"))
-    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
-    ultimo_uso = db.Column(db.DateTime(timezone=True))
-
-    __table_args__ = (CheckConstraint("tipo IN ('cassa','bilancia')", name="ck_dispositivo_tipo"),)
-
-
-class RichiestaApi(db.Model):
-    """Memoria delle operazioni gia' eseguite: la stessa transazione non viene mai applicata due volte."""
-    __tablename__ = "richieste_api"
-    id = db.Column(db.Integer, primary_key=True)
-    dispositivo_id = db.Column(db.Integer, db.ForeignKey("dispositivi.id"), nullable=False)
-    chiave = db.Column(db.String(64), nullable=False)
-    codice_http = db.Column(db.Integer, nullable=False)
-    risposta = db.Column(db.Text, nullable=False)
-    creata_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
-
-    __table_args__ = (UniqueConstraint("dispositivo_id", "chiave", name="uq_richiesta_api"),)
 
 
 class Impostazione(db.Model):
