@@ -61,6 +61,71 @@ esporta_certificato() {
 
 indirizzo() { grep '^RACOONIX_SNI=' .env | cut -d= -f2; }
 
+# Annuncia il nome (es. racoonix.local) nella rete con mDNS, come fanno le stampanti di rete.
+# Non rinomina il computer: un piccolo servizio di sistema pubblica il nome con l'IP del server.
+configura_nome() {
+  local nome="$1" ip="$2"
+  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] && valida_ip "$ip" || { avviso "Nome o IP non validi"; return 1; }
+  if [[ "$nome" != *.local ]]; then
+    info "$nome non e' un nome .local: va registrato nel DNS del router, che deve puntare a $ip"
+    return 0
+  fi
+  command -v systemctl >/dev/null || { avviso "Serve systemd per annunciare $nome"; return 1; }
+  info "Annuncio $nome nella rete del negozio: servono i permessi di amministratore (sudo)"
+  if ! command -v avahi-publish >/dev/null; then
+    if command -v apt-get >/dev/null; then sudo apt-get install -y -qq avahi-daemon avahi-utils >/dev/null
+    elif command -v pacman >/dev/null; then sudo pacman -S --needed --noconfirm avahi >/dev/null
+    elif command -v dnf >/dev/null; then sudo dnf install -y -q avahi avahi-tools
+    else avviso "Installa avahi con il gestore pacchetti del sistema, poi: ./racoonix.sh nome"; return 1
+    fi
+  fi
+  sudo systemctl enable --now avahi-daemon >/dev/null 2>&1 || { avviso "avahi-daemon non si avvia"; return 1; }
+
+  if [[ "$(hostname)" == "${nome%.local}" ]]; then
+    # Il computer si chiama gia' cosi': avahi annuncia il nome da solo
+    sudo systemctl disable --now racoonix-nome >/dev/null 2>&1 || true
+  else
+    sudo tee /etc/systemd/system/racoonix-nome.service >/dev/null << UNIT
+[Unit]
+Description=Racoonix: annuncia ${nome} nella rete locale (mDNS)
+After=avahi-daemon.service network-online.target
+Requires=avahi-daemon.service
+Wants=network-online.target
+
+[Service]
+ExecStart=$(command -v avahi-publish) -a -R ${nome} ${ip}
+Restart=always
+RestartSec=10
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+    sudo systemctl daemon-reload
+    sudo systemctl enable racoonix-nome >/dev/null 2>&1
+    sudo systemctl restart racoonix-nome
+  fi
+
+  # Se c'e' un firewall attivo, lascio passare mDNS (porta UDP 5353)
+  if command -v ufw >/dev/null && sudo ufw status 2>/dev/null | grep -q "Status: active"; then
+    sudo ufw allow 5353/udp comment "mDNS Racoonix" >/dev/null
+  elif command -v firewall-cmd >/dev/null && sudo firewall-cmd --state >/dev/null 2>&1; then
+    sudo firewall-cmd --permanent --add-service=mdns >/dev/null && sudo firewall-cmd --reload >/dev/null
+  fi
+
+  sleep 2
+  if [[ "$(hostname)" == "${nome%.local}" ]] || systemctl is-active --quiet racoonix-nome; then
+    ok "Racoonix e' raggiungibile anche come https://$nome"
+  else
+    avviso "Il nome non si e' attivato (forse e' gia' usato da un altro dispositivo). Controlla: systemctl status racoonix-nome"
+    return 1
+  fi
+}
+
 installa() {
   [[ -s secrets/db_password ]] && errore "Racoonix risulta gia' installato qui. Per aggiornarlo: ./racoonix.sh aggiorna"
   controlla_requisiti
@@ -77,10 +142,6 @@ installa() {
   admin_ip=$(chiedi "IP del computer dell'amministratore" "$suggerito")
   nome=$(chiedi "Nome di Racoonix nella rete del negozio" "racoonix.local")
   [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "Nome non valido: lettere minuscole, numeri e trattini, per esempio racoonix.local"
-  if [[ "$nome" == *.local ]]; then
-    [[ "$(hostname)" == "${nome%.local}" ]] || info "Per usare $nome, il nome di questo computer deve essere ${nome%.local}: sudo hostnamectl set-hostname ${nome%.local}"
-    systemctl is-active --quiet avahi-daemon 2>/dev/null || info "Per annunciare $nome nella rete serve avahi: sudo apt install avahi-daemon"
-  fi
   valida_ip "$admin_ip" || errore "IP non valido"
   reti="$admin_ip/32"
   # Se l'admin usa il browser sul server stesso, le richieste arrivano dalla rete interna di Docker.
@@ -103,6 +164,7 @@ ADMIN_IP_CONSENTITI=$reti
 EOF
   chmod 600 .env
   ok "Configurazione salvata in .env"
+  configura_nome "$nome" "$ip" || avviso "Racoonix resta raggiungibile dall'IP. Per riprovare con il nome: ./racoonix.sh nome"
 
   info "Preparo l'applicazione (la prima volta puo' richiedere qualche minuto)..."
   dc build app
@@ -208,6 +270,7 @@ ${GRASSETTO}Racoonix${RESET} - gestione
   ./racoonix.sh backup-automatico    backup ogni notte alle 02:30
   ./racoonix.sh ripristina FILE      ripristina un backup (chiede conferma)
   ./racoonix.sh certificato          esporta il certificato per i dispositivi
+  ./racoonix.sh nome                 annuncia di nuovo il nome (es. racoonix.local) nella rete
 EOF
 }
 
@@ -222,6 +285,7 @@ case "${1:-aiuto}" in
   backup-automatico) backup_automatico ;;
   ripristina)        ripristina "${2:-}" ;;
   certificato)       controlla_installato; esporta_certificato ;;
+  nome)              controlla_installato; configura_nome "$(grep '^RACOONIX_NOME=' .env | cut -d= -f2)" "$(indirizzo)" ;;
   aiuto|-h|--help)   aiuto ;;
   *)                 aiuto; exit 1 ;;
 esac
