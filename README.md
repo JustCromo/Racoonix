@@ -9,6 +9,8 @@
   Scadenze, magazzino e ordini ai fornitori, dal telefono. Senza abbonamenti, senza cloud, senza cassa da collegare.
 </p>
 
+<p align="center">🇮🇹 Italiano · <a href="README.en.md">🇬🇧 English</a></p>
+
 ---
 
 ## In breve
