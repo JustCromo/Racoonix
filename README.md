@@ -75,9 +75,9 @@ cd Racoonix
 ./racoonix.sh installa
 ```
 
-L'installatore fa **tre domande** (nome del negozio, indirizzo del server, computer da cui amministrerai), prepara tutto il resto da solo e avvia Racoonix. Poi:
+L'installatore fa **quattro domande** (nome del negozio, indirizzo del server, computer da cui amministrerai, nome di Racoonix nella rete), prepara tutto il resto da solo e avvia Racoonix. Poi:
 
-1. dal tuo computer apri `https://INDIRIZZO-DEL-SERVER` ed entra come amministratore;
+1. dal tuo computer apri `https://racoonix.local` (oppure l'indirizzo IP del server) ed entra come amministratore;
 2. vai su **Collega dispositivi** e segui le istruzioni per far riconoscere Racoonix a telefoni e PC (una volta sola per dispositivo);
 3. crea gli account di chi lavora con te da **Utenti**. Al primo accesso ognuno sceglie la sua password, e tu approvi il suo telefono.
 
@@ -90,6 +90,26 @@ Per il resto basta un comando:
 | `./racoonix.sh backup-automatico` | Attivare il backup ogni notte |
 | `./racoonix.sh backup` / `ripristina` | Fare un backup subito, o tornare a uno precedente |
 | `./racoonix.sh aggiorna` | Passare all'ultima versione (prima fa un backup da solo) |
+| `./racoonix.sh nome` | Annunciare di nuovo il nome `racoonix.local` nella rete (ad esempio se è cambiato l'IP del server) |
+
+### Come si raggiunge Racoonix
+
+Racoonix ha **due indirizzi**, e funzionano entrambi:
+
+- **un nome facile da ricordare**, `https://racoonix.local`. Racoonix lo annuncia da solo nella rete del negozio, come fanno le stampanti di rete: l'installatore lo configura in automatico, senza toccare niente sul router;
+- **l'indirizzo IP del server**, per esempio `https://192.168.1.50`, che funziona sempre e ovunque.
+
+| Dispositivo | Indirizzo da usare |
+|---|---|
+| PC Windows, Mac, iPhone e iPad | `https://racoonix.local` |
+| Computer Linux | `https://racoonix.local`, se il sistema sa trovare i nomi `.local` (molte distribuzioni lo fanno già, altre richiedono il pacchetto `nss-mdns`) |
+| Telefoni e tablet Android | l'indirizzo IP: molti Android non cercano i nomi `.local` |
+
+La pagina **Collega dispositivi** mostra sempre entrambi gli indirizzi, con un QR da inquadrare.
+
+> **Un consiglio:** fai usare a ogni dispositivo sempre lo stesso indirizzo. Per il browser, il nome e l'IP sono due siti diversi: cambiando indirizzo, bisogna rifare l'accesso e far approvare di nuovo il dispositivo.
+
+**Vuoi il nome anche sugli Android?** Se il router del negozio permette di dare un nome ai dispositivi della rete (molti router lo chiamano "DNS locale" o "nome host"), puoi associare un nome all'IP del server: quel nome funzionerà su qualunque dispositivo. In questo caso, durante l'installazione indica quel nome al posto di `racoonix.local`.
 
 ## Sicurezza
 
