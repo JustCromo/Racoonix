@@ -422,3 +422,8 @@ fieldset.scelte legend { font-weight: 700; margin-bottom: .2rem; }
 .carta-scelta:has(input:checked) { border-color: #D9A441; background: rgba(217, 164, 65, .14); }
 .carta-scelta:has(input:focus-visible) { outline: 2px solid #D9A441; outline-offset: 2px; }
 .carta-scelta .bandiera { font-size: 1.6rem; line-height: 1; }
+
+/* --- Configurazione: descrizione sopra, schede sotto e a tutta larghezza --- */
+fieldset.scelte { display: block; }
+fieldset.scelte > p.sotto { margin: 0 0 .2rem; }
+fieldset.scelte .carte-scelta { width: 100%; }

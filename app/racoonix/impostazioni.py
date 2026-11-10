@@ -13,7 +13,7 @@ bp = Blueprint("impostazioni", __name__, url_prefix="/admin/impostazioni")
 
 
 def _contesto(valori, errori):
-    return {"valori": valori, "errori": errori, "fusi": negozio.elenco_fusi(), "paesi": negozio.PAESI,
+    return {"valori": valori, "errori": errori, "fusi": negozio.gruppi_fusi(), "paesi": negozio.PAESI,
             "mio_ip": request.remote_addr}
 
 

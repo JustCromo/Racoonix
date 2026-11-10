@@ -2271,3 +2271,35 @@ msgstr "→ Done."
 msgid "→ conferma l'installazione."
 msgstr "→ confirm the installation."
 
+msgid "Scegli la citta' piu' vicina (con il menu aperto, scrivi le prime lettere per saltare)"
+msgstr "Choose the nearest city (with the menu open, type the first letters to jump)"
+
+msgid "Europa"
+msgstr "Europe"
+
+msgid "America"
+msgstr "America"
+
+msgid "Asia"
+msgstr "Asia"
+
+msgid "Africa"
+msgstr "Africa"
+
+msgid "Australia"
+msgstr "Australia"
+
+msgid "Pacifico"
+msgstr "Pacific"
+
+msgid "Atlantico"
+msgstr "Atlantic"
+
+msgid "Oceano Indiano"
+msgstr "Indian Ocean"
+
+msgid "Antartide"
+msgstr "Antarctica"
+
+msgid "Artico"
+msgstr "Arctic"

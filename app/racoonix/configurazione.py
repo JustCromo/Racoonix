@@ -138,7 +138,7 @@ def pagina():
     if lingua in LINGUE:
         return redirect(url_for(".pagina"))
 
-    contesto = {"fusi": negozio.elenco_fusi(), "paesi": negozio.PAESI}
+    contesto = {"fusi": negozio.gruppi_fusi(), "paesi": negozio.PAESI}
     if request.method == "GET":
         return render_template("configurazione.html", valori=_valori_iniziali(), errori=[], **contesto)
 

@@ -86,6 +86,38 @@ def elenco_fusi():
     return sorted(_fusi())
 
 
+CONSIGLIATI = {"IT": ["Europe/Rome"], "GB": ["Europe/London"],
+               "US": ["America/New_York", "America/Chicago", "America/Denver", "America/Phoenix",
+                      "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]}
+
+
+def _etichetta(fuso):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    scarto = datetime.now(ZoneInfo(fuso)).utcoffset()
+    minuti = int(scarto.total_seconds() // 60)
+    segno = "+" if minuti >= 0 else "-"
+    ore, resto = divmod(abs(minuti), 60)
+    citta = " \u00b7 ".join(parte.replace("_", " ") for parte in fuso.split("/")[1:])
+    return f"{citta} (UTC{segno}{ore:02d}:{resto:02d})"
+
+
+def gruppi_fusi():
+    """Per il menu a tendina: prima i fusi dei paesi previsti, poi tutti gli altri per continente."""
+    from .lingua import _l
+    paesi = {"IT": _l("Italia"), "GB": _l("Regno Unito"), "US": _l("Stati Uniti")}
+    continenti = {"Europe": _l("Europa"), "America": _l("America"), "Asia": _l("Asia"), "Africa": _l("Africa"),
+                  "Australia": _l("Australia"), "Pacific": _l("Pacifico"), "Atlantic": _l("Atlantico"),
+                  "Indian": _l("Oceano Indiano"), "Antarctica": _l("Antartide"), "Arctic": _l("Artico")}
+    gruppi = [(str(paesi[p]), [(f, _etichetta(f)) for f in CONSIGLIATI[p]]) for p in PAESI]
+    gia = {f for elenco in CONSIGLIATI.values() for f in elenco}
+    for prefisso, nome in continenti.items():
+        voci = [(f, _etichetta(f)) for f in elenco_fusi() if f.split("/")[0] == prefisso and f not in gia]
+        if voci:
+            gruppi.append((str(nome), sorted(voci, key=lambda v: v[1])))
+    return gruppi
+
+
 def applica_fuso():
     """date.today() e gli orari seguono il fuso del negozio, che si puo' cambiare senza riavviare niente."""
     fuso = impostazioni()["fuso"]

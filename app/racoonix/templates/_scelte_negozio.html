@@ -33,12 +33,14 @@
 
 <fieldset class="scelte">
   <legend>{{ _("Fuso orario") }}</legend>
-  <label>{{ _("Scrivi per cercare, poi scegli dall'elenco") }}
-    <input name="fuso" list="elenco-fusi" value="{{ valori.fuso }}" autocomplete="off" required spellcheck="false"
-           placeholder="Europe/Rome">
+  <label>{{ _("Scegli la citta' piu' vicina (con il menu aperto, scrivi le prime lettere per saltare)") }}
+    <select name="fuso" required>
+      {% for gruppo, voci in fusi %}
+      <optgroup label="{{ gruppo }}">
+        {% for valore, nome in voci %}<option value="{{ valore }}"{% if valore == valori.fuso %} selected{% endif %}>{{ nome }}</option>{% endfor %}
+      </optgroup>
+      {% endfor %}
+    </select>
   </label>
-  <datalist id="elenco-fusi">
-    {% for f in fusi %}<option value="{{ f }}">{% endfor %}
-  </datalist>
 </fieldset>
 {% endmacro %}
