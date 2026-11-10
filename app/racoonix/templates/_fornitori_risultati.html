@@ -1,46 +1,46 @@
 {% from "_giorni_ordine.html" import giorni_ordine %}
 {% set nomi = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] %}
-{% if not fornitori %}<p class="sotto spazio">Nessun fornitore trovato.</p>{% endif %}
+{% if not fornitori %}<p class="sotto spazio">{{ _("Nessun fornitore trovato.") }}</p>{% endif %}
 <div class="lista-schede lista-fornitori">
 {% for f in fornitori %}
 <section class="scheda scheda-fornitore{% if not f.attivo %} spenta{% endif %}" id="fornitore-{{ f.id }}">
   <div class="testa-fornitore">
     <h2>{{ f.ragione_sociale }}</h2>
-    {% if not f.attivo %}<span class="badge spento">non attivo</span>{% elif f.ordina_oggi %}<span class="badge avviso">ordina oggi</span>{% endif %}
+    {% if not f.attivo %}<span class="badge spento">{{ _("non attivo") }}</span>{% elif f.ordina_oggi %}<span class="badge avviso">{{ _("ordina oggi") }}</span>{% endif %}
   </div>
 
   <dl class="dati-fornitore">
-    <div><dt>Partita IVA</dt><dd>{{ f.partita_iva or "—" }}</dd></div>
-    <div><dt>Telefono</dt><dd>{% if f.telefono %}<a href="tel:{{ f.telefono|replace(' ', '') }}">{{ f.telefono }}</a>{% else %}—{% endif %}</dd></div>
-    <div><dt>Email</dt><dd>{% if f.email %}<a href="mailto:{{ f.email }}">{{ f.email }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>{{ _("Partita IVA") }}</dt><dd>{{ f.partita_iva or "—" }}</dd></div>
+    <div><dt>{{ _("Telefono") }}</dt><dd>{% if f.telefono %}<a href="tel:{{ f.telefono|replace(' ', '') }}">{{ f.telefono }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>{{ _("Email") }}</dt><dd>{% if f.email %}<a href="mailto:{{ f.email }}">{{ f.email }}</a>{% else %}—{% endif %}</dd></div>
   </dl>
 
   <div>
-    <p class="etichetta-dato">Giorni d'ordine</p>
+    <p class="etichetta-dato">{{ _("Giorni d'ordine") }}</p>
     <div class="settimana">
       {% for nome in nomi %}
       {% set attivo = f.giorni_ordine and (loop.index0|string) in f.giorni_ordine %}
       <span class="giorno{% if attivo %} si{% endif %}{% if loop.index0 == oggi %} oggi{% endif %}"
-            title="{{ nome }}{% if loop.index0 == oggi %} (oggi){% endif %}: {{ 'si ordina' if attivo else 'non si ordina' }}">{{ nome }}</span>
+            title="{{ nome }}{% if loop.index0 == oggi %} ({{ _('oggi') }}){% endif %}: {{ _('si ordina') if attivo else _('non si ordina') }}">{{ nome }}</span>
       {% endfor %}
     </div>
-    {% if not f.giorni_ordine %}<p class="sotto">Giorni non indicati: impostali in Modifica.</p>
-    {% elif not f.ordina_oggi %}<p class="sotto">Prossimo ordine: <strong>{{ f.prossimo_ordine }}</strong></p>{% endif %}
+    {% if not f.giorni_ordine %}<p class="sotto">{{ _("Giorni non indicati: impostali in Modifica.") }}</p>
+    {% elif not f.ordina_oggi %}<p class="sotto">{{ _("Prossimo ordine:") }} <strong>{{ f.prossimo_ordine }}</strong></p>{% endif %}
   </div>
 
   <details>
-    <summary>Modifica</summary>
+    <summary>{{ _("Modifica") }}</summary>
     <form method="post" action="{{ url_for('anagrafica.salva_fornitore', fid=f.id) }}" class="spazio">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="griglia">
-        <label>Ragione sociale <input name="ragione_sociale" value="{{ f.ragione_sociale }}" maxlength="120" required></label>
-        <label>Partita IVA <input name="partita_iva" value="{{ f.partita_iva or '' }}" inputmode="numeric" maxlength="11"></label>
-        <label>Telefono <input name="telefono" value="{{ f.telefono or '' }}" maxlength="30"></label>
-        <label>Email <input name="email" type="email" value="{{ f.email or '' }}" maxlength="120"></label>
+        <label>{{ _("Ragione sociale") }} <input name="ragione_sociale" value="{{ f.ragione_sociale }}" maxlength="120" required></label>
+        <label>{{ _("Partita IVA") }} <input name="partita_iva" value="{{ f.partita_iva or '' }}" inputmode="numeric" maxlength="11"></label>
+        <label>{{ _("Telefono") }} <input name="telefono" value="{{ f.telefono or '' }}" maxlength="30"></label>
+        <label>{{ _("Email") }} <input name="email" type="email" value="{{ f.email or '' }}" maxlength="120"></label>
       </div>
       {{ giorni_ordine(f.giorni_ordine) }}
-      <label class="spunta"><input type="checkbox" name="attivo" value="1" {% if f.attivo %}checked{% endif %}> Fornitore attivo</label>
-      <button type="submit" class="piccolo">Salva</button>
+      <label class="spunta"><input type="checkbox" name="attivo" value="1" {% if f.attivo %}checked{% endif %}> {{ _("Fornitore attivo") }}</label>
+      <button type="submit" class="piccolo">{{ _("Salva") }}</button>
     </form>
   </details>
 </section>

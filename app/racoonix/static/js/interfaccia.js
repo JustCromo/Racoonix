@@ -2,6 +2,16 @@
 // Aiuti comuni a tutte le pagine: occhio sulle password, pulsante "Copia", avvisi a comparsa.
 (() => {
   const sprite = document.body.dataset.icone;
+  // Testi tradotti: la pagina li porta come dati JSON, qui si leggono e basta
+  const blocco = document.getElementById("testi");
+  const testi = blocco ? JSON.parse(blocco.textContent) : {};
+  const t = (chiave) => testi[chiave] || chiave;
+  window.racoonixTesto = t;
+  const conTesto = (nome, testo) => {
+    const span = document.createElement("span");
+    span.textContent = testo;
+    return icona(nome) + span.outerHTML;
+  };
   const icona = (nome) => `<svg class="icona" aria-hidden="true"><use href="${sprite}#${nome}"></use></svg>`;
 
   function occhi(radice) {
@@ -14,13 +24,13 @@
       const bottone = document.createElement("button");
       bottone.type = "button";
       bottone.className = "occhio";
-      bottone.setAttribute("aria-label", "Mostra password");
+      bottone.setAttribute("aria-label", t("Mostra password"));
       bottone.innerHTML = icona("eye");
       bottone.addEventListener("click", () => {
         const nascosta = campo.type === "password";
         campo.type = nascosta ? "text" : "password";
         bottone.innerHTML = icona(nascosta ? "eye-off" : "eye");
-        bottone.setAttribute("aria-label", nascosta ? "Nascondi password" : "Mostra password");
+        bottone.setAttribute("aria-label", nascosta ? t("Nascondi password") : t("Mostra password"));
       });
       involucro.appendChild(bottone);
     });
@@ -36,14 +46,14 @@
       const bottone = document.createElement("button");
       bottone.type = "button";
       bottone.className = "copia piccolo";
-      const ripristina = () => { bottone.innerHTML = icona("copy") + "<span>Copia</span>"; };
+      const ripristina = () => { bottone.innerHTML = conTesto("copy", t("Copia")); };
       ripristina();
       bottone.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(blocco.textContent.trim());
-          bottone.innerHTML = icona("check") + "<span>Copiato</span>";
+          bottone.innerHTML = conTesto("check", t("Copiato"));
         } catch (e) {
-          bottone.innerHTML = icona("copy") + "<span>Non riuscito</span>";
+          bottone.innerHTML = conTesto("copy", t("Non riuscito"));
         }
         setTimeout(ripristina, 1800);
       });
@@ -75,7 +85,7 @@
       const chiudi = document.createElement("button");
       chiudi.type = "button";
       chiudi.className = "chiudi";
-      chiudi.setAttribute("aria-label", "Chiudi avviso");
+      chiudi.setAttribute("aria-label", t("Chiudi avviso"));
       chiudi.textContent = "×";
       avviso.append(testo, chiudi);
       contenitoreAvvisi().appendChild(avviso);

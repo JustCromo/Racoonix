@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from flask import request, session
 
 from . import db
+from .lingua import testo_negozio
 from .models import DispositivoAccesso, Utente
 
 COOKIE = "rx_dispositivo"
@@ -41,9 +42,9 @@ def descrivi(user_agent):
                ("Windows", "Windows"), ("Mac OS", "Mac"), ("Linux", "Linux"))
     browser = (("Edg/", "Edge"), ("SamsungBrowser", "Samsung Internet"), ("Firefox/", "Firefox"),
                ("Chrome/", "Chrome"), ("Safari/", "Safari"))
-    s = next((nome for chiave, nome in sistemi if chiave in ua), "sistema sconosciuto")
-    b = next((nome for chiave, nome in browser if chiave in ua), "browser sconosciuto")
-    return f"{b} su {s}"
+    s = next((nome for chiave, nome in sistemi if chiave in ua), "?")
+    b = next((nome for chiave, nome in browser if chiave in ua), "?")
+    return f"{b} \u00b7 {s}"
 
 
 def _token_browser():
@@ -84,9 +85,9 @@ def controlla_al_login(utente):
             altri = db.session.scalars(
                 db.select(Utente.username).join(DispositivoAccesso, DispositivoAccesso.utente_id == Utente.id)
                 .where(DispositivoAccesso.token_hash == firma, DispositivoAccesso.utente_id != utente.id)).all()
-            nota = f"{utente.username} chiede di accedere da {descrizione}"
+            nota = testo_negozio("%(utente)s chiede di accedere da %(dispositivo)s", utente=utente.username, dispositivo=descrizione)
             if altri:
-                nota += f". Attenzione: browser gia' registrato da {', '.join(altri)}"
+                nota += testo_negozio(". Attenzione: browser gia' registrato da %(utenti)s", utenti=", ".join(altri))
             registra("dispositivo_nuovo", utente.id, descrizione)
             _apri("dispositivo", None, "admin", nota, utente_id=utente.id)
 

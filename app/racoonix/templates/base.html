@@ -1,6 +1,6 @@
 {% from "_icone.html" import icona %}
 <!doctype html>
-<html lang="it" data-theme="{{ tema }}">
+<html lang="{{ lingua }}" data-theme="{{ tema }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -19,7 +19,7 @@
   <aside class="barra-laterale">
     <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix</span></a>
     <p class="market">{{ icona("building-store") }}<span>{{ market }}</span></p>
-    <nav class="menu" aria-label="Menu principale">
+    <nav class="menu" aria-label="{{ _("Menu principale") }}">
       {% for v in menu %}
       {% if v.gruppo and (loop.first or v.gruppo != loop.previtem.gruppo) %}<p class="gruppo-menu">{{ v.gruppo }}</p>{% endif %}
       <a class="voce{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" %}{% include "_contatore.html" %}{% endif %}</a>
@@ -29,12 +29,18 @@
       <p class="utente">{{ icona("user") }} {{ g.utente.username }}</p>
       <form method="post" action="{{ url_for('auth.cambia_tema') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="voce">{{ icona("moon" if tema == "chiaro" else "sun") }}<span>Tema {{ "scuro" if tema == "chiaro" else "chiaro" }}</span></button>
+        <button type="submit" class="voce">{{ icona("moon" if tema == "chiaro" else "sun") }}<span>{{ _("Tema scuro") if tema == "chiaro" else _("Tema chiaro") }}</span></button>
       </form>
-      {% if admin_attivo %}<a class="voce" href="{{ url_for('auth.cambia_password') }}">{{ icona("key") }}<span>Cambia password</span></a>{% endif %}
+      {% set altra = "en" if lingua == "it" else "it" %}
+      <form method="post" action="{{ url_for('auth.cambia_lingua') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="lingua" value="{{ altra }}">
+        <button type="submit" class="voce" lang="{{ altra }}"><span class="icona-testo" aria-hidden="true">🌐</span><span>{{ lingue[altra] }}</span></button>
+      </form>
+      {% if admin_attivo %}<a class="voce" href="{{ url_for('auth.cambia_password') }}">{{ icona("key") }}<span>{{ _("Cambia password") }}</span></a>{% endif %}
       <form method="post" action="{{ url_for('auth.logout') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="voce">{{ icona("logout") }}<span>Esci</span></button>
+        <button type="submit" class="voce">{{ icona("logout") }}<span>{{ _("Esci") }}</span></button>
       </form>
     </div>
   </aside>
@@ -42,13 +48,18 @@
   <header class="barra-alto">
     <a class="marchio" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Racoonix<small class="market-alto">{{ market }}</small></span></a>
     <div class="azioni-alto">
+      <form method="post" action="{{ url_for('auth.cambia_lingua') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="lingua" value="{{ "en" if lingua == "it" else "it" }}">
+        <button type="submit" class="voce lingua-alto" aria-label="{{ lingue["en" if lingua == "it" else "it"] }}">{{ ("en" if lingua == "it" else "it")|upper }}</button>
+      </form>
       <form method="post" action="{{ url_for('auth.cambia_tema') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="voce" aria-label="Cambia tema">{{ icona("moon" if tema == "chiaro" else "sun") }}</button>
+        <button type="submit" class="voce" aria-label="{{ _("Cambia tema") }}">{{ icona("moon" if tema == "chiaro" else "sun") }}</button>
       </form>
       <form method="post" action="{{ url_for('auth.logout') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="voce" aria-label="Esci">{{ icona("logout") }}</button>
+        <button type="submit" class="voce" aria-label="{{ _("Esci") }}">{{ icona("logout") }}</button>
       </form>
     </div>
   </header>
@@ -57,11 +68,11 @@
     {% with messaggi = get_flashed_messages(with_categories=true) %}
     {% for categoria, messaggio in messaggi %}<p class="flash {{ categoria }}">{{ messaggio }}</p>{% endfor %}
     {% endwith %}
-    {% if admin_limitato %}<p class="info">Le funzioni di amministrazione non sono disponibili da questo dispositivo: usa il computer autorizzato.</p>{% endif %}
+    {% if admin_limitato %}<p class="info">{{ _("Le funzioni di amministrazione non sono disponibili da questo dispositivo: usa il computer autorizzato.") }}</p>{% endif %}
     {% block contenuto %}{% endblock %}
   </main>
 
-  <nav class="barra-basso" aria-label="Menu">
+  <nav class="barra-basso" aria-label="{{ _("Menu") }}">
     {% for v in menu %}
     <a class="voce-basso{% if v.attiva %} attiva{% endif %}" href="{{ v.url }}">{{ icona(v.icona) }}<span>{{ v.etichetta }}</span>{% if v.icona == "bell" %}{% include "_contatore.html" %}{% endif %}</a>
     {% endfor %}
@@ -75,6 +86,7 @@
   {% block contenuto_accesso %}{{ self.contenuto() }}{% endblock %}
 </main>
 {% endif %}
+<script id="testi" type="application/json">{{ testi_js|tojson }}</script>
 {% block script %}{% endblock %}
 </body>
 </html>

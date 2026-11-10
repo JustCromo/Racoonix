@@ -1,5 +1,5 @@
 {% from "_icone.html" import icona %}
-{% if not utenti %}<p class="sotto spazio">Nessun utente trovato.</p>{% endif %}
+{% if not utenti %}<p class="sotto spazio">{{ _("Nessun utente trovato.") }}</p>{% endif %}
 <div class="lista-schede">
   {% for u in utenti %}
   <section class="scheda scheda-utente" id="utente-{{ u.id }}">
@@ -7,26 +7,26 @@
       <div class="utente-nome">
         <span class="avatar">{{ u.username[0]|upper }}</span>
         <div>
-          <h3>{{ u.username }}{% if u.id == g.utente.id %} <span class="sotto">(tu)</span>{% endif %}</h3>
-          <span class="sotto">Creato il {{ u.creato_il|data_ora }}</span>
+          <h3>{{ u.username }}{% if u.id == g.utente.id %} <span class="sotto">{{ _("(tu)") }}</span>{% endif %}</h3>
+          <span class="sotto">{{ _("Creato il") }} {{ u.creato_il|data_ora }}</span>
         </div>
       </div>
       <span>
-        {% if not u.attivo %}<span class="badge spento">disattivato</span>
-        {% elif u.bloccato_fino and u.bloccato_fino > adesso %}<span class="badge avviso">bloccato</span>
-        {% else %}<span class="badge ok">attivo</span>{% endif %}
-        {% if u.deve_cambiare_password %}<span class="badge">password temporanea</span>{% endif %}
-        {% if u.dispositivi_accesso|selectattr("stato", "equalto", "in_attesa")|list %}<span class="badge spento">richiesta dispositivo</span>{% endif %}
+        {% if not u.attivo %}<span class="badge spento">{{ _("disattivato") }}</span>
+        {% elif u.bloccato_fino and u.bloccato_fino > adesso %}<span class="badge avviso">{{ _("bloccato") }}</span>
+        {% else %}<span class="badge ok">{{ _("attivo") }}</span>{% endif %}
+        {% if u.deve_cambiare_password %}<span class="badge">{{ _("password temporanea") }}</span>{% endif %}
+        {% if u.dispositivi_accesso|selectattr("stato", "equalto", "in_attesa")|list %}<span class="badge spento">{{ _("richiesta dispositivo") }}</span>{% endif %}
       </span>
     </div>
     <form method="post" action="{{ url_for('utenti.ruoli', utente_id=u.id) }}" class="spazio">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <p class="sotto">Ruoli</p>
+      <p class="sotto">{{ _("Ruoli") }}</p>
       <div class="scelte">
         {% for r in ruoli %}
-        <label class="scelta"><input type="checkbox" name="ruoli" value="{{ r.nome }}" {% if u.ha_ruolo(r.nome) %}checked{% endif %}><span>{{ r.nome }}</span></label>
+        <label class="scelta"><input type="checkbox" name="ruoli" value="{{ r.nome }}" {% if u.ha_ruolo(r.nome) %}checked{% endif %}><span>{{ nome_ruolo(r.nome) }}</span></label>
         {% endfor %}
-        <button type="submit" class="piccolo">Salva ruoli</button>
+        <button type="submit" class="piccolo">{{ _("Salva ruoli") }}</button>
       </div>
     </form>
     {% set tutti = u.dispositivi_accesso %}
@@ -34,53 +34,53 @@
     {% set revocati = tutti|length - dispositivi|length %}
     {% if dispositivi or revocati %}
     <details class="spazio" id="dispositivi-{{ u.id }}"{% if dispositivi|selectattr("stato", "equalto", "in_attesa")|list %} open{% endif %}>
-      <summary>Dispositivi ({{ dispositivi|length }})</summary>
+      <summary>{{ _("Dispositivi (") }}{{ dispositivi|length }})</summary>
       {% for d in dispositivi %}
       <div class="voce-elenco voce-dispositivo">
         <span>{{ d.nome or d.descrizione }}<br>
-          <span class="sotto">{{ d.descrizione }} &middot; ultimo uso {{ d.ultimo_uso|data_ora }}{% if d.ultimo_ip %} &middot; {{ d.ultimo_ip }}{% endif %}</span></span>
+          <span class="sotto">{{ d.descrizione }} &middot; {{ _("ultimo uso") }} {{ d.ultimo_uso|data_ora }}{% if d.ultimo_ip %} &middot; {{ d.ultimo_ip }}{% endif %}</span></span>
         <span class="azioni">
           {% if d.stato == "in_attesa" %}
-          <span class="badge avviso">in attesa</span>
+          <span class="badge avviso">{{ _("in attesa") }}</span>
           <form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione='approva') }}" class="mini">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input name="nome" placeholder="Nome (es. Telefono di Mario)" maxlength="60">
-            <button type="submit" class="piccolo">Approva</button>
+            <input name="nome" placeholder="{{ _("Nome (es. Telefono di Mario)") }}" maxlength="60">
+            <button type="submit" class="piccolo">{{ _("Approva") }}</button>
           </form>
           <form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione='revoca') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="piccolo secondario">Rifiuta</button>
+            <button type="submit" class="piccolo secondario">{{ _("Rifiuta") }}</button>
           </form>
           {% elif d.stato == "approvato" %}
-          <span class="badge ok">approvato</span>
+          <span class="badge ok">{{ _("approvato") }}</span>
           <form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione='revoca') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="piccolo secondario">Revoca</button>
+            <button type="submit" class="piccolo secondario">{{ _("Revoca") }}</button>
           </form>
-          {% else %}<span class="badge spento">revocato</span>{% endif %}
+          {% else %}<span class="badge spento">{{ _("revocato") }}</span>{% endif %}
         </span>
       </div>
       {% endfor %}
-      {% if revocati %}<p class="sotto">{{ revocati }} {{ 'dispositivo revocato' if revocati == 1 else 'dispositivi revocati' }}: restano bloccati per qualunque account. <a href="{{ url_for('registro.pagina', utente=u.id, categoria='utenti', periodo='tutto') }}">Vedi nel registro</a></p>{% endif %}
+      {% if revocati %}<p class="sotto">{{ ngettext("%(num)s dispositivo revocato: resta bloccato per qualunque account.", "%(num)s dispositivi revocati: restano bloccati per qualunque account.", revocati) }} <a href="{{ url_for('registro.pagina', utente=u.id, categoria='utenti', periodo='tutto') }}">{{ _("Vedi nel registro") }}</a></p>{% endif %}
     </details>
     {% endif %}
     {% if u.id != g.utente.id %}
     <div class="azioni">
       <form method="post" action="{{ url_for('utenti.attivo', utente_id=u.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="piccolo secondario">{{ "Disattiva" if u.attivo else "Riattiva" }}</button>
+        <button type="submit" class="piccolo secondario">{{ _("Disattiva") if u.attivo else _("Riattiva") }}</button>
       </form>
       {% if u.bloccato_fino and u.bloccato_fino > adesso %}
       <form method="post" action="{{ url_for('utenti.sblocca', utente_id=u.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="piccolo secondario">Sblocca</button>
+        <button type="submit" class="piccolo secondario">{{ _("Sblocca") }}</button>
       </form>
       {% endif %}
       <form method="post" action="{{ url_for('utenti.reset_password', utente_id=u.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="piccolo secondario">{{ icona("key") }} Reset password</button>
+        <button type="submit" class="piccolo secondario">{{ icona("key") }} {{ _("Reset password") }}</button>
       </form>
-      <a class="pulsante spento-link piccolo" href="{{ url_for('utenti.conferma_elimina', utente_id=u.id) }}">Elimina</a>
+      <a class="pulsante spento-link piccolo" href="{{ url_for('utenti.conferma_elimina', utente_id=u.id) }}">{{ _("Elimina") }}</a>
     </div>
     {% endif %}
   </section>

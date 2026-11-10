@@ -1,4 +1,4 @@
-{% set etichette = {"scaduto": "scaduto", "oggi": "scade oggi", "in_scadenza": "in scadenza", "controllare": "da controllare"} %}
+{% set etichette = {"scaduto": _("scaduto"), "oggi": _("scade oggi"), "in_scadenza": _("in scadenza"), "controllare": _("da controllare")} %}
 {% set classi = {"scaduto": "spento", "oggi": "spento", "in_scadenza": "avviso", "controllare": "avviso"} %}
 {% set p = s.p %}
 {% macro nascosti() %}
@@ -10,34 +10,34 @@
   <div class="intestazione">
     <h3>{{ p.descrizione }}</h3>
     <span>
-      {% if p.stato != "attivo" %}<span class="badge avviso">in attesa di approvazione</span>{% endif %}
-      {% if p.in_esaurimento %}<span class="badge">in esaurimento</span>{% endif %}
-      {% if s.riordino %}<span class="badge {{ 'avviso' if s.riordino.stato == 'da_ordinare' else 'ok' }}">{{ 'da ordinare' if s.riordino.stato == 'da_ordinare' else 'ordinato' }}</span>{% endif %}
+      {% if p.stato != "attivo" %}<span class="badge avviso">{{ _("in attesa di approvazione") }}</span>{% endif %}
+      {% if p.in_esaurimento %}<span class="badge">{{ _("in esaurimento") }}</span>{% endif %}
+      {% if s.riordino %}<span class="badge {{ 'avviso' if s.riordino.stato == 'da_ordinare' else 'ok' }}">{{ _('da ordinare') if s.riordino.stato == 'da_ordinare' else _('ordinato') }}</span>{% endif %}
     </span>
   </div>
   <p class="sotto">
-    {% if p.prezzo_centesimi is not none %}{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %} al kg{% elif p.prezzo_misura %} ({{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}){% endif %} &middot; {% endif %}
-    In magazzino: <strong>{{ s.magazzino|quantita(p.unita) }}</strong>{% if p.ultima_conta_il %} (contato il {{ p.ultima_conta_il|data_ora }}){% endif %}
+    {% if p.prezzo_centesimi is not none %}{{ p.prezzo_centesimi|euro }}{% if p.unita == "kg" %} {{ _("al kg") }}{% elif p.prezzo_misura %} ({{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}){% endif %} &middot; {% endif %}
+    {{ _("In magazzino:") }} <strong>{{ s.magazzino|quantita(p.unita) }}</strong>{% if p.ultima_conta_il %} {{ _("(contato il") }} {{ p.ultima_conta_il|data_ora }}){% endif %}
   </p>
-  <p class="sotto">Sullo scaffale:
-    {% for l in s.sullo_scaffale %}lotto {{ l.codice_lotto }}{% if l.data_scadenza %} (scade il {{ l.data_scadenza|data }}){% endif %}{% if not loop.last %}, {% endif %}{% else %}nessun lotto messo{% endfor %}
+  <p class="sotto">{{ _("Sullo scaffale:") }}
+    {% for l in s.sullo_scaffale %}{{ _("lotto") }} {{ l.codice_lotto }}{% if l.data_scadenza %} {{ _("(scade il") }} {{ l.data_scadenza|data }}){% endif %}{% if not loop.last %}, {% endif %}{% else %}{{ _("nessun lotto messo") }}{% endfor %}
   </p>
   {% if p.sconto1_perc %}
-  <p class="sotto">Sconto programmato: -{{ p.sconto1_perc }}% a {{ p.sconto1_giorni }} gg{% if p.sconto2_perc %}, poi -{{ p.sconto2_perc }}% a {{ p.sconto2_giorni }} gg{% endif %} dalla scadenza</p>
+  <p class="sotto">{{ _("Sconto programmato: -") }}{{ p.sconto1_perc }}% a {{ p.sconto1_giorni }} {{ _("gg") }}{% if p.sconto2_perc %}{{ _(", poi -") }}{{ p.sconto2_perc }}% a {{ p.sconto2_giorni }} {{ _("gg") }}{% endif %} {{ _("dalla scadenza") }}</p>
   {% endif %}
   {% if s.lotti %}
   <div class="tabella-wrap">
     <table>
-      <tr><th>Lotto</th><th>Scadenza</th><th>Sullo scaffale</th><th>In magazzino</th><th>Stato</th>{% if admin_attivo %}<th>Sconto</th>{% endif %}</tr>
+      <tr><th>{{ _("Lotto") }}</th><th>{{ _("Scadenza") }}</th><th>{{ _("Sullo scaffale") }}</th><th>{{ _("In magazzino") }}</th><th>{{ _("Stato") }}</th>{% if admin_attivo %}<th>{{ _("Sconto") }}</th>{% endif %}</tr>
       {% for r in s.lotti %}
       <tr>
         <td>{{ r.l.codice_lotto }}</td>
         <td>{{ r.l.data_scadenza|data }}</td>
-        <td>{% if r.l.qta_esposta > 0 %}<span class="badge ok">si'</span>{% else %}—{% endif %}</td>
+        <td>{% if r.l.qta_esposta > 0 %}<span class="badge ok">{{ _("si'") }}</span>{% else %}—{% endif %}</td>
         <td>{{ r.l.qta_magazzino|quantita(p.unita) }}</td>
         <td>
           {% if r.stato != "ok" %}<span class="badge {{ classi[r.stato] }}">{{ etichette[r.stato] }}</span>{% endif %}
-          {% if r.sconto %}<span class="badge avviso">-{{ r.sconto.perc }}% su {{ r.sconto.quantita|quantita(p.unita) }}</span>{% endif %}
+          {% if r.sconto %}<span class="badge avviso">-{{ r.sconto.perc }}{{ _("%% su") }} {{ r.sconto.quantita|quantita(p.unita) }}</span>{% endif %}
         </td>
         {% if admin_attivo %}
         <td>
@@ -46,15 +46,15 @@
                 hx-post="{{ url_for('inventario.sconta', lotto_id=r.l.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
             {{ nascosti() }}
             <input name="perc" inputmode="numeric" placeholder="%" required autocomplete="off">
-            <input name="quantita" inputmode="decimal" placeholder="tutti" autocomplete="off">
-            <button type="submit" class="piccolo">Sconta</button>
+            <input name="quantita" inputmode="decimal" placeholder="{{ _("tutti") }}" autocomplete="off">
+            <button type="submit" class="piccolo">{{ _("Sconta") }}</button>
           </form>
           {% if r.sconto %}
           <form method="post" action="{{ url_for('inventario.sconta', lotto_id=r.l.id) }}" class="mini"
                 hx-post="{{ url_for('inventario.sconta', lotto_id=r.l.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
             {{ nascosti() }}
             <input type="hidden" name="azione" value="togli">
-            <button type="submit" class="piccolo secondario">Togli sconto</button>
+            <button type="submit" class="piccolo secondario">{{ _("Togli sconto") }}</button>
           </form>
           {% endif %}
           {% endif %}
@@ -65,25 +65,25 @@
     </table>
   </div>
   {% else %}
-  <p class="sotto">Nessuna giacenza.</p>
+  <p class="sotto">{{ _("Nessuna giacenza.") }}</p>
   {% endif %}
   {% if p.stato == "attivo" %}
   <form method="post" action="{{ url_for('inventario.finendo', prodotto_id=p.id) }}" class="spazio"
         hx-post="{{ url_for('inventario.finendo', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
     {{ nascosti() }}
-    <button type="submit" class="piccolo secondario">Sta finendo</button>
+    <button type="submit" class="piccolo secondario">{{ _("Sta finendo") }}</button>
   </form>
   {% endif %}
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
   {% if s.magazzino > 0 %}
   <details class="spazio" id="conta-{{ p.id }}">
-    <summary>Conta il magazzino</summary>
+    <summary>{{ _("Conta il magazzino") }}</summary>
     <form method="post" action="{{ url_for('inventario.conteggio', prodotto_id=p.id) }}"
           hx-post="{{ url_for('inventario.conteggio', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
       {{ nascosti() }}
       <div class="tabella-wrap">
         <table>
-          <tr><th>Lotto</th><th>In magazzino</th></tr>
+          <tr><th>{{ _("Lotto") }}</th><th>{{ _("In magazzino") }}</th></tr>
           {% for r in s.lotti if r.l.qta_magazzino > 0 %}
           <tr>
             <td>{{ r.l.codice_lotto }}<br><span class="sotto">{{ r.l.data_scadenza|data }}</span></td>
@@ -92,7 +92,7 @@
           {% endfor %}
         </table>
       </div>
-      <button type="submit" class="piccolo">Salva conteggio</button>
+      <button type="submit" class="piccolo">{{ _("Salva conteggio") }}</button>
     </form>
   </details>
   {% endif %}
@@ -102,29 +102,28 @@
         hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
     {{ nascosti() }}
     <input name="quantita" inputmode="decimal" required autocomplete="off"
-           placeholder="{{ 'Kg' if p.unita == 'kg' else 'Pezzi' }} da spostare sullo scaffale">
-    <button type="submit">Rifornisci</button>
+           placeholder="{{ _('Kg da spostare sullo scaffale') if p.unita == 'kg' else _('Pezzi da spostare sullo scaffale') }}">
+    <button type="submit">{{ _("Rifornisci") }}</button>
   </form>
   {% endif %}
   {% if admin_attivo and p.stato == "attivo" %}
   {% set c = p.categoria %}
   <details class="spazio" id="programma-{{ p.id }}">
-    <summary>Programma sconto</summary>
+    <summary>{{ _("Programma sconto") }}</summary>
     <form method="post" action="{{ url_for('inventario.programma', prodotto_id=p.id) }}" class="mini spazio"
           hx-post="{{ url_for('inventario.programma', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
       {{ nascosti() }}
       -<input name="p1" inputmode="numeric" value="{{ p.sconto1_perc or c.sconto1_perc or '' }}" required>%
-      a <input name="g1" inputmode="numeric" value="{{ p.sconto1_giorni or c.sconto1_giorni or '' }}" required> gg
-      &middot; poi -<input name="p2" inputmode="numeric" value="{{ p.sconto2_perc or c.sconto2_perc or '' }}" placeholder="opz.">%
-      a <input name="g2" inputmode="numeric" value="{{ p.sconto2_giorni or c.sconto2_giorni or '' }}" placeholder="opz."> gg
-      <button type="submit" class="piccolo">Salva</button>
+      {{ _("a") }} <input name="g1" inputmode="numeric" value="{{ p.sconto1_giorni or c.sconto1_giorni or '' }}" required> {{ _("gg · poi -") }}<input name="p2" inputmode="numeric" value="{{ p.sconto2_perc or c.sconto2_perc or '' }}" placeholder="{{ _("opz.") }}">%
+      {{ _("a") }} <input name="g2" inputmode="numeric" value="{{ p.sconto2_giorni or c.sconto2_giorni or '' }}" placeholder="{{ _("opz.") }}"> {{ _("gg") }}
+      <button type="submit" class="piccolo">{{ _("Salva") }}</button>
     </form>
     {% if p.sconto1_perc %}
     <form method="post" action="{{ url_for('inventario.programma', prodotto_id=p.id) }}" class="mini spazio"
           hx-post="{{ url_for('inventario.programma', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
       {{ nascosti() }}
       <input type="hidden" name="azione" value="rimuovi">
-      <button type="submit" class="piccolo secondario">Rimuovi programmazione</button>
+      <button type="submit" class="piccolo secondario">{{ _("Rimuovi programmazione") }}</button>
     </form>
     {% endif %}
   </details>

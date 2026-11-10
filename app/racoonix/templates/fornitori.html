@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Fornitori - Racoonix{% endblock %}
+{% block titolo %}{{ _("Fornitori - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Fornitori</h1>
+<h1>{{ _("Fornitori") }}</h1>
 <div class="barra-azioni">
   <form method="get" action="{{ url_for('anagrafica.fornitori') }}" class="cresci"
         hx-get="{{ url_for('anagrafica.fornitori_risultati') }}" hx-trigger="submit" hx-target="#risultati">
-    <input name="q" value="{{ q }}" maxlength="100" placeholder="Cerca per nome, partita IVA, telefono o email" autocomplete="off"
+    <input name="q" value="{{ q }}" maxlength="100" placeholder="{{ _("Cerca per nome, partita IVA, telefono o email") }}" autocomplete="off"
            hx-get="{{ url_for('anagrafica.fornitori_risultati') }}" hx-trigger="input changed delay:300ms"
            hx-target="#risultati" hx-include="closest form">
   </form>
-  <a class="pulsante" href="{{ url_for('anagrafica.nuovo_fornitore') }}">+ Aggiungi fornitore</a>
+  <a class="pulsante" href="{{ url_for('anagrafica.nuovo_fornitore') }}">{{ _("+ Aggiungi fornitore") }}</a>
 </div>
 <div id="risultati">{% include "_fornitori_risultati.html" %}</div>
 {% endblock %}

@@ -1,7 +1,7 @@
 """Servizio separato: lancia il controllo di scadenze, sconti e freschezza ogni ora."""
 import time
 
-from . import create_app, db
+from . import create_app, db, negozio
 from .notifiche import controllo_giornaliero
 from .sconti import applica_programmati
 
@@ -15,6 +15,7 @@ def main():
         attesa = INTERVALLO_S
         with app.app_context():
             try:
+                negozio.applica_fuso()
                 nuove = controllo_giornaliero() + applica_programmati()
                 print(f"[scheduler] controllo eseguito: {nuove} nuove notifiche", flush=True)
             except Exception as errore:

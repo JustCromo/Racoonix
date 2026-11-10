@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titolo %}Accedi - Racoonix{% endblock %}
+{% block titolo %}{{ _("Accedi - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <section class="scheda stretta">
   <img class="logo-accesso" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
@@ -8,10 +8,10 @@
   {% if errore %}<p class="errore">{{ errore }}</p>{% endif %}
   <form method="post" action="{{ url_for('auth.login') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Username <input name="username" autocomplete="username" maxlength="40" required autofocus></label>
-    <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-    <button type="submit">Accedi</button>
+    <label>{{ _("Username") }} <input name="username" autocomplete="username" maxlength="40" required autofocus></label>
+    <label>{{ _("Password") }} <input name="password" type="password" autocomplete="current-password" required></label>
+    <button type="submit">{{ _("Accedi") }}</button>
   </form>
-  <p class="sotto spazio"><a href="{{ url_for('auth.password_dimenticata') }}">Password dimenticata?</a></p>
+  <p class="sotto spazio"><a href="{{ url_for('auth.password_dimenticata') }}">{{ _("Password dimenticata?") }}</a></p>
 </section>
 {% endblock %}

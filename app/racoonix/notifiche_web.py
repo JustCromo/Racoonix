@@ -7,13 +7,14 @@ from sqlalchemy.orm import selectinload
 from . import db
 from .auth import login_richiesto, registra, ruoli_attivi
 from .carico import _quantita as leggi_quantita
+from .lingua import _, _l
 from .models import Lotto, Notifica, Scarto
 from .notifiche import controlla_scaffali, controllo_giornaliero
 from .sconti import applica_programmati
 
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
-SEZIONI = [("admin", "Per te"), ("dipendente", "Dipendenti: scaffali"),
-           ("magazziniere", "Magazzinieri: magazzino")]
+SEZIONI = [("admin", _l("Per te")), ("dipendente", _l("Dipendenti: scaffali")),
+           ("magazziniere", _l("Magazzinieri: magazzino"))]
 URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3,  # nosec B105 - priorita' della notifica, non una password
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
 AZIONI = {"da_rimuovere": {"rimosso"}, "sconto": {"bollino"},
@@ -22,7 +23,7 @@ STORICO_MAX = 30
 
 
 def _ruoli_visibili(ruoli):
-    return [r for r, _ in SEZIONI if "admin" in ruoli or r in ruoli]
+    return [r for r, _x in SEZIONI if "admin" in ruoli or r in ruoli]
 
 
 def conta_notifiche():
@@ -87,7 +88,7 @@ def agisci(nid, azione):
     if azione not in AZIONI.get(notifica.tipo, set()):
         abort(404)
     if notifica.stato != "aperta":
-        return _vista("Gia' gestita da qualcun altro", "errore")
+        return _vista(_("Gia' gestita da qualcun altro"), "errore")
 
     if azione in ("rimosso", "deteriorato", "verifica"):
         if notifica.lotto_id is None:
@@ -102,20 +103,20 @@ def agisci(nid, azione):
         testo = (request.form.get("quantita") or "").strip()
         if azione == "verifica":
             if not testo:
-                return _vista("Scrivi quanti ne restano (0 se sono finiti)", "errore")
+                return _vista(_("Scrivi quanti ne restano (0 se sono finiti)"), "errore")
             contati = leggi_quantita(testo, unita)
             if contati is None:
-                return _vista("Quantita' non valida", "errore")
+                return _vista(_("Quantita' non valida"), "errore")
             setattr(lotto, campo, contati)
             if not scaffale and contati != registrato:
                 registra("rettifica", g.utente.id,
                          f"lotto {lotto.id} {campo}: {registrato} -> {contati} (verifica scadenza)")
         else:
             if scaffale and not testo:
-                return _vista("Scrivi quanti ne hai trovati (0 se non ce n'erano)", "errore")
+                return _vista(_("Scrivi quanti ne hai trovati (0 se non ce n'erano)"), "errore")
             da_togliere = leggi_quantita(testo, unita) if testo else registrato
             if da_togliere is None or (not scaffale and azione == "deteriorato" and da_togliere > registrato):
-                return _vista("Quantita' non valida", "errore")
+                return _vista(_("Quantita' non valida"), "errore")
             if azione == "rimosso":
                 setattr(lotto, campo, 0)
                 if not scaffale and da_togliere != registrato:
@@ -135,7 +136,7 @@ def agisci(nid, azione):
     db.session.commit()
     if azione in ("rimosso", "deteriorato", "verifica"):
         controlla_scaffali([notifica.prodotto_id])
-    return _vista("Fatto", "ok")
+    return _vista(_("Fatto"), "ok")
 
 
 @bp.get("/lista")

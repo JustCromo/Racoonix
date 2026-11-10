@@ -1,4 +1,4 @@
-{% if not schede %}<p class="sotto spazio">Nessun prodotto trovato.</p>{% endif %}
+{% if not schede %}<p class="sotto spazio">{{ _("Nessun prodotto trovato.") }}</p>{% endif %}
 {% for nome_categoria, gruppo in schede|groupby("p.categoria.nome") %}
 <h2 class="spazio">{{ nome_categoria }}</h2>
 <div class="lista-schede">

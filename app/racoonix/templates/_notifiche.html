@@ -1,5 +1,5 @@
 {% from "_icone.html" import icona %}
-{% set titoli = {"da_rimuovere": "Da rimuovere", "riempi": "Riempi lo scaffale", "sconto": "Applica sconto", "in_scadenza": "In scadenza", "freschezza": "Controlla freschezza", "da_approvare": "Da approvare", "reset_password": "Nuova password", "dispositivo": "Nuovo dispositivo"} %}
+{% set titoli = {"da_rimuovere": _("Da rimuovere"), "riempi": _("Riempi lo scaffale"), "sconto": _("Applica sconto"), "in_scadenza": _("In scadenza"), "freschezza": _("Controlla freschezza"), "da_approvare": _("Da approvare"), "reset_password": _("Nuova password"), "dispositivo": _("Nuovo dispositivo")} %}
 {% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento"} %}
 {% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
@@ -25,10 +25,10 @@
   <button type="submit" class="piccolo secondario">{{ testo }}</button>
 </form>
 {% endmacro %}
-{% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}Utente {{ n.utente.username }}{% endif %}{% endmacro %}
+{% macro soggetto(n) %}{% if n.prodotto %}{{ n.prodotto.descrizione }}{% elif n.utente %}{{ _("Utente") }} {{ n.utente.username }}{% endif %}{% endmacro %}
 <div id="notifiche" data-aggiorna="{{ url_for('notifiche.lista') }}">
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
-  {% if not sezioni %}<p class="sotto spazio">Il tuo account non ha ancora un ruolo: chiedi all'amministratore di assegnartene uno.</p>{% endif %}
+  {% if not sezioni %}<p class="sotto spazio">{{ _("Il tuo account non ha ancora un ruolo: chiedi all'amministratore di assegnartene uno.") }}</p>{% endif %}
   <div class="lista-sezioni">
   {% for sez in sezioni %}
   <section class="sezione">
@@ -38,7 +38,7 @@
       <span class="contatore-sezione{% if sez.aperte %} acceso{% endif %}">{{ sez.aperte|length }}</span>
     </div>
     {% if not sez.aperte %}
-    <div class="vuoto">{{ icona("circle-check") }}<span>Tutto in ordine</span></div>
+    <div class="vuoto">{{ icona("circle-check") }}<span>{{ _("Tutto in ordine") }}</span></div>
     {% endif %}
     {% for n in sez.aperte %}
     <article class="scheda notifica {{ classi.get(n.tipo, '') }}">
@@ -47,66 +47,66 @@
         <span class="badge {{ classi.get(n.tipo, '') }}">{{ titoli.get(n.tipo, n.tipo) }}</span>
       </div>
       {% if n.nota %}<p>{{ n.nota }}</p>{% endif %}
-      <p class="sotto">Aperta il {{ n.creata_il|data_ora }}</p>
+      <p class="sotto">{{ _("Aperta il") }} {{ n.creata_il|data_ora }}</p>
       <div class="azioni">
         {% if n.tipo == "da_rimuovere" %}
           {% if n.ruolo_destinatario == "dipendente" %}
-          {{ con_quantita(n, "rimosso", "Quanti ne hai trovati?", "", "Tolti e buttati") }}
-          {{ con_quantita_fissa(n, "rimosso", "0", "Non ce n'erano") }}
+          {{ con_quantita(n, "rimosso", _("Quanti ne hai trovati?"), "", _("Tolti e buttati")) }}
+          {{ con_quantita_fissa(n, "rimosso", "0", _("Non ce n'erano")) }}
           {% else %}
-          {{ con_quantita(n, "rimosso", "Kg tolti" if n.prodotto.unita == "kg" else "Pezzi tolti", n.lotto.qta_magazzino|quantita_input(n.prodotto.unita), "Tolti e buttati") }}
-          <p class="sotto">Se ne trovi un numero diverso, scrivi quello vero.</p>
+          {{ con_quantita(n, "rimosso", _("Kg tolti") if n.prodotto.unita == "kg" else _("Pezzi tolti"), n.lotto.qta_magazzino|quantita_input(n.prodotto.unita), _("Tolti e buttati")) }}
+          <p class="sotto">{{ _("Se ne trovi un numero diverso, scrivi quello vero.") }}</p>
           {% endif %}
         {% elif n.tipo == "in_scadenza" %}
-          {{ con_quantita(n, "verifica", "Quanti ne restano?", "", "Conferma") }}
-          {{ con_quantita_fissa(n, "verifica", "0", "Finiti") }}
+          {{ con_quantita(n, "verifica", _("Quanti ne restano?"), "", _("Conferma")) }}
+          {{ con_quantita_fissa(n, "verifica", "0", _("Finiti")) }}
         {% elif n.tipo == "riempi" %}
-          <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">Vai a rifornire</a>
+          <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">{{ _("Vai a rifornire") }}</a>
         {% elif n.tipo == "sconto" %}
-          {{ azione(n, "bollino", "Bollino applicato") }}
+          {{ azione(n, "bollino", _("Bollino applicato")) }}
         {% elif n.tipo == "freschezza" %}
-          {{ azione(n, "ok", "Tutto ok") }}
+          {{ azione(n, "ok", _("Tutto ok")) }}
           <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" class="riga"
                 hx-post="{{ url_for('notifiche.agisci', nid=n.id, azione='deteriorato') }}" hx-target="#notifiche" hx-swap="outerHTML">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input name="quantita" inputmode="decimal" autocomplete="off"
-                   placeholder="{{ 'Kg' if n.prodotto.unita == 'kg' else 'Pezzi' }} da buttare{% if n.ruolo_destinatario != 'dipendente' %} (vuoto = tutto){% endif %}">
-            <button type="submit" class="secondario">Butta</button>
+                   placeholder="{{ (_('Kg da buttare') if n.prodotto.unita == 'kg' else _('Pezzi da buttare')) ~ ((' ' ~ _('(vuoto = tutto)')) if n.ruolo_destinatario != 'dipendente' else '') }}">
+            <button type="submit" class="secondario">{{ _("Butta") }}</button>
           </form>
         {% elif n.tipo == "da_approvare" %}
-          <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Vai all'approvazione</a>
+          <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">{{ _("Vai all'approvazione") }}</a>
         {% elif n.tipo == "dispositivo" %}
-          <a class="pulsante" href="{{ url_for('utenti.elenco', _anchor='utente-' ~ n.utente_id) }}">Vai all'approvazione</a>
+          <a class="pulsante" href="{{ url_for('utenti.elenco', _anchor='utente-' ~ n.utente_id) }}">{{ _("Vai all'approvazione") }}</a>
         {% elif n.tipo == "reset_password" %}
           <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="piccolo">Genera password temporanea</button>
+            <button type="submit" class="piccolo">{{ _("Genera password temporanea") }}</button>
           </form>
-          {{ azione(n, "ignora", "Ignora", "piccolo secondario") }}
+          {{ azione(n, "ignora", _("Ignora"), "piccolo secondario") }}
         {% else %}
-          {{ azione(n, "visto", "Presa visione") }}
+          {{ azione(n, "visto", _("Presa visione")) }}
         {% endif %}
       </div>
     </article>
     {% endfor %}
     {% if admin %}
     <details class="storico" id="storico-{{ sez.ruolo }}">
-      <summary>{{ icona("history") }} Storico ({{ sez.storico|length }})</summary>
+      <summary>{{ icona("history") }} {{ _("Storico (") }}{{ sez.storico|length }})</summary>
       {% if sez.storico %}
       <div class="tabella-wrap">
         <table>
-          <tr><th>Chiusa il</th><th>Cosa</th><th>Gestita da</th></tr>
+          <tr><th>{{ _("Chiusa il") }}</th><th>{{ _("Cosa") }}</th><th>{{ _("Gestita da") }}</th></tr>
           {% for n in sez.storico %}
           <tr>
             <td>{{ n.chiusa_il|data_ora }}</td>
             <td><strong>{{ titoli.get(n.tipo, n.tipo) }}</strong><br><span class="sotto">{{ soggetto(n) }}</span></td>
-            <td>{{ n.chiusa_da_utente.username if n.chiusa_da_utente else "Sistema" }}</td>
+            <td>{{ n.chiusa_da_utente.username if n.chiusa_da_utente else _("Sistema") }}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
       {% else %}
-      <p class="sotto">Nessuna attivita' registrata.</p>
+      <p class="sotto">{{ _("Nessuna attivita' registrata.") }}</p>
       {% endif %}
     </details>
     {% endif %}

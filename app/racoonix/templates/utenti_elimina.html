@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block titolo %}Elimina utente - Racoonix{% endblock %}
+{% block titolo %}{{ _("Elimina utente - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <section class="scheda stretta">
-  <h1>Eliminare {{ utente.username }}?</h1>
+  <h1>{{ _("Eliminare") }} {{ utente.username }}?</h1>
   {% if storico %}
-  <p class="info">{{ utente.username }} ha operato nel sistema. Verra' tolto dall'elenco, non potra' piu' accedere e perdera' tutti i ruoli, ma il suo nome restera' nello storico delle operazioni che ha svolto.</p>
+  <p class="info">{{ utente.username }} {{ _("ha operato nel sistema. Verra' tolto dall'elenco, non potra' piu' accedere e perdera' tutti i ruoli, ma il suo nome restera' nello storico delle operazioni che ha svolto.") }}</p>
   {% else %}
-  <p class="info">{{ utente.username }} non ha mai operato nel sistema: verra' eliminato definitivamente.</p>
+  <p class="info">{{ utente.username }} {{ _("non ha mai operato nel sistema: verra' eliminato definitivamente.") }}</p>
   {% endif %}
-  <p class="sotto">L'operazione non si puo' annullare e viene registrata nel log di audit.</p>
+  <p class="sotto">{{ _("L'operazione non si puo' annullare e viene registrata nel log di audit.") }}</p>
   <div class="azioni">
-    <a class="pulsante spento-link" href="{{ url_for('utenti.elenco') }}">Annulla</a>
+    <a class="pulsante spento-link" href="{{ url_for('utenti.elenco') }}">{{ _("Annulla") }}</a>
     <form method="post" action="{{ url_for('utenti.elimina', utente_id=utente.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit">Si', elimina</button>
+      <button type="submit">{{ _("Si', elimina") }}</button>
     </form>
   </div>
 </section>

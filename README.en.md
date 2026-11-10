@@ -13,7 +13,7 @@
 
 ---
 
-> **Language note:** the Racoonix interface is currently in **Italian**. English localisation is planned.
+> **Languages:** Racoonix is available in **Italian and English**: each person picks their language from the menu, and dates and currency follow the shop's country (Italy, UK, US).
 
 ## In short
 
@@ -76,10 +76,10 @@ You need a Linux computer that's always on in the shop, with a fixed address on 
 ```bash
 git clone https://github.com/JustCromo/Racoonix.git
 cd Racoonix
-./racoonix.sh installa
+./racoonix.sh install
 ```
 
-The installer asks **four questions** (shop name, server address, the computer you'll manage it from, Racoonix's name on the network), sets everything else up on its own and starts Racoonix. Then:
+The installer first asks for **language, country and time zone**, then **four details** (shop name, server address, the computer you'll manage it from, Racoonix's name on the network), sets everything else up on its own and starts Racoonix. Then:
 
 1. from your computer, open `https://racoonix.local` (or the server's IP address) and sign in as the administrator;
 2. go to **Collega dispositivi** (*Connect devices*) and follow the instructions so that phones and PCs recognise Racoonix (once per device);
@@ -89,12 +89,12 @@ Everything else takes a single command:
 
 | Command | What it's for |
 |---|---|
-| `./racoonix.sh avvia` / `ferma` | Start or stop Racoonix |
-| `./racoonix.sh stato` | Check that everything is working |
-| `./racoonix.sh backup-automatico` | Turn on nightly backups |
-| `./racoonix.sh backup` / `ripristina` | Back up right now, or restore an earlier backup |
-| `./racoonix.sh aggiorna` | Update to the latest version (it takes a backup first) |
-| `./racoonix.sh nome` | Announce the `racoonix.local` name on the network again (for example, if the server's IP has changed) |
+| `./racoonix.sh start` / `stop` | Start or stop Racoonix |
+| `./racoonix.sh status` | Check that everything is working |
+| `./racoonix.sh auto-backup` | Turn on nightly backups |
+| `./racoonix.sh backup` / `restore` | Back up right now, or restore an earlier backup |
+| `./racoonix.sh update` | Update to the latest version (it takes a backup first) |
+| `./racoonix.sh name` | Announce the `racoonix.local` name on the network again (for example, if the server's IP has changed) |
 
 ### How to reach Racoonix
 

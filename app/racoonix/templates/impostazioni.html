@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_scelte_negozio.html" import scelte_negozio with context %}
+{% block titolo %}{{ _("Negozio") }} - Racoonix{% endblock %}
+{% block contenuto %}
+<h1>{{ _("Impostazioni del negozio") }}</h1>
+{% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+<section class="scheda spazio">
+  <form method="post" action="{{ url_for('impostazioni.pagina') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>{{ _("Nome del negozio") }} <input name="nome" value="{{ valori.nome }}" maxlength="60" required></label>
+    {{ scelte_negozio(valori, fusi, paesi) }}
+    <fieldset class="scelte">
+      <legend>{{ _("Computer dell'amministratore") }}</legend>
+      <p class="sotto">{{ _("Indirizzi da cui funzionano le funzioni del titolare, separati da virgole. Il computer che stai usando ha l'indirizzo %(ip)s e deve restare tra questi.", ip=mio_ip) }}</p>
+      <input name="reti_admin" value="{{ valori.reti_admin }}" maxlength="500" required spellcheck="false">
+    </fieldset>
+    <button type="submit" class="spazio">{{ _("Salva") }}</button>
+  </form>
+</section>
+{% endblock %}

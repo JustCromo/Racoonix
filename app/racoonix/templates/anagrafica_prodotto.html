@@ -1,38 +1,38 @@
 {% extends "base.html" %}
-{% block titolo %}{{ p.descrizione }} - Racoonix{% endblock %}
+{% block titolo %}{{ p.descrizione }} {{ _("- Racoonix") }}{% endblock %}
 {% block contenuto %}
 {% macro val(campo, predefinito) %}{{ valori[campo] if campo in valori else ('' if predefinito is none else predefinito) }}{% endmacro %}
-<p><a href="{{ url_for('anagrafica.catalogo') }}">&larr; Catalogo</a></p>
+<p><a href="{{ url_for('anagrafica.catalogo') }}">{{ _("← Catalogo") }}</a></p>
 <h1>{{ p.descrizione }}</h1>
-<p class="sotto">Stato: {{ p.stato }}{% if p.gtin %} &middot; GTIN {{ p.gtin }}{% endif %} &middot; {{ "Venduto a peso (kg)" if p.unita == "kg" else "Venduto a pezzo" }}</p>
+<p class="sotto">{{ _("Stato:") }} {{ nome_stato(p.stato) }}{% if p.gtin %} &middot; GTIN {{ p.gtin }}{% endif %} &middot; {{ _("Venduto a peso (kg)") if p.unita == "kg" else _("Venduto a pezzo") }}</p>
 {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
 <section class="scheda">
   <form method="post" action="{{ url_for('anagrafica.salva', pid=p.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <h2>Identita'</h2>
-    <label>Nome <input name="nome" value="{{ val('nome', p.nome) }}" maxlength="120" required></label>
-    <label>Marca <input name="marca" value="{{ val('marca', p.marca) }}" maxlength="60"></label>
+    <h2>{{ _("Identita'") }}</h2>
+    <label>{{ _("Nome") }} <input name="nome" value="{{ val('nome', p.nome) }}" maxlength="120" required></label>
+    <label>{{ _("Marca") }} <input name="marca" value="{{ val('marca', p.marca) }}" maxlength="60"></label>
     {% if p.unita == "pezzo" %}
     <div class="griglia">
-      <label>Pezzi per confezione <input name="formato_pezzi" inputmode="numeric" value="{{ val('formato_pezzi', p.formato_pezzi) }}"></label>
-      <label>Quantita' per pezzo <input name="formato_quantita" inputmode="numeric" value="{{ val('formato_quantita', p.formato_quantita) }}"></label>
-      <label>Unita'
+      <label>{{ _("Pezzi per confezione") }} <input name="formato_pezzi" inputmode="numeric" value="{{ val('formato_pezzi', p.formato_pezzi) }}"></label>
+      <label>{{ _("Quantita' per pezzo") }} <input name="formato_quantita" inputmode="numeric" value="{{ val('formato_quantita', p.formato_quantita) }}"></label>
+      <label>{{ _("Unita'") }}
         <select name="formato_unita">
           <option value="">—</option>
           {% for u in ["g", "ml", "pz"] %}<option value="{{ u }}" {% if val('formato_unita', p.formato_unita)|string == u %}selected{% endif %}>{{ u }}</option>{% endfor %}
         </select>
       </label>
     </div>
-    <p class="sotto">Esempio: 6 pezzi da 1500 ml diventa "6 × 1,5 l".</p>
+    <p class="sotto">{{ _("Esempio: 6 pezzi da 1500 ml diventa \"6 × 1,5 l\".") }}</p>
     {% endif %}
 
-    <h2 class="spazio">Classificazione</h2>
-    <label>Categoria
+    <h2 class="spazio">{{ _("Classificazione") }}</h2>
+    <label>{{ _("Categoria") }}
       <select name="categoria_id">
         {% for c in categorie %}<option value="{{ c.id }}" {% if val('categoria_id', p.categoria_id)|string == c.id|string %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}
       </select>
     </label>
-    <label>Sottocategoria
+    <label>{{ _("Sottocategoria") }}
       <select name="sottocategoria_id">
         <option value="">—</option>
         {% for c in categorie %}<optgroup label="{{ c.nome }}">
@@ -40,49 +40,49 @@
         </optgroup>{% endfor %}
       </select>
     </label>
-    <label>Fornitore
+    <label>{{ _("Fornitore") }}
       <select name="fornitore_id">
         <option value="">—</option>
         {% for f in fornitori %}<option value="{{ f.id }}" {% if val('fornitore_id', p.fornitore_id)|string == f.id|string %}selected{% endif %}>{{ f.ragione_sociale }}</option>{% endfor %}
       </select>
     </label>
 
-    <h2 class="spazio">Prezzo</h2>
+    <h2 class="spazio">{{ _("Prezzo") }}</h2>
     <div class="griglia">
-      <label>Prezzo di vendita (€{{ "/kg" if p.unita == "kg" }}) <input name="prezzo" inputmode="decimal" value="{{ val('prezzo', prezzo_testo) }}" required></label>
+      <label>{{ _("Prezzo di vendita (%(unita)s)", unita=simbolo_valuta ~ ("/kg" if p.unita == "kg" else "")) }} <input name="prezzo" inputmode="decimal" value="{{ val('prezzo', prezzo_testo) }}" required></label>
     </div>
-    {% if p.prezzo_misura and p.unita != "kg" %}<p class="sotto">Prezzo per unita' di misura: {{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</p>{% endif %}
+    {% if p.prezzo_misura and p.unita != "kg" %}<p class="sotto">{{ _("Prezzo per unita' di misura:") }} {{ p.prezzo_misura[0]|euro }}/{{ p.prezzo_misura[1] }}</p>{% endif %}
 
-    <h2 class="spazio">Magazzino e scadenze</h2>
+    <h2 class="spazio">{{ _("Magazzino e scadenze") }}</h2>
     <div class="griglia">
-      <label>Riordina quando in magazzino ne restano ({{ "kg" if p.unita == "kg" else "pezzi" }}) <input name="soglia_riordino" inputmode="decimal" value="{{ val('soglia_riordino', riordino_testo) }}" placeholder="vuoto = solo su segnalazione"></label>
-      <label>Avviso scadenza (giorni prima) <input name="giorni_preavviso" inputmode="numeric" value="{{ val('giorni_preavviso', p.giorni_preavviso) }}"></label>
-      <label>Codice articolo a peso (5 cifre, facoltativo) <input name="codice_bilancia" inputmode="numeric" value="{{ val('codice_bilancia', p.codice_bilancia) }}" maxlength="5"></label>
+      <label>{{ _("Riordina quando in magazzino ne restano (%(unita)s)", unita="kg" if p.unita == "kg" else _("pezzi")) }} <input name="soglia_riordino" inputmode="decimal" value="{{ val('soglia_riordino', riordino_testo) }}" placeholder="{{ _("vuoto = solo su segnalazione") }}"></label>
+      <label>{{ _("Avviso scadenza (giorni prima)") }} <input name="giorni_preavviso" inputmode="numeric" value="{{ val('giorni_preavviso', p.giorni_preavviso) }}"></label>
+      <label>{{ _("Codice articolo a peso (5 cifre, facoltativo)") }} <input name="codice_bilancia" inputmode="numeric" value="{{ val('codice_bilancia', p.codice_bilancia) }}" maxlength="5"></label>
     </div>
-    <label class="spunta"><input type="checkbox" name="in_esaurimento" value="1" {% if (valori.get('in_esaurimento') == '1' if valori else p.in_esaurimento) %}checked{% endif %}> In esaurimento: non riordinare piu'</label>
-    <p class="spazio"><button type="submit">Salva scheda</button></p>
+    <label class="spunta"><input type="checkbox" name="in_esaurimento" value="1" {% if (valori.get('in_esaurimento') == '1' if valori else p.in_esaurimento) %}checked{% endif %}> {{ _("In esaurimento: non riordinare piu'") }}</label>
+    <p class="spazio"><button type="submit">{{ _("Salva scheda") }}</button></p>
   </form>
 </section>
 
 <section class="scheda spazio">
-  <h2>Codici EAN aggiuntivi</h2>
-  <p class="sotto">Altri codici che identificano lo stesso prodotto, per esempio una nuova confezione.</p>
+  <h2>{{ _("Codici EAN aggiuntivi") }}</h2>
+  <p class="sotto">{{ _("Altri codici che identificano lo stesso prodotto, per esempio una nuova confezione.") }}</p>
   {% for c in p.codici_aggiuntivi %}
   <div class="intestazione">
     <span>{{ c.gtin }}{% if c.descrizione %} &middot; {{ c.descrizione }}{% endif %}</span>
     <form method="post" action="{{ url_for('anagrafica.rimuovi_codice', cid=c.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="piccolo secondario">Rimuovi</button>
+      <button type="submit" class="piccolo secondario">{{ _("Rimuovi") }}</button>
     </form>
   </div>
   {% else %}
-  <p class="sotto">Nessun codice aggiuntivo.</p>
+  <p class="sotto">{{ _("Nessun codice aggiuntivo.") }}</p>
   {% endfor %}
   <form method="post" action="{{ url_for('anagrafica.aggiungi_codice', pid=p.id) }}" class="riga spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input name="gtin" inputmode="numeric" placeholder="EAN" maxlength="14" required autocomplete="off">
-    <input name="descrizione" placeholder="Descrizione (facoltativa)" maxlength="60">
-    <button type="submit">Aggiungi</button>
+    <input name="descrizione" placeholder="{{ _("Descrizione (facoltativa)") }}" maxlength="60">
+    <button type="submit">{{ _("Aggiungi") }}</button>
   </form>
 </section>
 {% endblock %}

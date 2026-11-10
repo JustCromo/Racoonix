@@ -8,10 +8,10 @@ SECRETS_DIR = Path("/run/secrets")
 
 
 def leggi_secret(nome: str) -> str:
-    percorso = SECRETS_DIR / nome
-    if not percorso.exists():
-        raise RuntimeError(f"Secret mancante: {nome}")
-    return percorso.read_text().strip()
+    for percorso in (SECRETS_DIR / nome, SECRETS_DIR / "app" / nome, SECRETS_DIR / "db" / nome):
+        if percorso.exists():
+            return percorso.read_text().strip()
+    raise RuntimeError(f"Secret mancante: {nome}")
 
 
 def reti_admin():
@@ -30,7 +30,6 @@ def _url_db():
 
 
 class Config:
-    MARKET_NAME = os.environ.get("MARKET_NAME", "Racoonix Demo")
     SECRET_KEY = leggi_secret("flask_secret")
     SQLALCHEMY_DATABASE_URI = _url_db()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -38,7 +37,6 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Strict"
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
-    ADMIN_RETI = reti_admin()
     WTF_CSRF_TIME_LIMIT = 3600
     RATELIMIT_HEADERS_ENABLED = False
 

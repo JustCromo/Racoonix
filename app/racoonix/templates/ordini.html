@@ -1,60 +1,60 @@
 {% extends "base.html" %}
 {% from "_icone.html" import icona %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Ordini - Racoonix{% endblock %}
+{% block titolo %}{{ _("Ordini - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Ordini ai fornitori</h1>
-<p class="sotto">La lista nasce dalle segnalazioni "Sta finendo" e dalle soglie di magazzino. Quando la merce arriva con il carico, il prodotto esce da qui da solo.</p>
+<h1>{{ _("Ordini ai fornitori") }}</h1>
+<p class="sotto">{{ _("La lista nasce dalle segnalazioni \"Sta finendo\" e dalle soglie di magazzino. Quando la merce arriva con il carico, il prodotto esce da qui da solo.") }}</p>
 <div id="ordini" data-aggiorna="{{ url_for('ordini.pagina') }}" data-seleziona="#ordini">
-{% if not gruppi %}<div class="vuoto spazio">{{ icona("circle-check") }}<span>Niente da ordinare</span></div>{% endif %}
+{% if not gruppi %}<div class="vuoto spazio">{{ icona("circle-check") }}<span>{{ _("Niente da ordinare") }}</span></div>{% endif %}
 {% for gr in gruppi %}
 <section class="scheda spazio" id="fornitore-{{ gr.id }}">
   <div class="intestazione">
-    <h2>{{ gr.fornitore.ragione_sociale if gr.fornitore else "Senza fornitore" }}{% if gr.fornitore and gr.fornitore.ordina_oggi %} <span class="badge avviso">ordina oggi</span>{% elif gr.fornitore and gr.fornitore.prossimo_ordine %} <span class="badge">prossimo ordine: {{ gr.fornitore.prossimo_ordine }}</span>{% endif %}</h2>
+    <h2>{{ gr.fornitore.ragione_sociale if gr.fornitore else _("Senza fornitore") }}{% if gr.fornitore and gr.fornitore.ordina_oggi %} <span class="badge avviso">{{ _("ordina oggi") }}</span>{% elif gr.fornitore and gr.fornitore.prossimo_ordine %} <span class="badge">{{ _("prossimo ordine:") }} {{ gr.fornitore.prossimo_ordine }}</span>{% endif %}</h2>
     {% if gr.fornitore %}<span class="sotto">{{ gr.fornitore.telefono or "" }}{% if gr.fornitore.telefono and gr.fornitore.email %} &middot; {% endif %}{{ gr.fornitore.email or "" }}</span>{% endif %}
   </div>
-  {% if not gr.fornitore %}<p class="info">Questi prodotti non hanno un fornitore: impostalo nella scheda del catalogo.</p>{% endif %}
+  {% if not gr.fornitore %}<p class="info">{{ _("Questi prodotti non hanno un fornitore: impostalo nella scheda del catalogo.") }}</p>{% endif %}
 
   {% if gr.da_ordinare %}
   <form method="post" action="{{ url_for('ordini.fornitore', fid=gr.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" name="azione" value="salva" class="invisibile" tabindex="-1" aria-hidden="true">Salva</button>
+    <button type="submit" name="azione" value="salva" class="invisibile" tabindex="-1" aria-hidden="true">{{ _("Salva") }}</button>
     <div class="tabella-wrap">
       <table>
-        <tr><th>Da ordinare</th><th>Perche'</th><th>In magazzino</th><th>Quantita'</th><th></th></tr>
+        <tr><th>{{ _("Da ordinare") }}</th><th>{{ _("Perche'") }}</th><th>{{ _("In magazzino") }}</th><th>{{ _("Quantita'") }}</th><th></th></tr>
         {% for r in gr.da_ordinare %}{% set p = r.prodotto %}
         <tr>
           <td><a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">{{ p.descrizione }}</a></td>
-          <td>{% if r.origine == "segnalazione" %}Segnalato da {{ r.segnalato_da_utente.username if r.segnalato_da_utente else "—" }}{% else %}Magazzino sotto soglia{% endif %}<br><span class="sotto">{{ r.creato_il|data_ora }}</span></td>
+          <td>{% if r.origine == "segnalazione" %}{{ _("Segnalato da") }} {{ r.segnalato_da_utente.username if r.segnalato_da_utente else "—" }}{% else %}{{ _("Magazzino sotto soglia") }}{% endif %}<br><span class="sotto">{{ r.creato_il|data_ora }}</span></td>
           <td>{{ p.lotti|sum(attribute="qta_magazzino")|quantita(p.unita) }}</td>
-          <td><input name="q_{{ r.id }}" inputmode="decimal" autocomplete="off" value="{{ r.quantita|quantita_input(p.unita) if r.quantita else '' }}" placeholder="{{ 'kg' if p.unita == 'kg' else 'pezzi' }}"></td>
+          <td><input name="q_{{ r.id }}" inputmode="decimal" autocomplete="off" value="{{ r.quantita|quantita_input(p.unita) if r.quantita else '' }}" placeholder="{{ 'kg' if p.unita == 'kg' else _('pezzi') }}"></td>
           <td>
-            <button type="submit" formaction="{{ url_for('ordini.riga', rid=r.id, azione='togli') }}" class="piccolo secondario">Togli</button>
-            <button type="submit" formaction="{{ url_for('ordini.riga', rid=r.id, azione='esaurimento') }}" class="piccolo secondario">Non riordinare piu'</button>
+            <button type="submit" formaction="{{ url_for('ordini.riga', rid=r.id, azione='togli') }}" class="piccolo secondario">{{ _("Togli") }}</button>
+            <button type="submit" formaction="{{ url_for('ordini.riga', rid=r.id, azione='esaurimento') }}" class="piccolo secondario">{{ _("Non riordinare piu'") }}</button>
           </td>
         </tr>
         {% endfor %}
       </table>
     </div>
     <div class="azioni spazio">
-      <button type="submit" name="azione" value="salva" class="secondario">Salva quantita'</button>
-      <button type="submit" name="azione" value="ordina">Segna come ordinato</button>
+      <button type="submit" name="azione" value="salva" class="secondario">{{ _("Salva quantita'") }}</button>
+      <button type="submit" name="azione" value="ordina">{{ _("Segna come ordinato") }}</button>
     </div>
   </form>
   <details class="spazio" id="testo-{{ gr.id }}">
-    <summary>Testo dell'ordine</summary>
+    <summary>{{ _("Testo dell'ordine") }}</summary>
     <pre>{{ gr.testo }}</pre>
     {% if gr.fornitore and gr.fornitore.email %}
-    <p><a class="pulsante" href="mailto:{{ gr.fornitore.email|urlencode }}?subject={{ ('Ordine ' ~ market)|urlencode }}&amp;body={{ gr.testo|urlencode }}">Apri come email</a></p>
+    <p><a class="pulsante" href="mailto:{{ gr.fornitore.email|urlencode }}?subject={{ oggetto_ordine|urlencode }}&amp;body={{ gr.testo|urlencode }}">{{ _("Apri come email") }}</a></p>
     {% endif %}
   </details>
   {% endif %}
 
   {% if gr.ordinati %}
-  <h3 class="spazio">In arrivo</h3>
+  <h3 class="spazio">{{ _("In arrivo") }}</h3>
   <div class="tabella-wrap">
     <table>
-      <tr><th>Prodotto</th><th>Quantita'</th><th>Ordinato il</th><th></th></tr>
+      <tr><th>{{ _("Prodotto") }}</th><th>{{ _("Quantita'") }}</th><th>{{ _("Ordinato il") }}</th><th></th></tr>
       {% for r in gr.ordinati %}{% set p = r.prodotto %}
       <tr>
         <td>{{ p.descrizione }}</td>
@@ -63,7 +63,7 @@
         <td>
           <form method="post" action="{{ url_for('ordini.riga', rid=r.id, azione='togli') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="piccolo secondario">Annulla ordine</button>
+            <button type="submit" class="piccolo secondario">{{ _("Annulla ordine") }}</button>
           </form>
         </td>
       </tr>

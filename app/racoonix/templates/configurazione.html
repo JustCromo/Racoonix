@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_scelte_negozio.html" import scelte_negozio with context %}
+{% block titolo %}{{ _("Configurazione iniziale") }} - Racoonix{% endblock %}
+{% block contenuto %}
+<section class="scheda configurazione">
+  <div class="testa-configurazione">
+    <img class="logo-accesso" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+    <div>
+      <h1>{{ _("Benvenuto in Racoonix") }}</h1>
+      <p class="sotto">{{ _("Pochi passi e il tuo negozio e' pronto. Potrai cambiare tutto anche dopo, da Impostazioni.") }}</p>
+    </div>
+    <nav class="lingue-configurazione" aria-label="Lingua / Language">
+      {% for codice, nome in lingue.items() %}
+      <a href="{{ url_for('configurazione.pagina', lingua=codice) }}" lang="{{ codice }}"{% if lingua == codice %} aria-current="true"{% endif %}>{{ nome }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+
+  <form method="post" action="{{ url_for('configurazione.pagina') }}" class="spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <h2 class="passo"><span>1</span>{{ _("Il negozio") }}</h2>
+    <label>{{ _("Nome del negozio") }}
+      <input name="nome" value="{{ valori.nome }}" maxlength="60" required autofocus placeholder="{{ _('Il mio negozio') }}">
+    </label>
+    {{ scelte_negozio(valori, fusi, paesi) }}
+
+    <h2 class="passo"><span>2</span>{{ _("Il computer dell'amministratore") }}</h2>
+    <p class="sotto">{{ _("Le funzioni del titolare funzioneranno solo da questo computer. Di solito e' quello che stai usando adesso, gia' inserito qui sotto.") }}</p>
+    <label>{{ _("Indirizzo IP") }}
+      <input name="ip_admin" value="{{ valori.ip_admin }}" inputmode="decimal" maxlength="45" required spellcheck="false">
+    </label>
+
+    <h2 class="passo"><span>3</span>{{ _("Il tuo account") }}</h2>
+    <div class="griglia">
+      <label>{{ _("Username") }} <input name="username" value="{{ valori.username }}" autocomplete="username" maxlength="40" required></label>
+      <label>{{ _("Password") }} <input name="password" type="password" autocomplete="new-password" minlength="12" required></label>
+      <label>{{ _("Ripeti la password") }} <input name="conferma" type="password" autocomplete="new-password" minlength="12" required></label>
+    </div>
+    <p class="sotto">{{ _("Almeno 12 caratteri. Una frase che ricordi facilmente e' piu' sicura di una parola complicata.") }}</p>
+
+    <button type="submit" class="spazio">{{ _("Completa la configurazione") }}</button>
+  </form>
+</section>
+{% endblock %}

@@ -11,13 +11,14 @@ from .models import Categoria, Lotto, Notifica, Prodotto
 from .notifiche import controlla_scaffali
 from .riordini import merce_arrivata
 from .catalogo import trova_per_gtin
+from .lingua import _, _l
 
 bp = Blueprint("carico", __name__, url_prefix="/carico")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
 ID_OK = re.compile(r"^[0-9]{1,9}$")
 PEZZI_OK = re.compile(r"^[0-9]{1,5}$")
 KG_OK = re.compile(r"^[0-9]{1,4}([.,][0-9]{1,3})?$")
-ERRORE_CODICE = "Codice non riconosciuto"
+ERRORE_CODICE = _l("Codice non riconosciuto")
 CHIAVE = "carico"
 
 
@@ -40,7 +41,7 @@ def _quantita(testo, unita):
         return int(testo) if PEZZI_OK.match(testo) else None
     if not KG_OK.match(testo):
         return None
-    intero, _, decimali = testo.replace(",", ".").partition(".")
+    intero, _x, decimali = testo.replace(",", ".").partition(".")
     return int(intero) * 1000 + int(decimali.ljust(3, "0"))
 
 
@@ -79,12 +80,12 @@ def leggi():
         flash(ERRORE_CODICE, "errore")
         return redirect(url_for(".pagina"))
     if info["tipo"] == "bilancia":
-        flash("Etichetta di una bilancia del negozio: per i prodotti a peso scegli il prodotto dall'elenco qui sotto", "errore")
+        flash(_("Etichetta di una bilancia del negozio: per i prodotti a peso scegli il prodotto dall'elenco qui sotto"), "errore")
         return redirect(url_for(".pagina"))
     info = {k: (v.isoformat() if isinstance(v, date) else v) for k, v in info.items()}
     prodotto = _prodotto_da_info(info)
     if prodotto and prodotto.stato == "rimosso":
-        flash("Prodotto non ammesso: contatta l'admin", "errore")
+        flash(_("Prodotto non ammesso: contatta l'admin"), "errore")
         return redirect(url_for(".pagina"))
     session[CHIAVE] = info
     return _mostra_form(info, prodotto)
@@ -109,11 +110,11 @@ def sfuso():
 def conferma():
     info = session.get(CHIAVE)
     if not info:
-        flash("Carico scaduto, rileggi il codice", "errore")
+        flash(_("Carico scaduto, rileggi il codice"), "errore")
         return redirect(url_for(".pagina"))
     prodotto = _prodotto_da_info(info)
     if prodotto and prodotto.stato == "rimosso":
-        flash("Prodotto non ammesso: contatta l'admin", "errore")
+        flash(_("Prodotto non ammesso: contatta l'admin"), "errore")
         return redirect(url_for(".pagina"))
 
     f = request.form
@@ -125,11 +126,11 @@ def conferma():
         cid = _id(f.get("categoria_id"))
         categoria = db.session.get(Categoria, cid) if cid else None
         if not NOME_OK.match(nome):
-            errori.append("Nome non valido")
+            errori.append(_("Nome non valido"))
         if categoria is None or not categoria.attiva:
-            errori.append("Categoria non valida")
+            errori.append(_("Categoria non valida"))
         if unita not in ("pezzo", "kg"):
-            errori.append("Unita' non valida")
+            errori.append(_("Unita' non valida"))
     else:
         categoria, unita = prodotto.categoria, prodotto.unita
 
@@ -137,9 +138,9 @@ def conferma():
     esposta = _quantita(f.get("esposta"), unita) if attivo else 0
     magazzino = _quantita(f.get("magazzino"), unita)
     if esposta is None or magazzino is None:
-        errori.append("Quantita' non valida")
+        errori.append(_("Quantita' non valida"))
     elif esposta + magazzino <= 0:
-        errori.append("Inserisci almeno una quantita'")
+        errori.append(_("Inserisci almeno una quantita'"))
 
     oggi = date.today()
     scadenza = None
@@ -151,17 +152,17 @@ def conferma():
             try:
                 scadenza = date.fromisoformat(testo)
             except ValueError:
-                errori.append("Data di scadenza non valida")
+                errori.append(_("Data di scadenza non valida"))
         elif categoria is not None and categoria.richiede_scadenza:
-            errori.append("Questa categoria richiede la data di scadenza")
+            errori.append(_("Questa categoria richiede la data di scadenza"))
     if scadenza and scadenza < oggi:
-        errori.append("Prodotto gia' scaduto: non si puo' caricare")
+        errori.append(_("Prodotto gia' scaduto: non si puo' caricare"))
     if scadenza and scadenza > oggi + timedelta(days=3650):
-        errori.append("Data di scadenza non plausibile")
+        errori.append(_("Data di scadenza non plausibile"))
 
     codice_lotto = info.get("lotto") or (f.get("lotto") or "").strip()
     if codice_lotto and not codici.LOTTO_OK.match(codice_lotto):
-        errori.append("Lotto non valido")
+        errori.append(_("Lotto non valido"))
 
     if errori:
         return _mostra_form(info, prodotto, errori, f, 400)

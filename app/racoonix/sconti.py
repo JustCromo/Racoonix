@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 from . import db
 from .formato import data_it
 from .formato import quantita as mostra
+from .lingua import _, nella_lingua_del_negozio
 from .models import Lotto, Notifica, Prodotto, Sconto
 from .notifiche import _apri
 from .regole import perc_sconto
@@ -32,6 +33,7 @@ def togli_sconto(lotto):
     db.session.flush()
 
 
+@nella_lingua_del_negozio
 def crea_sconto(lotto, perc, quantita, origine, utente_id):
     togli_sconto(lotto)
     db.session.add(Sconto(lotto_id=lotto.id, perc=perc, quantita=quantita,
@@ -39,8 +41,9 @@ def crea_sconto(lotto, perc, quantita, origine, utente_id):
     db.session.flush()
     p = lotto.prodotto
     _apri("sconto", p.id, "dipendente",
-          f"Applica il bollino -{perc}% su {mostra(quantita, p.unita)} "
-          f"(lotto {lotto.codice_lotto}, scade il {data_it(lotto.data_scadenza)})", lotto.id)
+          _("Applica il bollino -%(perc)s%% su %(quantita)s (lotto %(lotto)s, scade il %(data)s)",
+            perc=perc, quantita=mostra(quantita, p.unita), lotto=lotto.codice_lotto,
+            data=data_it(lotto.data_scadenza)), lotto.id)
 
 
 def applica_programmati():

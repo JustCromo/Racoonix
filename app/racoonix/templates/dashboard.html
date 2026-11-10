@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_icone.html" import icona %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Dashboard - Racoonix{% endblock %}
+{% block titolo %}{{ _("Dashboard - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <div id="cruscotto" data-aggiorna="{{ request.full_path }}" data-seleziona="#cruscotto">
 {% macro grafico(barre, titolo) %}
@@ -22,7 +22,7 @@
   <div>
     <p class="occhiello">{{ market }}</p>
     <h1>{{ saluto }}, {{ g.utente.username }}</h1>
-    <p class="sotto">{% if giorni == 1 %}Oggi, {{ oggi|data }}{% else %}Dal {{ primo|data }} al {{ oggi|data }}{% endif %}</p>
+    <p class="sotto">{% if giorni == 1 %}{{ _("Oggi,") }} {{ oggi|data }}{% else %}{{ _("Dal") }} {{ primo|data }} {{ _("al") }} {{ oggi|data }}{% endif %}</p>
   </div>
   <nav class="azioni">
     {% for n, etichetta in periodi.items() %}
@@ -34,10 +34,10 @@
 {% if guida %}
 <section class="scheda guida spazio">
   <div class="intestazione">
-    <h2>Primi passi con Racoonix</h2>
-    <span class="sotto">{{ guida.fatti }} di {{ guida.totale }}</span>
+    <h2>{{ _("Primi passi con Racoonix") }}</h2>
+    <span class="sotto">{{ guida.fatti }} {{ _("di") }} {{ guida.totale }}</span>
   </div>
-  <progress value="{{ guida.fatti }}" max="{{ guida.totale }}">{{ guida.fatti }} di {{ guida.totale }}</progress>
+  <progress value="{{ guida.fatti }}" max="{{ guida.totale }}">{{ guida.fatti }} {{ _("di") }} {{ guida.totale }}</progress>
   <div class="passi">
     {% for p in guida.passi %}
     <div class="passo{% if p.fatto %} fatto{% endif %}">
@@ -46,11 +46,11 @@
         <strong>{{ p.titolo }}</strong>
         <p class="sotto">{{ p.testo }}</p>
         {% if not p.fatto %}
-          {% if p.link %}<a class="pulsante piccolo" href="{{ p.link }}">Vai</a>
+          {% if p.link %}<a class="pulsante piccolo" href="{{ p.link }}">{{ _("Vai") }}</a>
           {% elif p.azione %}
           <form method="post" action="{{ url_for('dashboard.guida', azione=p.azione) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="piccolo secondario">Fatto</button>
+            <button type="submit" class="piccolo secondario">{{ _("Fatto") }}</button>
           </form>
           {% endif %}
         {% endif %}
@@ -60,84 +60,84 @@
   </div>
   <form method="post" action="{{ url_for('dashboard.guida', azione='nascondi') }}" class="spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="piccolo secondario">Nascondi la guida</button>
+    <button type="submit" class="piccolo secondario">{{ _("Nascondi la guida") }}</button>
   </form>
 </section>
 {% endif %}
 
 <div class="kpi">
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Lotti monitorati</p><p class="numero">{{ numeri.lotti }}</p><p class="sotto">{{ numeri.prodotti }} prodotti</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina', entro=7) }}"><p class="sotto">In scadenza entro 7 giorni</p><p class="numero{% if numeri.scadenza_7 %} acceso{% endif %}">{{ numeri.scadenza_7 }}</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}"><p class="sotto">Verifiche fatte</p><p class="numero">{{ numeri.verifiche }}</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('ordini.pagina') }}"><p class="sotto">Segnalazioni "sta finendo"</p><p class="numero">{{ numeri.segnalazioni }}</p></a>
-  <a class="scheda kpi-link" href="#scarti"><p class="sotto">Valore scarti</p><p class="numero{% if valore_scarti %} acceso{% endif %}">{{ valore_scarti|euro }}</p></a>
-  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">Merce in magazzino</p><p class="numero">{{ valore_magazzino|euro }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">{{ _("Lotti monitorati") }}</p><p class="numero">{{ numeri.lotti }}</p><p class="sotto">{{ numeri.prodotti }} {{ _("prodotti") }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina', entro=7) }}"><p class="sotto">{{ _("In scadenza entro 7 giorni") }}</p><p class="numero{% if numeri.scadenza_7 %} acceso{% endif %}">{{ numeri.scadenza_7 }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('notifiche.pagina') }}"><p class="sotto">{{ _("Verifiche fatte") }}</p><p class="numero">{{ numeri.verifiche }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('ordini.pagina') }}"><p class="sotto">{{ _("Segnalazioni \"sta finendo\"") }}</p><p class="numero">{{ numeri.segnalazioni }}</p></a>
+  <a class="scheda kpi-link" href="#scarti"><p class="sotto">{{ _("Valore scarti") }}</p><p class="numero{% if valore_scarti %} acceso{% endif %}">{{ valore_scarti|euro }}</p></a>
+  <a class="scheda kpi-link" href="{{ url_for('inventario.pagina') }}"><p class="sotto">{{ _("Merce in magazzino") }}</p><p class="numero">{{ valore_magazzino|euro }}</p></a>
 </div>
 
 <div class="cruscotto spazio">
   <div>
-    {{ grafico(barre_scadenze, "Lotti in scadenza nei prossimi 14 giorni") }}
+    {{ grafico(barre_scadenze, _("Lotti in scadenza nei prossimi 14 giorni")) }}
 
     <section class="scheda spazio" id="scarti">
-      <h2>Scarti per motivo</h2>
+      <h2>{{ _("Scarti per motivo") }}</h2>
       <div class="tabella-wrap">
         <table>
-          <tr><th>Motivo</th><th>Operazioni</th><th>Valore perso</th></tr>
+          <tr><th>{{ _("Motivo") }}</th><th>{{ _("Operazioni") }}</th><th>{{ _("Valore perso") }}</th></tr>
           {% for s in scarti %}<tr><td>{{ s.etichetta }}</td><td>{{ s.numero }}</td><td>{{ s.valore|euro }}</td></tr>{% endfor %}
         </table>
       </div>
-      <p class="sotto">Valore calcolato al prezzo di vendita attuale.</p>
+      <p class="sotto">{{ _("Valore calcolato al prezzo di vendita attuale.") }}</p>
     </section>
 
     <section class="scheda spazio">
-      <h2>Prodotti piu' buttati</h2>
+      <h2>{{ _("Prodotti piu' buttati") }}</h2>
       {% for v in piu_buttati %}
       <div class="voce-elenco">
-        <span><a href="{{ url_for('anagrafica.scheda', pid=v.p.id) }}">{{ v.p.descrizione }}</a><br><span class="sotto">{{ v.quantita|quantita(v.p.unita) }} buttati</span></span>
+        <span><a href="{{ url_for('anagrafica.scheda', pid=v.p.id) }}">{{ v.p.descrizione }}</a><br><span class="sotto">{{ v.quantita|quantita(v.p.unita) }} {{ _("buttati") }}</span></span>
         <strong>{{ v.valore|euro }}</strong>
       </div>
-      {% else %}<p class="sotto">Nessuno scarto nel periodo.</p>{% endfor %}
-      {% if piu_buttati %}<p class="sotto">Se un prodotto torna spesso qui, conviene ordinarne meno o scontarlo prima.</p>{% endif %}
+      {% else %}<p class="sotto">{{ _("Nessuno scarto nel periodo.") }}</p>{% endfor %}
+      {% if piu_buttati %}<p class="sotto">{{ _("Se un prodotto torna spesso qui, conviene ordinarne meno o scontarlo prima.") }}</p>{% endif %}
     </section>
   </div>
 
   <aside>
     <section class="scheda">
-      <h2>Situazione</h2>
+      <h2>{{ _("Situazione") }}</h2>
       {% for a in attenzione %}
       <a class="avviso-riga{% if a.urgente %} urgente{% endif %}" href="{{ a.link or url_for('notifiche.pagina') }}"><span>{{ a.etichetta }}</span><strong>{{ a.numero }}</strong></a>
       {% else %}
-      <div class="vuoto">{{ icona("circle-check") }}<span>Tutto in ordine</span></div>
+      <div class="vuoto">{{ icona("circle-check") }}<span>{{ _("Tutto in ordine") }}</span></div>
       {% endfor %}
-      {% if sconti_attivi %}<p class="sotto spazio">Sconti attivi sui lotti: {{ sconti_attivi }}</p>{% endif %}
+      {% if sconti_attivi %}<p class="sotto spazio">{{ _("Sconti attivi sui lotti:") }} {{ sconti_attivi }}</p>{% endif %}
     </section>
 
     <section class="scheda spazio">
-      <h2>In scadenza entro 3 giorni</h2>
+      <h2>{{ _("In scadenza entro 3 giorni") }}</h2>
       {% for lotto, p in in_scadenza %}
       <div class="voce-elenco">
-        <span><a href="{{ url_for('inventario.pagina', q=p.nome) }}">{{ p.descrizione }}</a><br><span class="sotto">lotto {{ lotto.codice_lotto }}{% if lotto.qta_esposta %} &middot; sullo scaffale{% endif %}{% if lotto.qta_magazzino %} &middot; {{ lotto.qta_magazzino|quantita(p.unita) }} in magazzino{% endif %}</span></span>
+        <span><a href="{{ url_for('inventario.pagina', q=p.nome) }}">{{ p.descrizione }}</a><br><span class="sotto">{{ _("lotto") }} {{ lotto.codice_lotto }}{% if lotto.qta_esposta %} &middot; {{ _("sullo scaffale") }}{% endif %}{% if lotto.qta_magazzino %} &middot; {{ lotto.qta_magazzino|quantita(p.unita) }} {{ _("in magazzino") }}{% endif %}</span></span>
         <span class="badge {{ 'spento' if lotto.data_scadenza == oggi else 'avviso' }}">{{ lotto.data_scadenza|data }}</span>
       </div>
       {% else %}
-      <p class="sotto">Nessun prodotto in scadenza.</p>
+      <p class="sotto">{{ _("Nessun prodotto in scadenza.") }}</p>
       {% endfor %}
     </section>
 
     <section class="scheda spazio">
-      <div class="intestazione"><h2>Attivita' recenti</h2><a href="{{ url_for('registro.pagina') }}">Vedi tutto</a></div>
+      <div class="intestazione"><h2>{{ _("Attivita' recenti") }}</h2><a href="{{ url_for('registro.pagina') }}">{{ _("Vedi tutto") }}</a></div>
       {% for voce, utente in attivita %}
       <div class="voce-elenco">
-        <span>{{ etichette_attivita.get(voce.azione, voce.azione) }}<br><span class="sotto">{{ voce.data_ora|data_ora }} &middot; {{ utente or "Sistema" }}</span></span>
+        <span>{{ etichette_attivita.get(voce.azione, voce.azione) }}<br><span class="sotto">{{ voce.data_ora|data_ora }} &middot; {{ utente or _("Sistema") }}</span></span>
       </div>
-      {% else %}<p class="sotto">Nessuna attivita' registrata.</p>{% endfor %}
+      {% else %}<p class="sotto">{{ _("Nessuna attivita' registrata.") }}</p>{% endfor %}
     </section>
   </aside>
 </div>
 {% if guida_nascosta %}
 <form method="post" action="{{ url_for('dashboard.guida', azione='mostra') }}" class="spazio">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button type="submit" class="piccolo secondario">Mostra di nuovo la guida ai primi passi</button>
+  <button type="submit" class="piccolo secondario">{{ _("Mostra di nuovo la guida ai primi passi") }}</button>
 </form>
 {% endif %}
 </div>

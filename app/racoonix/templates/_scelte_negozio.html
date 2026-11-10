@@ -1,0 +1,44 @@
+{# Scelte cliccabili condivise da configurazione iniziale e impostazioni #}
+{% macro scelte_negozio(valori, fusi, paesi) %}
+{% set nomi_paesi = {"IT": _("Italia"), "GB": _("Regno Unito"), "US": _("Stati Uniti")} %}
+{% set bandiere = {"IT": "🇮🇹", "GB": "🇬🇧", "US": "🇺🇸"} %}
+{% set esempi = {"IT": "€ 1,29 · 10/11/2026", "GB": "£1.29 · 10/11/2026", "US": "$1.29 · 11/10/2026"} %}
+<fieldset class="scelte">
+  <legend>{{ _("Paese del negozio") }}</legend>
+  <p class="sotto">{{ _("Decide la valuta e il formato delle date.") }}</p>
+  <div class="carte-scelta">
+    {% for p in paesi %}
+    <label class="carta-scelta">
+      <input type="radio" name="paese" value="{{ p }}" {% if valori.paese == p %}checked{% endif %} required>
+      <span class="bandiera" aria-hidden="true">{{ bandiere[p] }}</span>
+      <strong>{{ nomi_paesi[p] }}</strong>
+      <span class="sotto">{{ esempi[p] }}</span>
+    </label>
+    {% endfor %}
+  </div>
+</fieldset>
+
+<fieldset class="scelte">
+  <legend>{{ _("Lingua del negozio") }}</legend>
+  <p class="sotto">{{ _("La lingua dei testi condivisi (notifiche, ordini, categorie). Ogni persona puo' comunque scegliere la sua.") }}</p>
+  <div class="carte-scelta">
+    {% for codice, nome in lingue.items() %}
+    <label class="carta-scelta">
+      <input type="radio" name="lingua" value="{{ codice }}" {% if valori.lingua == codice %}checked{% endif %} required>
+      <strong lang="{{ codice }}">{{ nome }}</strong>
+    </label>
+    {% endfor %}
+  </div>
+</fieldset>
+
+<fieldset class="scelte">
+  <legend>{{ _("Fuso orario") }}</legend>
+  <label>{{ _("Scrivi per cercare, poi scegli dall'elenco") }}
+    <input name="fuso" list="elenco-fusi" value="{{ valori.fuso }}" autocomplete="off" required spellcheck="false"
+           placeholder="Europe/Rome">
+  </label>
+  <datalist id="elenco-fusi">
+    {% for f in fusi %}<option value="{{ f }}">{% endfor %}
+  </datalist>
+</fieldset>
+{% endmacro %}

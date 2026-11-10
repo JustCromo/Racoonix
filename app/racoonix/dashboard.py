@@ -7,16 +7,18 @@ from sqlalchemy import func
 
 from . import db
 from .auth import richiede_ruolo
+from .formato import data_it
+from .lingua import _, _l, paese_negozio
 from .models import AuditLog, Fornitore, Impostazione, Lotto, Notifica, Prodotto, Riordino, Ruolo, Scarto, Sconto, Utente
 
 bp = Blueprint("dashboard", __name__, url_prefix="/admin/dashboard")
-PERIODI = {1: "Oggi", 7: "Ultimi 7 giorni", 30: "Ultimi 30 giorni"}
-MOTIVI = {"scaduto": "Scaduti", "deteriorato": "Deteriorati", "non_conforme": "Non conformi"}
+PERIODI = {1: _l("Oggi"), 7: _l("Ultimi 7 giorni"), 30: _l("Ultimi 30 giorni")}
+MOTIVI = {"scaduto": _l("Scaduti"), "deteriorato": _l("Deteriorati"), "non_conforme": _l("Non conformi")}
 LARGHEZZA, ALTEZZA = 600, 130
-ETICHETTE_ATTIVITA = {"carico": "Carico merce", "rettifica": "Correzione quantita'",
-                      "notifica_verifica": "Verifica scadenza", "notifica_rimosso": "Rimozione scaduti",
-                      "notifica_deteriorato": "Scarto per freschezza", "rifornimento": "Scaffale rifornito",
-                      "prodotto_approvato": "Prodotto approvato", "sconto_manuale": "Sconto applicato", "segnalazione_mancanza": "Segnalato: sta finendo"}
+ETICHETTE_ATTIVITA = {"carico": _l("Carico merce"), "rettifica": _l("Correzione quantita'"),
+                      "notifica_verifica": _l("Verifica scadenza"), "notifica_rimosso": _l("Rimozione scaduti"),
+                      "notifica_deteriorato": _l("Scarto per freschezza"), "rifornimento": _l("Scaffale rifornito"),
+                      "prodotto_approvato": _l("Prodotto approvato"), "sconto_manuale": _l("Sconto applicato"), "segnalazione_mancanza": _l("Segnalato: sta finendo")}
 
 
 def _valore(prodotto, quantita):
@@ -59,14 +61,14 @@ def pagina():
     aperte = dict(db.session.execute(
         db.select(Notifica.tipo, func.count(Notifica.id))
         .where(Notifica.stato == "aperta").group_by(Notifica.tipo)).all())
-    voci = [("da_rimuovere", "Da rimuovere", True), ("reset_password", "Richieste di nuova password", True),
-            ("dispositivo", "Dispositivi da approvare", True), ("da_approvare", "Prodotti da approvare", True),
-            ("riempi", "Scaffali da riempire", False), ("sconto", "Bollini da applicare", False),
-            ("in_scadenza", "Lotti in scadenza", False), ("freschezza", "Freschezza da controllare", False)]
+    voci = [("da_rimuovere", _("Da rimuovere"), True), ("reset_password", _("Richieste di nuova password"), True),
+            ("dispositivo", _("Dispositivi da approvare"), True), ("da_approvare", _("Prodotti da approvare"), True),
+            ("riempi", _("Scaffali da riempire"), False), ("sconto", _("Bollini da applicare"), False),
+            ("in_scadenza", _("Lotti in scadenza"), False), ("freschezza", _("Freschezza da controllare"), False)]
     attenzione = [{"etichetta": e, "numero": aperte[tipo], "urgente": u} for tipo, e, u in voci if aperte.get(tipo)]
     da_ordinare = db.session.scalar(db.select(func.count(Riordino.id)).where(Riordino.stato == "da_ordinare"))
     if da_ordinare:
-        attenzione.insert(0, {"etichetta": "Da ordinare ai fornitori", "numero": da_ordinare, "urgente": True,
+        attenzione.insert(0, {"etichetta": _("Da ordinare ai fornitori"), "numero": da_ordinare, "urgente": True,
                               "link": url_for("ordini.pagina")})
     per_fornitore = db.session.execute(
         db.select(Fornitore, func.count(Riordino.id))
@@ -75,7 +77,7 @@ def pagina():
         .where(Riordino.stato == "da_ordinare").group_by(Fornitore.id)).all()
     for fornitore, numero in per_fornitore:
         if fornitore.ordina_oggi:
-            attenzione.insert(0, {"etichetta": f"Oggi ordina a {fornitore.ragione_sociale}", "numero": numero,
+            attenzione.insert(0, {"etichetta": _("Oggi ordina a %(fornitore)s", fornitore=fornitore.ragione_sociale), "numero": numero,
                                   "urgente": True, "link": url_for("ordini.pagina", _anchor=f"fornitore-{fornitore.id}")})
 
     in_scadenza = db.session.execute(
@@ -92,7 +94,8 @@ def pagina():
     quattordici = [oggi + timedelta(days=i) for i in range(14)]
     massimo14 = max([per_giorno_scadenza[d] for d in quattordici] + [1])
     passo14 = LARGHEZZA / 14
-    barre_scadenze = [{"etichetta": d.strftime("%d/%m"), "titolo": d.strftime("%d/%m/%Y"),
+    giorno_mese = "%m/%d" if paese_negozio() == "US" else "%d/%m"
+    barre_scadenze = [{"etichetta": d.strftime(giorno_mese), "titolo": data_it(d),
                        "valore": per_giorno_scadenza[d], "testo": str(per_giorno_scadenza[d]),
                        "x": round(i * passo14 + passo14 * 0.15, 1), "w": round(passo14 * 0.7, 1),
                        "centro": round(i * passo14 + passo14 / 2, 1),
@@ -129,7 +132,7 @@ def pagina():
 
 def _saluto():
     ora = datetime.now().hour
-    return "Buongiorno" if ora < 13 else ("Buon pomeriggio" if ora < 18 else "Buonasera")
+    return _("Buongiorno") if ora < 13 else (_("Buon pomeriggio") if ora < 18 else _("Buonasera"))
 
 
 def _impostazione(chiave):
@@ -152,16 +155,16 @@ def _guida(ignora_nascosta=False):
         db.select(AuditLog.id).join(Utente, AuditLog.utente_id == Utente.id)
         .where(AuditLog.azione == "login_ok", ~Utente.ruoli.any(Ruolo.nome == "admin")).limit(1))
     passi = [
-        {"titolo": "Crea gli account dei dipendenti", "testo": "Ognuno con i suoi ruoli: dipendente, magazziniere o entrambi.",
+        {"titolo": _("Crea gli account dei dipendenti"), "testo": _("Ognuno con i suoi ruoli: dipendente, magazziniere o entrambi."),
          "link": url_for("utenti.nuovo"),
          "fatto": conta(db.select(func.count(Utente.id)).where(Utente.eliminato.is_(False))) > 1},
-        {"titolo": "Aggiungi i fornitori", "testo": "Serviranno per sapere a chi riordinare.",
+        {"titolo": _("Aggiungi i fornitori"), "testo": _("Serviranno per sapere a chi riordinare."),
          "link": url_for("anagrafica.fornitori"), "fatto": conta(db.select(func.count(Fornitore.id))) > 0},
-        {"titolo": "Carica la prima merce", "testo": "Con il lettore o la fotocamera: lotti e scadenze partono da qui.",
+        {"titolo": _("Carica la prima merce"), "testo": _("Con il lettore o la fotocamera: lotti e scadenze partono da qui."),
          "link": url_for("carico.pagina"), "fatto": conta(db.select(func.count(Lotto.id))) > 0},
-        {"titolo": "Collega i telefoni", "testo": "Certificato e primo accesso dei dipendenti.",
+        {"titolo": _("Collega i telefoni"), "testo": _("Certificato e primo accesso dei dipendenti."),
          "link": url_for("collega.pagina"), "fatto": telefoni is not None},
-        {"titolo": "Attiva i backup notturni", "testo": "Sul server: ./racoonix.sh backup-automatico",
+        {"titolo": _("Attiva i backup notturni"), "testo": _("Sul server: ./racoonix.sh backup-automatico"),
          "azione": "backup", "fatto": _impostazione("backup_confermato") == "1"},
     ]
     fatti = sum(1 for p in passi if p["fatto"])

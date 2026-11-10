@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Prodotti da approvare - Racoonix{% endblock %}
+{% block titolo %}{{ _("Prodotti da approvare - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Prodotti da approvare</h1>
-{% if not prodotti %}<p class="sotto">Nessun prodotto in attesa.</p>{% endif %}
+<h1>{{ _("Prodotti da approvare") }}</h1>
+{% if not prodotti %}<p class="sotto">{{ _("Nessun prodotto in attesa.") }}</p>{% endif %}
 {% for p in prodotti %}
 <section class="scheda spazio">
   <div class="intestazione">
     <h3>{{ p.descrizione }}</h3>
-    <a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">Scheda completa</a>
+    <a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">{{ _("Scheda completa") }}</a>
   </div>
-  <p class="sotto">GTIN {{ p.gtin or "-" }} &middot; unita': {{ p.unita }} &middot; in magazzino: {{ p.lotti|sum(attribute="qta_magazzino")|quantita(p.unita) }}</p>
+  <p class="sotto">GTIN {{ p.gtin or "-" }} &middot; {{ _("unita':") }} {{ p.unita }} &middot; {{ _("in magazzino:") }} {{ p.lotti|sum(attribute="qta_magazzino")|quantita(p.unita) }}</p>
   <form method="post" action="{{ url_for('prodotti.approva', prodotto_id=p.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Nome <input name="nome" value="{{ p.nome }}" maxlength="120" required></label>
-    <label>Categoria
+    <label>{{ _("Nome") }} <input name="nome" value="{{ p.nome }}" maxlength="120" required></label>
+    <label>{{ _("Categoria") }}
       <select name="categoria_id">{% for c in categorie %}<option value="{{ c.id }}" {% if c.id == p.categoria_id %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select>
     </label>
-    <label>Prezzo in euro {{ "al kg" if p.unita == "kg" else "al pezzo" }} <input name="prezzo" inputmode="decimal" placeholder="2,49" required></label>
-    <button type="submit">Approva</button>
+    <label>{{ _("Prezzo al kg") if p.unita == "kg" else _("Prezzo al pezzo") }} <input name="prezzo" inputmode="decimal" placeholder="{{ '2,49' if paese == 'IT' else '2.49' }}" required></label>
+    <button type="submit">{{ _("Approva") }}</button>
   </form>
   {% if p.gtin %}
   <form method="post" action="{{ url_for('prodotti.unisci', prodotto_id=p.id) }}" class="spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Oppure e' un altro codice di un prodotto gia' in catalogo:
-      <select name="destinazione_id" required><option value="" selected disabled>— scegli il prodotto —</option>{% for a in attivi if a.unita == p.unita %}<option value="{{ a.id }}">{{ a.descrizione }}</option>{% endfor %}</select>
+    <label>{{ _("Oppure e' un altro codice di un prodotto gia' in catalogo:") }}
+      <select name="destinazione_id" required><option value="" selected disabled>{{ _("— scegli il prodotto —") }}</option>{% for a in attivi if a.unita == p.unita %}<option value="{{ a.id }}">{{ a.descrizione }}</option>{% endfor %}</select>
     </label>
-    <button type="submit" class="secondario">Unisci come codice aggiuntivo</button>
+    <button type="submit" class="secondario">{{ _("Unisci come codice aggiuntivo") }}</button>
   </form>
   {% endif %}
   <form method="post" action="{{ url_for('prodotti.rifiuta', prodotto_id=p.id) }}" class="spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="secondario">Rifiuta e scarta la merce</button>
+    <button type="submit" class="secondario">{{ _("Rifiuta e scarta la merce") }}</button>
   </form>
 </section>
 {% endfor %}

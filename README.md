@@ -65,11 +65,12 @@ Probabilmente **no**, se hai già un gestionale collegato alla cassa che gestisc
 - **Conteggio del magazzino**, con registrazione automatica delle differenze.
 - **Dashboard** con scadenze, sprechi e valore del magazzino.
 - **Utenti e ruoli**: titolare (admin), magazziniere e dipendente, anche combinati.
+- **Italiano e inglese**: ogni persona sceglie la sua lingua dal menu; date e valuta seguono il paese del negozio (Italia, Regno Unito, Stati Uniti).
 - **Tema chiaro e scuro**, interfaccia pensata prima di tutto per il telefono.
 
 ## Installazione rapida
 
-Ti serve un computer Linux sempre acceso nel negozio, con un indirizzo fisso nella rete locale (va benissimo un Raspberry Pi 4 o 5), con **Docker**, **git** e **openssl**.
+Ti serve un computer Linux sempre acceso nel negozio, con un indirizzo fisso nella rete locale (va benissimo un Raspberry Pi 4 o 5), con **Docker** e **git**. Non serve altro: niente da installare sul sistema, niente permessi di amministratore.
 
 ```bash
 git clone https://github.com/JustCromo/Racoonix.git
@@ -77,11 +78,13 @@ cd Racoonix
 ./racoonix.sh installa
 ```
 
-L'installatore fa **quattro domande** (nome del negozio, indirizzo del server, computer da cui amministrerai, nome di Racoonix nella rete), prepara tutto il resto da solo e avvia Racoonix. Poi:
+L'installatore non fa domande: prepara tutto da solo, avvia Racoonix e alla fine mostra un **link personale** (anche come codice QR). Poi:
 
-1. dal tuo computer apri `https://racoonix.local` (oppure l'indirizzo IP del server) ed entra come amministratore;
+1. dal tuo computer apri quel link: si apre la **configurazione guidata**, dove scegli con un clic paese, lingua e fuso orario, dai un nome al negozio e crei il tuo account. Il link vale una volta sola: se ti serve di nuovo, `./racoonix.sh link`;
 2. vai su **Collega dispositivi** e segui le istruzioni per far riconoscere Racoonix a telefoni e PC (una volta sola per dispositivo);
 3. crea gli account di chi lavora con te da **Utenti**. Al primo accesso ognuno sceglie la sua password, e tu approvi il suo telefono.
+
+Nome, lingua, paese e fuso orario si cambiano quando vuoi da **Negozio**, nel menu.
 
 Per il resto basta un comando:
 
@@ -92,13 +95,14 @@ Per il resto basta un comando:
 | `./racoonix.sh backup-automatico` | Attivare il backup ogni notte |
 | `./racoonix.sh backup` / `ripristina` | Fare un backup subito, o tornare a uno precedente |
 | `./racoonix.sh aggiorna` | Passare all'ultima versione (prima fa un backup da solo) |
-| `./racoonix.sh nome` | Annunciare di nuovo il nome `racoonix.local` nella rete (ad esempio se è cambiato l'IP del server) |
+| `./racoonix.sh link` | Mostrare di nuovo il link della configurazione guidata |
+| `./racoonix.sh nome NOME` | Cambiare il nome di Racoonix nella rete (di serie `racoonix.local`) |
 
 ### Come si raggiunge Racoonix
 
 Racoonix ha **due indirizzi**, e funzionano entrambi:
 
-- **un nome facile da ricordare**, `https://racoonix.local`. Racoonix lo annuncia da solo nella rete del negozio, come fanno le stampanti di rete: l'installatore lo configura in automatico, senza toccare niente sul router;
+- **un nome facile da ricordare**, `https://racoonix.local`. Racoonix lo annuncia da solo nella rete del negozio, come fanno le stampanti di rete, senza toccare niente sul router né sul server;
 - **l'indirizzo IP del server**, per esempio `https://192.168.1.50`, che funziona sempre e ovunque.
 
 | Dispositivo | Indirizzo da usare |
@@ -111,7 +115,7 @@ La pagina **Collega dispositivi** mostra sempre entrambi gli indirizzi, con un Q
 
 > **Un consiglio:** fai usare a ogni dispositivo sempre lo stesso indirizzo. Per il browser, il nome e l'IP sono due siti diversi: cambiando indirizzo, bisogna rifare l'accesso e far approvare di nuovo il dispositivo.
 
-**Vuoi il nome anche sugli Android?** Se il router del negozio permette di dare un nome ai dispositivi della rete (molti router lo chiamano "DNS locale" o "nome host"), puoi associare un nome all'IP del server: quel nome funzionerà su qualunque dispositivo. In questo caso, durante l'installazione indica quel nome al posto di `racoonix.local`.
+**Vuoi il nome anche sugli Android?** Se il router del negozio permette di dare un nome ai dispositivi della rete (molti router lo chiamano "DNS locale" o "nome host"), puoi associare un nome all'IP del server: quel nome funzionerà su qualunque dispositivo. In questo caso, dai quel nome a Racoonix con `./racoonix.sh nome`.
 
 ## Sicurezza
 
@@ -128,6 +132,7 @@ Ogni pagina viaggia su **HTTPS**, anche dentro il negozio. Racoonix crea il prop
 ### Chi entra, e da dove
 
 - **Niente registrazione libera**: gli account li crea solo il titolare, e al primo accesso ognuno sceglie una password sua.
+- **Configurazione iniziale protetta**: la pagina di configurazione si apre solo con un codice monouso che compare sul server, scade dopo 24 ore e si spegne per sempre a configurazione finita. Nessuno, nella rete, può configurare Racoonix al posto tuo.
 - **Password protette** con un algoritmo progettato apposta per rendere lentissimi i tentativi di indovinarle, anche nel caso in cui qualcuno rubasse il database.
 - **Dispositivi approvati**: ogni persona può entrare solo dai dispositivi che il titolare ha approvato. Una password rubata, da sola, non basta. Un dispositivo revocato viene bloccato subito, per qualunque account.
 - **Nessun indizio a chi tenta**: quando un accesso fallisce, la risposta è sempre la stessa, qualunque sia il motivo. Chi prova a indovinare non può capire se ha trovato la password giusta, né se un utente esiste. Il motivo vero lo vede solo il titolare.
@@ -146,7 +151,7 @@ Se un giorno qualcuno riuscisse comunque a prendere il controllo dell'applicazio
 - l'applicazione parla al database con **permessi ridotti al minimo**: può leggere e scrivere i dati del negozio, ma non può cancellare tabelle, creare utenti o cambiare la struttura del database;
 - **il registro attività non si può modificare né cancellare**, nemmeno dall'applicazione: è il database stesso a impedirlo. Chi entra di nascosto non può cancellare le proprie tracce;
 - ogni componente gira **isolato** nel suo container, con i soli permessi indispensabili e il disco in sola lettura; il database non è raggiungibile dalla rete del negozio;
-- **password e chiavi** vengono generate a caso durante l'installazione e non compaiono mai nel codice.
+- **password e chiavi** vengono generate a caso al primo avvio, restano in spazi separati a cui ogni componente vede solo la parte che gli serve, e non compaiono mai nel codice né in file da gestire a mano.
 
 ### Le protezioni di ogni pagina
 

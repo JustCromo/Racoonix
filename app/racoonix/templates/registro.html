@@ -1,45 +1,45 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Registro attivita' - Racoonix{% endblock %}
+{% block titolo %}{{ _("Registro attivita' - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Registro attivita'</h1>
-<p class="sotto">Tutto quello che succede in Racoonix: chi, cosa, quando e da dove. Il registro e' in sola lettura.</p>
+<h1>{{ _("Registro attivita'") }}</h1>
+<p class="sotto">{{ _("Tutto quello che succede in Racoonix: chi, cosa, quando e da dove. Il registro e' in sola lettura.") }}</p>
 
 <section class="scheda spazio">
-  <h2>Sicurezza nelle ultime 24 ore</h2>
+  <h2>{{ _("Sicurezza nelle ultime 24 ore") }}</h2>
   <div class="kpi">
-    <div class="scheda"><p class="sotto">Accessi falliti</p><p class="numero{% if riepilogo.falliti %} acceso{% endif %}">{{ riepilogo.falliti }}</p></div>
-    <div class="scheda"><p class="sotto">Indirizzi coinvolti</p><p class="numero">{{ riepilogo.indirizzi }}</p></div>
-    <div class="scheda"><p class="sotto">Account bloccati</p><p class="numero{% if riepilogo.bloccati %} acceso{% endif %}">{{ riepilogo.bloccati }}</p></div>
-    <div class="scheda"><p class="sotto">Admin da dispositivi non autorizzati</p><p class="numero{% if riepilogo.admin_ip %} acceso{% endif %}">{{ riepilogo.admin_ip }}</p></div>
+    <div class="scheda"><p class="sotto">{{ _("Accessi falliti") }}</p><p class="numero{% if riepilogo.falliti %} acceso{% endif %}">{{ riepilogo.falliti }}</p></div>
+    <div class="scheda"><p class="sotto">{{ _("Indirizzi coinvolti") }}</p><p class="numero">{{ riepilogo.indirizzi }}</p></div>
+    <div class="scheda"><p class="sotto">{{ _("Account bloccati") }}</p><p class="numero{% if riepilogo.bloccati %} acceso{% endif %}">{{ riepilogo.bloccati }}</p></div>
+    <div class="scheda"><p class="sotto">{{ _("Admin da dispositivi non autorizzati") }}</p><p class="numero{% if riepilogo.admin_ip %} acceso{% endif %}">{{ riepilogo.admin_ip }}</p></div>
   </div>
   {% if riepilogo.sospetti %}
   <div class="spazio">
     {% for ip, numero, ultimo in riepilogo.sospetti %}
-    <p class="errore">Possibile attacco a forza bruta: {{ numero }} tentativi falliti da {{ ip }} (ultimo alle {{ ultimo|data_ora }})</p>
+    <p class="errore">{{ _("Possibile attacco a forza bruta:") }} {{ numero }} {{ _("tentativi falliti da") }} {{ ip }} {{ _("(ultimo alle") }} {{ ultimo|data_ora }})</p>
     {% endfor %}
   </div>
   {% else %}
-  <p class="sotto spazio">Nessuna attivita' sospetta: nessun indirizzo ha superato {{ soglia }} tentativi falliti.</p>
+  <p class="sotto spazio">{{ _("Nessuna attivita' sospetta: nessun indirizzo ha superato") }} {{ soglia }} {{ _("tentativi falliti.") }}</p>
   {% endif %}
 </section>
 
 <form method="get" action="{{ url_for('registro.pagina') }}" class="riga spazio" id="filtri-registro">
-  <input name="q" value="{{ q }}" maxlength="100" placeholder="Cerca nel dettaglio o per IP" autocomplete="off"
+  <input name="q" value="{{ q }}" maxlength="100" placeholder="{{ _("Cerca nel dettaglio o per IP") }}" autocomplete="off"
          hx-get="{{ url_for('registro.risultati') }}" hx-trigger="input changed delay:300ms" hx-target="#registro" hx-include="closest form">
   <select name="categoria" hx-get="{{ url_for('registro.risultati') }}" hx-trigger="change" hx-target="#registro" hx-include="closest form">
-    <option value="">Tutte le categorie</option>
+    <option value="">{{ _("Tutte le categorie") }}</option>
     {% for chiave, nome in categorie.items() %}<option value="{{ chiave }}" {% if chiave == categoria %}selected{% endif %}>{{ nome }}</option>{% endfor %}
   </select>
   <select name="utente" hx-get="{{ url_for('registro.risultati') }}" hx-trigger="change" hx-target="#registro" hx-include="closest form">
-    <option value="">Tutte le persone</option>
-    {% for u in utenti %}<option value="{{ u.id }}" {% if u.id == utente_id %}selected{% endif %}>{{ u.username }}{% if u.eliminato %} (eliminato){% endif %}</option>{% endfor %}
+    <option value="">{{ _("Tutte le persone") }}</option>
+    {% for u in utenti %}<option value="{{ u.id }}" {% if u.id == utente_id %}selected{% endif %}>{{ u.username }}{% if u.eliminato %} {{ _("(eliminato)") }}{% endif %}</option>{% endfor %}
   </select>
   <select name="periodo" hx-get="{{ url_for('registro.risultati') }}" hx-trigger="change" hx-target="#registro" hx-include="closest form">
     {% for chiave, nome in periodi.items() %}<option value="{{ chiave }}" {% if chiave == periodo %}selected{% endif %}>{{ nome }}</option>{% endfor %}
   </select>
-  <button type="submit">Cerca</button>
-  <button type="submit" formaction="{{ url_for('registro.esporta') }}" class="secondario">Esporta CSV</button>
+  <button type="submit">{{ _("Cerca") }}</button>
+  <button type="submit" formaction="{{ url_for('registro.esporta') }}" class="secondario">{{ _("Esporta CSV") }}</button>
 </form>
 
 <div id="registro" data-aggiorna="{{ url_for('registro.risultati') }}" data-modulo="filtri-registro" data-swap="innerHTML">

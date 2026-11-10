@@ -12,6 +12,8 @@ from .carico import _quantita as leggi_quantita
 from .catalogo import trova_per_gtin
 from .models import Categoria, CodiceAggiuntivo, Fornitore, Prodotto, Sottocategoria
 from .prodotti import centesimi
+from .formato import _sep
+from .lingua import _
 
 bp = Blueprint("anagrafica", __name__, url_prefix="/admin")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
@@ -41,12 +43,12 @@ def _get(modello, testo):
 
 
 def _testo_euro(cent):
-    return "" if cent is None else f"{cent // 100},{cent % 100:02d}"
+    return "" if cent is None else f"{cent // 100}{_sep()}{cent % 100:02d}"
 
 
 def _testo_kg(grammi):
     kg, resto = divmod(grammi, 1000)
-    return f"{kg},{resto:03d}"
+    return f"{kg}{_sep()}{resto:03d}"
 
 
 def _filtro_testo(q):
@@ -89,7 +91,7 @@ def catalogo():
 @bp.get("/catalogo/risultati")
 @richiede_ruolo("admin")
 def catalogo_risultati():
-    prodotti, _, _ = _cerca_catalogo()
+    prodotti, _x, _x = _cerca_catalogo()
     return render_template("_catalogo_risultati.html", prodotti=prodotti)
 
 
@@ -118,52 +120,52 @@ def salva(pid):
     errori = []
     nome, marca = _campo("nome"), _campo("marca")
     if not NOME_OK.match(nome):
-        errori.append("Nome non valido")
+        errori.append(_("Nome non valido"))
     if marca and not BREVE_OK.match(marca):
-        errori.append("Marca non valida")
+        errori.append(_("Marca non valida"))
     categoria = _get(Categoria, _campo("categoria_id"))
     if categoria is None:
-        errori.append("Categoria non valida")
+        errori.append(_("Categoria non valida"))
     sotto = None
     if _campo("sottocategoria_id"):
         sotto = _get(Sottocategoria, _campo("sottocategoria_id"))
         if sotto is None or categoria is None or sotto.categoria_id != categoria.id:
-            errori.append("La sottocategoria deve appartenere alla categoria scelta")
+            errori.append(_("La sottocategoria deve appartenere alla categoria scelta"))
     fornitore = None
     if _campo("fornitore_id"):
         fornitore = _get(Fornitore, _campo("fornitore_id"))
         if fornitore is None:
-            errori.append("Fornitore non valido")
+            errori.append(_("Fornitore non valido"))
     prezzo = centesimi(_campo("prezzo"))
     if prezzo is None:
-        errori.append("Prezzo non valido (esempio: 2,49)")
+        errori.append(_("Prezzo non valido (esempio: 2,49)"))
 
     pezzi, quantita, unita_formato = 1, None, None
     if p.unita == "pezzo":
         pezzi = _intero(_campo("formato_pezzi") or "1", 1, 99)
         testo_q, unita_formato = _campo("formato_quantita"), _campo("formato_unita") or None
         if pezzi is None:
-            errori.append("Numero di pezzi non valido (1-99)")
+            errori.append(_("Numero di pezzi non valido (1-99)"))
         if testo_q or unita_formato:
             quantita = _intero(testo_q, 1, 100_000)
             if quantita is None or unita_formato not in ("g", "ml", "pz"):
-                errori.append("Formato non valido: servono quantita' e unita'")
+                errori.append(_("Formato non valido: servono quantita' e unita'"))
 
     testo_riordino = _campo("soglia_riordino")
     soglia_riordino = leggi_quantita(testo_riordino, p.unita) if testo_riordino else None
     if testo_riordino and soglia_riordino is None:
-        errori.append("Soglia di riordino non valida")
+        errori.append(_("Soglia di riordino non valida"))
     preavviso = _intero(_campo("giorni_preavviso"), 0, 60)
     if preavviso is None:
-        errori.append("Giorni di preavviso non validi (0-60)")
+        errori.append(_("Giorni di preavviso non validi (0-60)"))
     plu = _campo("codice_bilancia") or None
     if plu and not PLU_OK.match(plu):
-        errori.append("Codice bilancia: servono 5 cifre")
+        errori.append(_("Codice bilancia: servono 5 cifre"))
     elif plu and db.session.scalar(db.select(Prodotto.id).where(
             Prodotto.codice_bilancia == plu, Prodotto.id != p.id)):
-        errori.append("Codice bilancia gia' usato da un altro prodotto")
+        errori.append(_("Codice bilancia gia' usato da un altro prodotto"))
     if not p.gtin and not plu:
-        errori.append("Serve almeno il GTIN o il codice bilancia")
+        errori.append(_("Serve almeno il GTIN o il codice bilancia"))
     if errori:
         return _mostra_scheda(p, errori, request.form, 400)
 
@@ -183,7 +185,7 @@ def salva(pid):
     db.session.commit()
     from .notifiche import controlla_scaffali
     controlla_scaffali([p.id])
-    flash("Scheda salvata", "ok")
+    flash(_("Scheda salvata"), "ok")
     return redirect(url_for(".scheda", pid=p.id))
 
 
@@ -197,16 +199,16 @@ def aggiungi_codice(pid):
         info = None
     descrizione = _campo("descrizione")
     if info is None or info["tipo"] not in ("ean", "editoriale"):
-        flash("Serve un EAN o UPC valido", "errore")
+        flash(_("Serve un EAN o UPC valido"), "errore")
     elif trova_per_gtin(info["gtin"]):
-        flash("Questo codice e' gia' associato a un prodotto", "errore")
+        flash(_("Questo codice e' gia' associato a un prodotto"), "errore")
     elif descrizione and not BREVE_OK.match(descrizione):
-        flash("Descrizione non valida", "errore")
+        flash(_("Descrizione non valida"), "errore")
     else:
         p.codici_aggiuntivi.append(CodiceAggiuntivo(gtin=info["gtin"], descrizione=descrizione or None))
         registra("codice_aggiunto", g.utente.id, f"prodotto {p.id}, gtin {info['gtin']}")
         db.session.commit()
-        flash("Codice aggiunto", "ok")
+        flash(_("Codice aggiunto"), "ok")
     return redirect(url_for(".scheda", pid=p.id))
 
 
@@ -218,7 +220,7 @@ def rimuovi_codice(cid):
     registra("codice_rimosso", g.utente.id, f"prodotto {pid}, gtin {codice.gtin}")
     db.session.delete(codice)
     db.session.commit()
-    flash("Codice rimosso", "ok")
+    flash(_("Codice rimosso"), "ok")
     return redirect(url_for(".scheda", pid=pid))
 
 
@@ -229,19 +231,19 @@ def _leggi_fornitore(escludi_id=None):
     ragione, piva = _campo("ragione_sociale"), _campo("partita_iva") or None
     telefono, email = _campo("telefono") or None, _campo("email") or None
     if not NOME_OK.match(ragione):
-        errori.append("Ragione sociale non valida")
+        errori.append(_("Ragione sociale non valida"))
     elif db.session.scalar(db.select(Fornitore.id).where(
             Fornitore.ragione_sociale == ragione, Fornitore.id != (escludi_id or 0))):
-        errori.append("Esiste gia' un fornitore con questa ragione sociale")
+        errori.append(_("Esiste gia' un fornitore con questa ragione sociale"))
     if piva and not codici.piva_valida(piva):
-        errori.append("Partita IVA non valida (11 cifre con cifra di controllo corretta)")
+        errori.append(_("Partita IVA non valida (11 cifre con cifra di controllo corretta)"))
     elif piva and db.session.scalar(db.select(Fornitore.id).where(
             Fornitore.partita_iva == piva, Fornitore.id != (escludi_id or 0))):
-        errori.append("Partita IVA gia' presente")
+        errori.append(_("Partita IVA gia' presente"))
     if telefono and not TELEFONO_OK.match(telefono):
-        errori.append("Telefono non valido")
+        errori.append(_("Telefono non valido"))
     if email and not EMAIL_OK.match(email):
-        errori.append("Email non valida")
+        errori.append(_("Email non valida"))
     giorni = sorted({v for v in request.form.getlist("giorni") if v in "0123456" and len(v) == 1})
     return {"ragione_sociale": ragione, "partita_iva": piva, "telefono": telefono, "email": email,
             "giorni_ordine": "".join(giorni) or None}, errori
@@ -271,7 +273,7 @@ def fornitori():
 @bp.get("/fornitori/risultati")
 @richiede_ruolo("admin")
 def fornitori_risultati():
-    q, _ = _q_fornitori()
+    q, _x = _q_fornitori()
     return render_template("_fornitori_risultati.html", fornitori=_cerca_fornitori(q), oggi=date.today().weekday())
 
 
@@ -288,7 +290,7 @@ def nuovo_fornitore():
     db.session.add(fornitore)
     registra("fornitore_creato", g.utente.id, dati["ragione_sociale"])
     db.session.commit()
-    flash(f"Fornitore aggiunto: {fornitore.ragione_sociale}", "ok")
+    flash(_("Fornitore aggiunto: %(nome)s", nome=fornitore.ragione_sociale), "ok")
     return redirect(url_for(".fornitori", _anchor=f"fornitore-{fornitore.id}"))
 
 
@@ -306,7 +308,7 @@ def salva_fornitore(fid):
     fornitore.attivo = request.form.get("attivo") == "1"
     registra("fornitore_modificato", g.utente.id, f"fornitore {fornitore.id}")
     db.session.commit()
-    flash("Fornitore salvato", "ok")
+    flash(_("Fornitore salvato"), "ok")
     return redirect(url_for(".fornitori"))
 
 
@@ -325,14 +327,14 @@ def categorie():
 def nuova_categoria():
     nome = _campo("nome")
     if not BREVE_OK.match(nome) or len(nome) > 50:
-        flash("Nome categoria non valido", "errore")
+        flash(_("Nome categoria non valido"), "errore")
     elif db.session.scalar(db.select(Categoria.id).filter_by(nome=nome)):
-        flash("Categoria gia' esistente", "errore")
+        flash(_("Categoria gia' esistente"), "errore")
     else:
         db.session.add(Categoria(nome=nome))
         registra("categoria_creata", g.utente.id, nome)
         db.session.commit()
-        flash("Categoria aggiunta", "ok")
+        flash(_("Categoria aggiunta"), "ok")
     return redirect(url_for(".categorie"))
 
 
@@ -344,9 +346,9 @@ def salva_categoria(cid):
     g1, p1 = _intero(_campo("g1") or "0", 0, 60), _intero(_campo("p1") or "0", 0, 90)
     g2, p2 = _intero(_campo("g2") or "0", 0, 60), _intero(_campo("p2") or "0", 0, 90)
     if (_campo("giorni_freschezza") and freschezza is None) or None in (g1, p1, g2, p2):
-        flash(f"{categoria.nome}: valori non validi", "errore")
+        flash(_("%(categoria)s: valori non validi", categoria=categoria.nome), "errore")
     elif g2 > g1:
-        flash(f"{categoria.nome}: la seconda fascia deve avere meno giorni della prima", "errore")
+        flash(_("%(categoria)s: la seconda fascia deve avere meno giorni della prima", categoria=categoria.nome), "errore")
     else:
         categoria.richiede_scadenza = request.form.get("richiede_scadenza") == "1"
         categoria.attiva = request.form.get("attiva") == "1"
@@ -365,14 +367,14 @@ def nuova_sottocategoria(cid):
     categoria = db.get_or_404(Categoria, cid)
     nome = _campo("nome")
     if not BREVE_OK.match(nome) or len(nome) > 50:
-        flash("Nome sottocategoria non valido", "errore")
+        flash(_("Nome sottocategoria non valido"), "errore")
     elif db.session.scalar(db.select(Sottocategoria.id).filter_by(categoria_id=categoria.id, nome=nome)):
-        flash("Sottocategoria gia' esistente", "errore")
+        flash(_("Sottocategoria gia' esistente"), "errore")
     else:
         db.session.add(Sottocategoria(categoria_id=categoria.id, nome=nome))
         registra("sottocategoria_creata", g.utente.id, f"{categoria.nome} > {nome}")
         db.session.commit()
-        flash("Sottocategoria aggiunta", "ok")
+        flash(_("Sottocategoria aggiunta"), "ok")
     return redirect(url_for(".categorie"))
 
 

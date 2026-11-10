@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 {% from "_icone.html" import icona %}
-{% block titolo %}Utenti - Racoonix{% endblock %}
+{% block titolo %}{{ _("Utenti - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <div class="intestazione">
-  <h1>Utenti</h1>
-  <a class="pulsante" href="{{ url_for('utenti.nuovo') }}">{{ icona("user-plus") }} Nuovo utente</a>
+  <h1>{{ _("Utenti") }}</h1>
+  <a class="pulsante" href="{{ url_for('utenti.nuovo') }}">{{ icona("user-plus") }} {{ _("Nuovo utente") }}</a>
 </div>
 {% if errore %}<p class="errore">{{ errore }}</p>{% endif %}
 <form method="get" action="{{ url_for('utenti.elenco') }}" class="riga" id="filtri-utenti"
       hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="submit" hx-target="#risultati">
-  <input name="q" value="{{ q }}" maxlength="40" placeholder="Cerca per username" autocomplete="off"
+  <input name="q" value="{{ q }}" maxlength="40" placeholder="{{ _("Cerca per username") }}" autocomplete="off"
          hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="input changed delay:300ms"
          hx-target="#risultati" hx-include="closest form">
   <select name="ruolo" hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="change" hx-target="#risultati" hx-include="closest form">
-    <option value="">Tutti i ruoli</option>
-    {% for r in ["admin", "magazziniere", "dipendente"] %}<option value="{{ r }}" {% if r == ruolo %}selected{% endif %}>{{ r }}</option>{% endfor %}
+    <option value="">{{ _("Tutti i ruoli") }}</option>
+    {% for r in ["admin", "magazziniere", "dipendente"] %}<option value="{{ r }}" {% if r == ruolo %}selected{% endif %}>{{ nome_ruolo(r) }}</option>{% endfor %}
   </select>
   <select name="stato" hx-get="{{ url_for('utenti.risultati') }}" hx-trigger="change" hx-target="#risultati" hx-include="closest form">
-    <option value="">Tutti gli stati</option>
-    {% for s, etichetta in [("attivo", "Attivi"), ("disattivato", "Disattivati"), ("bloccato", "Bloccati"), ("temporanea", "Con password temporanea")] %}
+    <option value="">{{ _("Tutti gli stati") }}</option>
+    {% for s, etichetta in [("attivo", _("Attivi")), ("disattivato", _("Disattivati")), ("bloccato", _("Bloccati")), ("temporanea", _("Con password temporanea"))] %}
     <option value="{{ s }}" {% if s == stato %}selected{% endif %}>{{ etichetta }}</option>
     {% endfor %}
   </select>

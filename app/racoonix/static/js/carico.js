@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (attivo) {
       await scanner.stop();
       attivo = false;
-      pulsante.textContent = "Usa fotocamera";
+      pulsante.textContent = (window.racoonixTesto ? window.racoonixTesto("Usa fotocamera") : "Usa fotocamera");
       return;
     }
     try {
@@ -27,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
         modulo.requestSubmit();
       }, () => {});
       attivo = true;
-      pulsante.textContent = "Ferma fotocamera";
+      pulsante.textContent = (window.racoonixTesto ? window.racoonixTesto("Ferma fotocamera") : "Ferma fotocamera");
     } catch (e) {
-      pulsante.textContent = "Fotocamera non disponibile";
+      pulsante.textContent = (window.racoonixTesto ? window.racoonixTesto("Fotocamera non disponibile") : "Fotocamera non disponibile");
     }
   });
 });

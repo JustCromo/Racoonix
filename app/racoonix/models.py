@@ -34,12 +34,14 @@ class Utente(db.Model):
     tentativi_falliti = db.Column(db.Integer, nullable=False, default=0)
     bloccato_fino = db.Column(db.DateTime(timezone=True))
     tema = db.Column(db.String(10), nullable=False, default="chiaro")
+    lingua = db.Column(db.String(5))
     token_sessione = db.Column(db.String(64))
     creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=adesso)
     ruoli = db.relationship("Ruolo", secondary=utenti_ruoli, lazy="selectin")
 
     __table_args__ = (
         CheckConstraint("tema IN ('chiaro','scuro')", name="ck_utente_tema"),
+        CheckConstraint("lingua IS NULL OR lingua IN ('it','en')", name="ck_utente_lingua"),
         CheckConstraint("tentativi_falliti >= 0", name="ck_utente_tentativi"),
     )
 

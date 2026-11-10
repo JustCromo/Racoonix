@@ -5,10 +5,11 @@ from functools import wraps
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
-from flask import (Blueprint, abort, current_app, g, make_response, redirect, render_template,
+from flask import (Blueprint, abort, g, make_response, redirect, render_template,
                    request, session, url_for)
 
 from . import db, limiter
+from .lingua import LINGUE, _, _l, testo_negozio
 from .models import AuditLog, Utente
 
 bp = Blueprint("auth", __name__)
@@ -17,8 +18,9 @@ HASH_FINTO = ph.hash("hash-finto-per-tempi-di-risposta-costanti")
 MAX_TENTATIVI = 5
 DURATA_BLOCCO = timedelta(minutes=15)
 MIN_PASSWORD = 12
-ERRORE_LOGIN = ("Accesso non riuscito. Se e' il primo accesso da questo dispositivo, "
-                "potrebbe servire l'approvazione dell'amministratore.")
+# Un unico messaggio per ogni fallimento (CWE-204): in qualunque lingua, sempre lo stesso testo.
+ERRORE_LOGIN = _l("Accesso non riuscito. Se e' il primo accesso da questo dispositivo, "
+                  "potrebbe servire l'approvazione dell'amministratore.")
 
 
 def _adesso():
@@ -53,7 +55,8 @@ def ip_admin_consentito():
         ip = ipaddress.ip_address(request.remote_addr or "")
     except ValueError:
         return False
-    return any(ip in rete for rete in current_app.config["ADMIN_RETI"])
+    from .negozio import reti_admin
+    return any(ip in rete for rete in reti_admin())
 
 
 def ruoli_attivi():
@@ -148,7 +151,7 @@ def login():
         if not controllo.ammesso:
             # Stessa risposta di una password sbagliata: il motivo vero resta solo nel log di audit.
             db.session.commit()
-            risposta = make_response(render_template("login.html", errore=ERRORE_LOGIN), 401)
+            risposta = make_response(render_template("login.html", errore=str(ERRORE_LOGIN)), 401)
             return imposta_cookie(risposta, controllo.token_nuovo)
         if ph.check_needs_rehash(utente.password_hash):
             utente.password_hash = ph.hash(password)
@@ -177,7 +180,7 @@ def login():
             registra("account_bloccato", utente.id)
     registra(f"login_{esito}", utente.id if utente else None)
     db.session.commit()
-    return assicura_cookie(make_response(render_template("login.html", errore=ERRORE_LOGIN), 401))
+    return assicura_cookie(make_response(render_template("login.html", errore=str(ERRORE_LOGIN)), 401))
 
 
 @bp.post("/logout")
@@ -204,13 +207,13 @@ def cambia_password():
     conferma = request.form.get("conferma") or ""
     errore = None
     if not _verifica(g.utente.password_hash, attuale):
-        errore = "Password attuale errata"
+        errore = _("Password attuale errata")
     elif len(nuova) < MIN_PASSWORD:
-        errore = f"La nuova password deve avere almeno {MIN_PASSWORD} caratteri"
+        errore = _("La nuova password deve avere almeno %(numero)s caratteri", numero=MIN_PASSWORD)
     elif nuova == attuale:
-        errore = "La nuova password deve essere diversa dalla attuale"
+        errore = _("La nuova password deve essere diversa dalla attuale")
     elif nuova != conferma:
-        errore = "Le due password non coincidono"
+        errore = _("Le due password non coincidono")
     if errore:
         return render_template("cambia_password.html", errore=errore), 400
 
@@ -236,7 +239,7 @@ def password_dimenticata():
     utente = db.session.scalar(db.select(Utente).filter_by(username=username)) if username else None
     if utente and utente.attivo:
         _apri("reset_password", None, "admin",
-              f"{utente.username} ha chiesto di reimpostare la password", utente_id=utente.id)
+              testo_negozio("%(utente)s ha chiesto di reimpostare la password", utente=utente.username), utente_id=utente.id)
         registra("richiesta_reset_password", utente.id)
     db.session.commit()
     return render_template("password_dimenticata.html", inviata=True)
@@ -248,6 +251,20 @@ def cambia_tema():
     """Il tema si salva nel profilo: segue l'utente su ogni dispositivo."""
     from urllib.parse import urlsplit
     g.utente.tema = "scuro" if g.utente.tema == "chiaro" else "chiaro"
+    db.session.commit()
+    ritorno = urlsplit(request.referrer or "").path
+    return redirect(ritorno if _percorso_interno(ritorno) else url_for("home"))
+
+
+@bp.post("/lingua")
+@login_richiesto
+def cambia_lingua():
+    """Anche la lingua si salva nel profilo. Solo le lingue previste: niente valori arbitrari nel db."""
+    from urllib.parse import urlsplit
+    scelta = request.form.get("lingua")
+    if scelta not in LINGUE:
+        abort(400)
+    g.utente.lingua = scelta
     db.session.commit()
     ritorno = urlsplit(request.referrer or "").path
     return redirect(ritorno if _percorso_interno(ritorno) else url_for("home"))

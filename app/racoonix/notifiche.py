@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from . import db
 from .formato import data_it, quantita
+from .lingua import _, nella_lingua_del_negozio
 from .models import Lotto, Notifica, Prodotto
 from .regole import vendibile
 from .riordini import apri_riordino, chiudi_riordini
@@ -58,10 +59,15 @@ def controlla_scaffali(prodotto_ids):
 def _dove(ruolo, q, p, l, togli=False):
     """Il magazzino e' un numero certo; lo scaffale no, quindi li' si indica il lotto da controllare."""
     if ruolo == "dipendente":
-        return f"{'dallo' if togli else 'sullo'} scaffale il lotto {l.codice_lotto}"
-    return f"{quantita(q, p.unita)} {'dal' if togli else 'in'} magazzino (lotto {l.codice_lotto})"
+        if togli:
+            return _("dallo scaffale il lotto %(lotto)s", lotto=l.codice_lotto)
+        return _("sullo scaffale il lotto %(lotto)s", lotto=l.codice_lotto)
+    if togli:
+        return _("%(quantita)s dal magazzino (lotto %(lotto)s)", quantita=quantita(q, p.unita), lotto=l.codice_lotto)
+    return _("%(quantita)s in magazzino (lotto %(lotto)s)", quantita=quantita(q, p.unita), lotto=l.codice_lotto)
 
 
+@nella_lingua_del_negozio
 def controllo_giornaliero():
     """Scadenze, sconti e freschezza. Si puo' lanciare quante volte si vuole: non crea doppioni."""
     oggi = date.today()
@@ -80,14 +86,15 @@ def controllo_giornaliero():
             if giorni <= 0:
                 for ruolo, q in parti:
                     creati += _apri("da_rimuovere", p.id, ruolo,
-                                    f"Scaduto il {data_it(l.data_scadenza)}: togli {_dove(ruolo, q, p, l, togli=True)}", l.id)
+                                    _("Scaduto il %(data)s: togli %(dove)s", data=data_it(l.data_scadenza),
+                                      dove=_dove(ruolo, q, p, l, togli=True)), l.id)
                 continue
             if giorni <= p.giorni_preavviso:
                 for ruolo, q in parti:
                     if not _gia_gestita("in_scadenza", l.id, ruolo):
                         creati += _apri("in_scadenza", p.id, ruolo,
-                                        f"Scade il {data_it(l.data_scadenza)} (tra {giorni} gg): "
-                                        f"controlla {_dove(ruolo, q, p, l)}", l.id)
+                                        _("Scade il %(data)s (tra %(giorni)s gg): controlla %(dove)s",
+                                          data=data_it(l.data_scadenza), giorni=giorni, dove=_dove(ruolo, q, p, l)), l.id)
         elif p.categoria.giorni_freschezza:
             limite = p.categoria.giorni_freschezza
             giorni = (oggi - l.data_carico.date()).days
@@ -99,7 +106,8 @@ def controllo_giornaliero():
                         Notifica.creata_il >= _adesso() - timedelta(days=limite)).limit(1))
                     if recente is None:
                         creati += _apri("freschezza", p.id, ruolo,
-                                        f"Arrivato da {giorni} giorni: controlla {_dove(ruolo, q, p, l)}", l.id)
+                                        _("Arrivato da %(giorni)s giorni: controlla %(dove)s",
+                                          giorni=giorni, dove=_dove(ruolo, q, p, l)), l.id)
 
     svuotate = db.session.scalars(
         db.select(Notifica).join(Lotto, Notifica.lotto_id == Lotto.id)

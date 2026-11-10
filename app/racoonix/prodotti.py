@@ -6,6 +6,7 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 from . import db
 from .auth import registra, richiede_ruolo
 from .models import Categoria, CodiceAggiuntivo, Notifica, Prodotto, Scarto
+from .lingua import _, testo_negozio
 
 bp = Blueprint("prodotti", __name__, url_prefix="/admin/prodotti")
 NOME_OK = re.compile(r"^[\w .,'()%/&+-]{2,120}$")
@@ -17,7 +18,7 @@ def centesimi(testo):
     testo = (testo or "").strip()
     if not PREZZO_OK.match(testo):
         return None
-    intero, _, decimali = testo.replace(",", ".").partition(".")
+    intero, _x, decimali = testo.replace(",", ".").partition(".")
     return int(intero) * 100 + int(decimali.ljust(2, "0"))
 
 
@@ -51,7 +52,7 @@ def attesa():
 def approva(prodotto_id):
     prodotto = _in_attesa(prodotto_id)
     if prodotto is None:
-        flash("Prodotto gia' gestito", "errore")
+        flash(_("Prodotto gia' gestito"), "errore")
         return redirect(url_for(".attesa"))
     from .formato import testo_pulito
     nome = testo_pulito(request.form.get("nome"))
@@ -59,7 +60,7 @@ def approva(prodotto_id):
     categoria = db.session.get(Categoria, int(cid)) if ID_OK.match(cid) else None
     prezzo = centesimi(request.form.get("prezzo"))
     if not NOME_OK.match(nome) or categoria is None or prezzo is None:
-        flash("Dati non validi: controlla nome, categoria e prezzo", "errore")
+        flash(_("Dati non validi: controlla nome, categoria e prezzo"), "errore")
         return redirect(url_for(".attesa"))
     prodotto.nome = nome
     prodotto.categoria_id = categoria.id
@@ -78,7 +79,7 @@ def approva(prodotto_id):
 def rifiuta(prodotto_id):
     prodotto = _in_attesa(prodotto_id)
     if prodotto is None:
-        flash("Prodotto gia' gestito", "errore")
+        flash(_("Prodotto gia' gestito"), "errore")
         return redirect(url_for(".attesa"))
     for lotto in prodotto.lotti:
         quantita = lotto.qta_esposta + lotto.qta_magazzino
@@ -104,7 +105,7 @@ def unisci(prodotto_id):
     destinazione = db.session.get(Prodotto, int(cid)) if ID_OK.match(cid) else None
     if (nuovo is None or destinazione is None or destinazione.stato != "attivo"
             or destinazione.id == nuovo.id or destinazione.unita != nuovo.unita or not nuovo.gtin):
-        flash("Unione non possibile: controlla il prodotto scelto", "errore")
+        flash(_("Unione non possibile: controlla il prodotto scelto"), "errore")
         return redirect(url_for(".attesa"))
     gtin = nuovo.gtin
     for lotto in list(nuovo.lotti):
@@ -115,8 +116,8 @@ def unisci(prodotto_id):
     db.session.flush()
     db.session.delete(nuovo)
     db.session.flush()
-    destinazione.codici_aggiuntivi.append(CodiceAggiuntivo(gtin=gtin, descrizione="aggiunto in approvazione"))
+    destinazione.codici_aggiuntivi.append(CodiceAggiuntivo(gtin=gtin, descrizione=testo_negozio("aggiunto in approvazione")))
     registra("prodotto_unito", g.utente.id, f"gtin {gtin} -> prodotto {destinazione.id}")
     db.session.commit()
-    flash(f"Codice aggiunto a {destinazione.descrizione}, merce spostata", "ok")
+    flash(_("Codice aggiunto a %(prodotto)s, merce spostata", prodotto=destinazione.descrizione), "ok")
     return redirect(url_for(".attesa"))

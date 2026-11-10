@@ -1,0 +1,2273 @@
+# Racoonix: traduzione inglese (britannico)
+msgid ""
+msgstr ""
+"Project-Id-Version: Racoonix 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-11-10 15:09+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#, python-format
+msgid " (scade il %(data)s)"
+msgstr " (expires on %(data)s)"
+
+#, python-format
+msgid "%% su"
+msgstr "%% on"
+
+#, python-format
+msgid "%(categoria)s: la seconda fascia deve avere meno giorni della prima"
+msgstr "%(categoria)s: the second step must have fewer days than the first"
+
+#, python-format
+msgid "%(categoria)s: valori non validi"
+msgstr "%(categoria)s: invalid values"
+
+#, python-format
+msgid "%(num)s dispositivo revocato: resta bloccato per qualunque account."
+msgid_plural "%(num)s dispositivi revocati: restano bloccati per qualunque account."
+msgstr[0] "%(num)s revoked device: it stays blocked for every account."
+msgstr[1] "%(num)s revoked devices: they stay blocked for every account."
+
+#, python-format
+msgid "%(quantita)s dal magazzino (lotto %(lotto)s)"
+msgstr "%(quantita)s from the stockroom (batch %(lotto)s)"
+
+#, python-format
+msgid "%(quantita)s in magazzino (lotto %(lotto)s)"
+msgstr "%(quantita)s in the stockroom (batch %(lotto)s)"
+
+#, python-format
+msgid "%(utente)s chiede di accedere da %(dispositivo)s"
+msgstr "%(utente)s is asking to sign in from %(dispositivo)s"
+
+#, python-format
+msgid "%(utente)s eliminato dall'elenco: le sue operazioni restano nello storico"
+msgstr "%(utente)s removed from the list: their actions stay in the history"
+
+#, python-format
+msgid "%(utente)s eliminato definitivamente"
+msgstr "%(utente)s permanently deleted"
+
+#, python-format
+msgid "%(utente)s ha chiesto di reimpostare la password"
+msgstr "%(utente)s has asked to reset their password"
+
+msgid "(Arch, Fedora) oppure copialo in"
+msgstr "(Arch, Fedora) or copy it to"
+
+msgid "(Ubuntu, Debian)."
+msgstr "(Ubuntu, Debian)."
+
+msgid "(contato il"
+msgstr "(counted on"
+
+msgid "(eliminato)"
+msgstr "(deleted)"
+
+msgid "(facoltativa)"
+msgstr "(optional)"
+
+msgid "(off)"
+msgstr "(off)"
+
+msgid "(preferibilmente entro)"
+msgstr "(best before)"
+
+msgid "(scade il"
+msgstr "(expires on"
+
+msgid "(tu)"
+msgstr "(you)"
+
+msgid "(ultimo alle"
+msgstr "(latest at"
+
+msgid "(vuoto = tutto)"
+msgstr "(empty = all)"
+
+msgid "+ Aggiungi fornitore"
+msgstr "+ Add supplier"
+
+msgid ", poi -"
+msgstr ", then -"
+
+msgid "- Racoonix"
+msgstr "- Racoonix"
+
+#, python-format
+msgid ". Attenzione: browser gia' registrato da %(utenti)s"
+msgstr ". Warning: browser already registered by %(utenti)s"
+
+msgid "1. Scarica e installa il certificato"
+msgstr "1. Download and install the certificate"
+
+msgid "2. Verifica e apri Racoonix"
+msgstr "2. Check it and open Racoonix"
+
+msgid ""
+": doppio clic sul file → Installa certificato → Utente corrente → \"Colloca tutti i certificati "
+"nel seguente archivio\" →"
+msgstr ""
+": double-click the file → Install Certificate → Current User → \"Place all certificates in the "
+"following store\" →"
+
+msgid ": doppio clic sul file → si apre Accesso Portachiavi → doppio clic sul certificato → Fidati →"
+msgstr ": double-click the file → Keychain Access opens → double-click the certificate → Trust →"
+
+msgid ""
+": qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal telefono e avvisa chi "
+"gestisce il server."
+msgstr ""
+": someone may have replaced it during the download. Delete it from the phone and tell whoever "
+"manages the server."
+
+msgid "Accedi"
+msgstr "Sign in"
+
+msgid "Accedi - Racoonix"
+msgstr "Sign in - Racoonix"
+
+msgid "Accessi falliti"
+msgstr "Failed sign-ins"
+
+msgid "Accesso non consentito"
+msgstr "Access not allowed"
+
+msgid "Accesso non riuscito"
+msgstr "Sign-in failed"
+
+msgid ""
+"Accesso non riuscito. Se e' il primo accesso da questo dispositivo, potrebbe servire "
+"l'approvazione dell'amministratore."
+msgstr ""
+"Sign-in failed. If this is the first sign-in from this device, it may need the administrator's "
+"approval."
+
+msgid "Accesso riuscito"
+msgstr "Sign-in successful"
+
+msgid "Accesso tentato durante il blocco dell'account"
+msgstr "Sign-in attempted while the account was locked"
+
+msgid "Account bloccati"
+msgstr "Locked accounts"
+
+msgid "Account bloccato per troppi tentativi"
+msgstr "Account locked after too many attempts"
+
+msgid "Acqua"
+msgstr "Water"
+
+msgid "Admin da dispositivi non autorizzati"
+msgstr "Admin from unauthorised devices"
+
+msgid "Admin da un dispositivo non autorizzato"
+msgstr "Admin from an unauthorised device"
+
+msgid "Aggiungi"
+msgstr "Add"
+
+msgid "Aggiungi fornitore"
+msgstr "Add supplier"
+
+msgid "Aggiungi i fornitori"
+msgstr "Add your suppliers"
+
+msgid "Al primo accesso devi scegliere una nuova password."
+msgstr "On your first sign-in you need to choose a new password."
+
+msgid "Almeno 12 caratteri. Una frase che ricordi facilmente e' piu' sicura di una parola complicata."
+msgstr "At least 12 characters. A phrase you can easily remember is safer than a complicated word."
+
+msgid "Altre impostazioni di sicurezza"
+msgstr "Other security settings"
+
+msgid "Altri codici che identificano lo stesso prodotto, per esempio una nuova confezione."
+msgstr "Other codes that identify the same product, for example new packaging."
+
+msgid "Anagrafica"
+msgstr "Master data"
+
+msgid "Annulla"
+msgstr "Cancel"
+
+msgid "Annulla ordine"
+msgstr "Cancel order"
+
+msgid "Aperta il"
+msgstr "Opened on"
+
+#, python-format
+msgid "Applica il bollino -%(perc)s%% su %(quantita)s (lotto %(lotto)s, scade il %(data)s)"
+msgstr "Put the -%(perc)s%% sticker on %(quantita)s (batch %(lotto)s, expires on %(data)s)"
+
+msgid "Applica sconto"
+msgstr "Apply discount"
+
+msgid "Approva"
+msgstr "Approve"
+
+msgid "Apri come email"
+msgstr "Open as email"
+
+msgid "Apri sul computer l'indirizzo sotto il QR per scaricare il certificato, poi:"
+msgstr "On the computer, open the address under the QR code to download the certificate, then:"
+
+#, python-format
+msgid "Arrivato da %(giorni)s giorni: controlla %(dove)s"
+msgstr "Arrived %(giorni)s days ago: check %(dove)s"
+
+msgid "Attiva"
+msgstr "Enable"
+
+msgid "Attiva i backup notturni"
+msgstr "Turn on nightly backups"
+
+msgid "Attivi"
+msgstr "Active"
+
+msgid "Attivita' recenti"
+msgstr "Recent activity"
+
+msgid "Autorita' di certificazione radice attendibili"
+msgstr "Trusted Root Certification Authorities"
+
+msgid "Avanti"
+msgstr "Next"
+
+msgid "Avviso scadenza (giorni prima)"
+msgstr "Expiry warning (days before)"
+
+msgid "Backup notturni confermati"
+msgstr "Nightly backups confirmed"
+
+msgid "Benvenuto in Racoonix"
+msgstr "Welcome to Racoonix"
+
+msgid "Bevande"
+msgstr "Drinks"
+
+msgid "Bibite"
+msgstr "Soft drinks"
+
+msgid "Biscotti"
+msgstr "Biscuits"
+
+msgid "Bloccati"
+msgstr "Locked"
+
+msgid "Bollini da applicare"
+msgstr "Stickers to apply"
+
+msgid "Bollino applicato"
+msgstr "Sticker applied"
+
+msgid "Bollino sconto applicato"
+msgstr "Discount sticker applied"
+
+msgid "Bovino"
+msgstr "Beef"
+
+msgid "Buon pomeriggio"
+msgstr "Good afternoon"
+
+msgid "Buonasera"
+msgstr "Good evening"
+
+msgid "Buongiorno"
+msgstr "Good morning"
+
+#, python-format
+msgid "Buongiorno %(fornitore)s, ecco il nostro ordine:"
+msgstr "Hello %(fornitore)s, here is our order:"
+
+msgid "Buongiorno, ecco il nostro ordine:"
+msgstr "Hello, here is our order:"
+
+msgid "Butta"
+msgstr "Discard"
+
+msgid "Cambia password"
+msgstr "Change password"
+
+msgid "Cambia password - Racoonix"
+msgstr "Change password - Racoonix"
+
+msgid "Cambia tema"
+msgstr "Change theme"
+
+msgid "Carica"
+msgstr "Load"
+
+msgid "Carica la prima merce"
+msgstr "Book in your first delivery"
+
+msgid "Carico"
+msgstr "Deliveries"
+
+msgid "Carico - Racoonix"
+msgstr "Deliveries - Racoonix"
+
+msgid "Carico merce"
+msgstr "Delivery booked in"
+
+msgid "Carico merce - Racoonix"
+msgstr "Book in stock - Racoonix"
+
+msgid "Carico scaduto, rileggi il codice"
+msgstr "Delivery timed out, scan the code again"
+
+msgid "Carne"
+msgstr "Meat"
+
+msgid "Casa e igiene"
+msgstr "Household and hygiene"
+
+msgid "Catalogo"
+msgstr "Catalogue"
+
+msgid "Catalogo - Racoonix"
+msgstr "Catalogue - Racoonix"
+
+msgid "Catalogo prodotti"
+msgstr "Product catalogue"
+
+msgid "Categoria"
+msgstr "Category"
+
+msgid "Categoria aggiunta"
+msgstr "Category added"
+
+msgid "Categoria gia' esistente"
+msgstr "Category already exists"
+
+msgid "Categoria modificata"
+msgstr "Category updated"
+
+msgid "Categoria non valida"
+msgstr "Invalid category"
+
+msgid "Categorie"
+msgstr "Categories"
+
+msgid "Categorie - Racoonix"
+msgstr "Categories - Racoonix"
+
+msgid "Cerca"
+msgstr "Search"
+
+msgid "Cerca nel dettaglio o per IP"
+msgstr "Search the details or by IP"
+
+msgid "Cerca per nome, partita IVA, telefono o email"
+msgstr "Search by name, VAT number, phone or email"
+
+msgid "Cerca per username"
+msgstr "Search by username"
+
+msgid "Certificato CA"
+msgstr "CA certificate"
+
+msgid "Certificato e primo accesso dei dipendenti."
+msgstr "Certificate and staff's first sign-in."
+
+msgid "Chi"
+msgstr "Who"
+
+msgid "Chiudi avviso"
+msgstr "Close notice"
+
+msgid "Chiusa il"
+msgstr "Closed on"
+
+msgid "Classificazione"
+msgstr "Classification"
+
+msgid "Codice aggiunto"
+msgstr "Code added"
+
+#, python-format
+msgid "Codice aggiunto a %(prodotto)s, merce spostata"
+msgstr "Code added to %(prodotto)s, stock moved"
+
+msgid "Codice articolo a peso (5 cifre, facoltativo)"
+msgstr "Weighed item code (5 digits, optional)"
+
+msgid "Codice bilancia gia' usato da un altro prodotto"
+msgstr "Weighed item code already used by another product"
+
+msgid "Codice bilancia: servono 5 cifre"
+msgstr "Weighed item code: 5 digits needed"
+
+msgid "Codice di configurazione errato o scaduto"
+msgstr "Wrong or expired setup code"
+
+msgid "Codice non riconosciuto"
+msgstr "Code not recognised"
+
+msgid "Codice rimosso"
+msgstr "Code removed"
+
+msgid "Codice unito a un prodotto esistente"
+msgstr "Code merged into an existing product"
+
+msgid "Codice:"
+msgstr "Code:"
+
+msgid "Codici EAN aggiuntivi"
+msgstr "Additional EAN codes"
+
+msgid "Collega dispositivi"
+msgstr "Connect devices"
+
+msgid "Collega i telefoni"
+msgstr "Connect the phones"
+
+msgid "Collega un dispositivo - Racoonix"
+msgstr "Connect a device - Racoonix"
+
+msgid "Collega un telefono o un PC"
+msgstr "Connect a phone or a PC"
+
+msgid "Completa la configurazione"
+msgstr "Finish setup"
+
+msgid "Computer (Windows, Mac, Linux)"
+msgstr "Computer (Windows, Mac, Linux)"
+
+msgid "Computer dell'amministratore"
+msgstr "Administrator's computer"
+
+msgid "Con il lettore o la fotocamera: lotti e scadenze partono da qui."
+msgstr "With the scanner or the camera: batches and expiry dates start here."
+
+msgid "Con password temporanea"
+msgstr "With a temporary password"
+
+msgid "Conferma"
+msgstr "Confirm"
+
+msgid "Configurazione completata: entra con il tuo account."
+msgstr "Setup complete: sign in with your account."
+
+msgid "Configurazione iniziale"
+msgstr "Initial setup"
+
+msgid "Configurazione iniziale completata"
+msgstr "Initial setup completed"
+
+msgid "Conserve"
+msgstr "Tinned food"
+
+msgid "Conta il magazzino"
+msgstr "Count the stockroom"
+
+#, python-format
+msgid "Conteggio salvato: differenza %(differenza)s"
+msgstr "Count saved: difference %(differenza)s"
+
+msgid "Controlla freschezza"
+msgstr "Check freshness"
+
+msgid "Controllo freschezza (giorni)"
+msgstr "Freshness check (days)"
+
+msgid "Copia"
+msgstr "Copy"
+
+msgid "Copiato"
+msgstr "Copied"
+
+msgid "Correzione quantita'"
+msgstr "Quantity correction"
+
+msgid "Cosa"
+msgstr "What"
+
+msgid "Cose da fare"
+msgstr "To do"
+
+msgid "Cose da fare - Racoonix"
+msgstr "To do - Racoonix"
+
+msgid "Crea gli account dei dipendenti"
+msgstr "Create your staff accounts"
+
+msgid "Crea utente"
+msgstr "Create user"
+
+msgid "Creato il"
+msgstr "Created on"
+
+msgid "Crittografia e credenziali"
+msgstr "Encryption & credentials"
+
+msgid "Da approvare"
+msgstr "To approve"
+
+msgid "Da dove"
+msgstr "From where"
+
+msgid ""
+"Da fare una volta sola per ogni telefono, tablet o computer, collegato alla stessa rete Wi-Fi del"
+" negozio."
+msgstr "Do this just once for each phone, tablet or computer connected to the shop's Wi-Fi."
+
+msgid "Da ordinare"
+msgstr "To order"
+
+msgid "Da ordinare ai fornitori"
+msgstr "To order from suppliers"
+
+msgid "Da rimuovere"
+msgstr "To remove"
+
+msgid "Dal"
+msgstr "From"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Dashboard - Racoonix"
+msgstr "Dashboard - Racoonix"
+
+msgid "Data di scadenza non plausibile"
+msgstr "Implausible expiry date"
+
+msgid "Data di scadenza non valida"
+msgstr "Invalid expiry date"
+
+msgid "Dati non validi: controlla nome, categoria e prezzo"
+msgstr "Invalid data: check name, category and price"
+
+msgid "Decide la valuta e il formato delle date."
+msgstr "Sets the currency and the date format."
+
+msgid "Descrizione (facoltativa)"
+msgstr "Description (optional)"
+
+msgid "Descrizione non valida"
+msgstr "Invalid description"
+
+msgid "Deteriorati"
+msgstr "Spoiled"
+
+msgid "Detersivi"
+msgstr "Detergents"
+
+msgid "Dettaglio"
+msgstr "Details"
+
+msgid "Deve restare almeno un admin attivo"
+msgstr "At least one active admin must remain"
+
+msgid "Dipendenti: scaffali"
+msgstr "Shop assistants: shelves"
+
+msgid "Disattiva"
+msgstr "Deactivate"
+
+msgid "Disattivati"
+msgstr "Deactivated"
+
+msgid "Dispositivi ("
+msgstr "Devices ("
+
+msgid "Dispositivi da approvare"
+msgstr "Devices to approve"
+
+msgid "Dispositivo approvato"
+msgstr "Device approved"
+
+#, python-format
+msgid "Dispositivo di %(utente)s approvato"
+msgstr "%(utente)s's device approved"
+
+#, python-format
+msgid "Dispositivo di %(utente)s revocato: e' bloccato per qualunque account"
+msgstr "%(utente)s's device revoked: it is blocked for every account"
+
+msgid "Dispositivo gia' gestito"
+msgstr "Device already handled"
+
+msgid "Dispositivo revocato"
+msgstr "Device revoked"
+
+msgid "Dolci"
+msgstr "Sweets"
+
+msgid "EAN aggiuntivo aggiunto"
+msgstr "Additional EAN added"
+
+msgid "EAN aggiuntivo rimosso"
+msgstr "Additional EAN removed"
+
+msgid "Edicola"
+msgstr "Newsagent"
+
+msgid "Editoriale"
+msgstr "Books & magazines"
+
+msgid "Elimina"
+msgstr "Delete"
+
+msgid "Elimina utente - Racoonix"
+msgstr "Delete user - Racoonix"
+
+msgid "Eliminare"
+msgstr "Delete"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Email non valida"
+msgstr "Invalid email"
+
+msgid "Errore interno"
+msgstr "Internal error"
+
+msgid "Esci"
+msgstr "Sign out"
+
+msgid "Esempio: 6 pezzi da 1500 ml diventa \"6 × 1,5 l\"."
+msgstr "Example: 6 items of 1500 ml becomes \"6 × 1.5 l\"."
+
+msgid "Esiste gia' un fornitore con questa ragione sociale"
+msgstr "A supplier with this company name already exists"
+
+msgid "Esporta CSV"
+msgstr "Export CSV"
+
+msgid ""
+"Etichetta di una bilancia del negozio: per i prodotti a peso scegli il prodotto dall'elenco qui "
+"sotto"
+msgstr "In-store scale label: for products sold by weight, choose the product from the list below"
+
+msgid "Fatto"
+msgstr "Done"
+
+msgid "Ferma fotocamera"
+msgstr "Stop camera"
+
+msgid "Fidati sempre"
+msgstr "Always Trust"
+
+msgid "Figurine e carte"
+msgstr "Stickers and trading cards"
+
+msgid "Finiti"
+msgstr "None left"
+
+msgid ""
+"Firefox puo' usare un archivio suo: se mostra ancora l'avviso, importalo da Impostazioni → "
+"Privacy e sicurezza → Certificati → Mostra certificati → Autorita' → Importa."
+msgstr ""
+"Firefox may use its own store: if it still shows the warning, import it from Settings → Privacy &"
+" Security → Certificates → View Certificates → Authorities → Import."
+
+msgid "Formaggi"
+msgstr "Cheese"
+
+msgid "Formaggi freschi"
+msgstr "Fresh cheese"
+
+msgid "Formato non valido: servono quantita' e unita'"
+msgstr "Invalid size: quantity and unit needed"
+
+msgid "Fornitore"
+msgstr "Supplier"
+
+msgid "Fornitore aggiunto"
+msgstr "Supplier added"
+
+#, python-format
+msgid "Fornitore aggiunto: %(nome)s"
+msgstr "Supplier added: %(nome)s"
+
+msgid "Fornitore attivo"
+msgstr "Active supplier"
+
+msgid "Fornitore modificato"
+msgstr "Supplier updated"
+
+msgid "Fornitore non valido"
+msgstr "Invalid supplier"
+
+msgid "Fornitore salvato"
+msgstr "Supplier saved"
+
+msgid "Fornitori"
+msgstr "Suppliers"
+
+msgid "Fornitori - Racoonix"
+msgstr "Suppliers - Racoonix"
+
+msgid "Forno"
+msgstr "Bakery"
+
+msgid "Fotocamera non disponibile"
+msgstr "Camera not available"
+
+msgid "Freschezza controllata"
+msgstr "Freshness checked"
+
+msgid "Freschezza da controllare"
+msgstr "Freshness to check"
+
+msgid "Frutta"
+msgstr "Fruit"
+
+msgid "Fuso orario"
+msgstr "Time zone"
+
+msgid "Fuso orario non valido: sceglilo dall'elenco"
+msgstr "Invalid time zone: choose it from the list"
+
+msgid "Genera password temporanea"
+msgstr "Generate temporary password"
+
+msgid "Gestita da"
+msgstr "Handled by"
+
+msgid "Gia' gestita da qualcun altro"
+msgstr "Already handled by someone else"
+
+msgid "Giorni d'ordine"
+msgstr "Ordering days"
+
+msgid "Giorni di preavviso non validi (0-60)"
+msgstr "Invalid warning days (0-60)"
+
+msgid "Giorni in cui si ordina"
+msgstr "Days when orders are placed"
+
+msgid "Giorni non indicati: impostali in Modifica."
+msgstr "No days set: set them under Edit."
+
+#, python-format
+msgid "Grazie, %(negozio)s"
+msgstr "Thank you, %(negozio)s"
+
+msgid "Guida ai primi passi mostrata"
+msgstr "Getting started guide shown"
+
+msgid "Guida ai primi passi nascosta"
+msgstr "Getting started guide hidden"
+
+msgid "Identita'"
+msgstr "Identity"
+
+msgid "Igiene personale"
+msgstr "Personal hygiene"
+
+msgid "Ignora"
+msgstr "Ignore"
+
+msgid ""
+"Il certificato permette al telefono di riconoscere Racoonix e proteggere i dati con la "
+"crittografia."
+msgstr "The certificate lets the phone recognise Racoonix and protect data with encryption."
+
+#, python-format
+msgid "Il computer che stai usando (%(ip)s) deve restare tra quelli autorizzati"
+msgstr "The computer you're using (%(ip)s) must stay among the authorised ones"
+
+msgid "Il computer dell'amministratore"
+msgstr "The administrator's computer"
+
+msgid "Il mio negozio"
+msgstr "My shop"
+
+msgid "Il negozio"
+msgstr "The shop"
+
+msgid "Il tuo account"
+msgstr "Your account"
+
+msgid "Il tuo account non ha ancora un ruolo: chiedi all'amministratore di assegnartene uno."
+msgstr "Your account doesn't have a role yet: ask the administrator to assign you one."
+
+msgid "Impostazioni"
+msgstr "Settings"
+
+msgid "Impostazioni del negozio"
+msgstr "Shop settings"
+
+msgid "Impostazioni del negozio modificate"
+msgstr "Shop settings changed"
+
+msgid "Impostazioni salvate"
+msgstr "Settings saved"
+
+msgid "Impostazioni →"
+msgstr "Settings →"
+
+msgid "Impostazioni → Generali → Info → Impostazioni attendibilita' certificati → attiva il certificato."
+msgstr "Settings → General → About → Certificate Trust Settings → turn on the certificate."
+
+msgid "Impostazioni → Profilo scaricato →"
+msgstr "Settings → Profile Downloaded →"
+
+msgid "Impronta non disponibile: riprova tra poco."
+msgstr "Fingerprint not available: try again shortly."
+
+msgid "In arrivo"
+msgstr "On the way"
+
+msgid "In attesa"
+msgstr "Pending"
+
+msgid "In esaurimento: non riordinare piu'"
+msgstr "Being phased out: don't reorder"
+
+msgid "In magazzino"
+msgstr "In the stockroom"
+
+msgid "In magazzino ("
+msgstr "In the stockroom ("
+
+#, python-format
+msgid "In magazzino ci sono solo %(quantita)s"
+msgstr "There are only %(quantita)s in the stockroom"
+
+msgid "In magazzino:"
+msgstr "In the stockroom:"
+
+msgid "In scadenza"
+msgstr "Expiring"
+
+msgid "In scadenza entro 3 giorni"
+msgstr "Expiring within 3 days"
+
+msgid "In scadenza entro 7 giorni"
+msgstr "Expiring within 7 days"
+
+msgid "Indirizzi coinvolti"
+msgstr "Addresses involved"
+
+#, python-format
+msgid ""
+"Indirizzi da cui funzionano le funzioni del titolare, separati da virgole. Il computer che stai "
+"usando ha l'indirizzo %(ip)s e deve restare tra questi."
+msgstr ""
+"Addresses from which the owner's functions work, separated by commas. The computer you're using "
+"has the address %(ip)s and must stay among them."
+
+msgid "Indirizzi dell'amministratore non validi"
+msgstr "Invalid administrator addresses"
+
+msgid "Indirizzo IP"
+msgstr "IP address"
+
+msgid "Indirizzo del computer dell'amministratore non valido"
+msgstr "Invalid administrator computer address"
+
+msgid "Inquadra il QR con la fotocamera e consenti il download del profilo."
+msgstr "Scan the QR code with the camera and allow the profile download."
+
+msgid "Inquadra il QR: il file"
+msgstr "Scan the QR code: the file"
+
+msgid "Inquadra il secondo QR: Racoonix deve aprirsi"
+msgstr "Scan the second QR code: Racoonix must open"
+
+msgid "Inserisci almeno una quantita'"
+msgstr "Enter at least one quantity"
+
+msgid "Installa"
+msgstr "Install"
+
+msgid "Installa un certificato"
+msgstr "Install a certificate"
+
+msgid "Inventario"
+msgstr "Stock"
+
+msgid "Inventario - Racoonix"
+msgstr "Stock - Racoonix"
+
+msgid "Invia richiesta"
+msgstr "Send request"
+
+msgid "Italia"
+msgstr "Italy"
+
+msgid "Kg da buttare"
+msgstr "Kg to discard"
+
+msgid "Kg da spostare sullo scaffale"
+msgstr "Kg to move to the shelf"
+
+msgid "Kg tolti"
+msgstr "Kg removed"
+
+msgid "L'operazione non si puo' annullare e viene registrata nel log di audit."
+msgstr "This can't be undone and is recorded in the audit log."
+
+msgid ""
+"La lingua dei testi condivisi (notifiche, ordini, categorie). Ogni persona puo' comunque "
+"scegliere la sua."
+msgstr ""
+"The language of shared texts (notifications, orders, categories). Everyone can still choose their"
+" own."
+
+msgid ""
+"La lista nasce dalle segnalazioni \"Sta finendo\" e dalle soglie di magazzino. Quando la merce "
+"arriva con il carico, il prodotto esce da qui da solo."
+msgstr ""
+"The list comes from \"Running low\" reports and stockroom thresholds. When the goods arrive and "
+"are booked in, the product leaves this list by itself."
+
+#, python-format
+msgid "La nuova password deve avere almeno %(numero)s caratteri"
+msgstr "The new password must be at least %(numero)s characters long"
+
+msgid "La nuova password deve essere diversa dalla attuale"
+msgstr "The new password must be different from the current one"
+
+#, python-format
+msgid "La password deve avere almeno %(numero)s caratteri"
+msgstr "The password must be at least %(numero)s characters long"
+
+msgid "La password temporanea la genera il sistema."
+msgstr "The system generates the temporary password."
+
+msgid "La ragione sociale e' il nome ufficiale dell'azienda, con la forma giuridica (Srl, Spa, Snc...)."
+msgstr "The company name is the business's official name, including its legal form (Ltd, PLC, LLC...)."
+
+msgid "La sottocategoria deve appartenere alla categoria scelta"
+msgstr "The subcategory must belong to the chosen category"
+
+msgid "Latte"
+msgstr "Milk"
+
+msgid "Latticini"
+msgstr "Dairy"
+
+msgid "Le due password non coincidono"
+msgstr "The two passwords don't match"
+
+msgid ""
+"Le funzioni del titolare funzioneranno solo da questo computer. Di solito e' quello che stai "
+"usando adesso, gia' inserito qui sotto."
+msgstr ""
+"The owner's functions will only work from this computer. It's usually the one you're using right "
+"now, already filled in below."
+
+msgid ""
+"Le funzioni di amministrazione non sono disponibili da questo dispositivo: usa il computer "
+"autorizzato."
+msgstr "Admin functions aren't available from this device: use the authorised computer."
+
+msgid "Leggi o scrivi il codice"
+msgstr "Scan or type the code"
+
+msgid "Legumi"
+msgstr "Pulses"
+
+msgid "Lingua del negozio"
+msgstr "Shop language"
+
+msgid "Lotti in scadenza"
+msgstr "Batches expiring"
+
+msgid "Lotti in scadenza nei prossimi 14 giorni"
+msgstr "Batches expiring in the next 14 days"
+
+msgid "Lotti monitorati"
+msgstr "Batches tracked"
+
+msgid "Lotto"
+msgstr "Batch"
+
+msgid "Lotto (facoltativo)"
+msgstr "Batch (optional)"
+
+msgid "Lotto dal codice:"
+msgstr "Batch from the code:"
+
+msgid "Lotto non valido"
+msgstr "Invalid batch"
+
+msgid "Magazzinieri: magazzino"
+msgstr "Stockroom staff: stockroom"
+
+msgid "Magazzino"
+msgstr "Stockroom"
+
+msgid "Magazzino e scadenze"
+msgstr "Stockroom and expiry dates"
+
+msgid "Magazzino sotto soglia"
+msgstr "Stockroom below threshold"
+
+msgid "Magazzino vuoto, ma il prodotto e' in esaurimento: non verra' riordinato"
+msgstr "Stockroom empty, but the product is being phased out: it won't be reordered"
+
+msgid "Magazzino vuoto: aggiunto alla lista d'ordine"
+msgstr "Stockroom empty: added to the order list"
+
+msgid "Magazzino vuoto: e' gia' nella lista d'ordine"
+msgstr "Stockroom empty: it's already on the order list"
+
+msgid "Marca"
+msgstr "Brand"
+
+msgid "Marca non valida"
+msgstr "Invalid brand"
+
+msgid "Meno recenti →"
+msgstr "Older →"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Menu principale"
+msgstr "Main menu"
+
+msgid "Merce in magazzino"
+msgstr "Stock in the stockroom"
+
+msgid "Merendine"
+msgstr "Snack cakes"
+
+msgid "Messi subito sullo scaffale ("
+msgstr "Put straight on the shelf ("
+
+msgid "Modifica"
+msgstr "Edit"
+
+msgid "Mostra di nuovo la guida ai primi passi"
+msgstr "Show the getting started guide again"
+
+msgid "Mostra password"
+msgstr "Show password"
+
+msgid "Mostro solo i prodotti"
+msgstr "Showing only products"
+
+msgid "Motivo"
+msgstr "Reason"
+
+msgid "Nascondi la guida"
+msgstr "Hide the guide"
+
+msgid "Nascondi password"
+msgstr "Hide password"
+
+msgid "Negozio"
+msgstr "Shop"
+
+msgid "Nessun codice aggiuntivo."
+msgstr "No additional codes."
+
+msgid "Nessun fornitore"
+msgstr "No supplier"
+
+msgid "Nessun fornitore trovato."
+msgstr "No suppliers found."
+
+msgid "Nessun prodotto in attesa."
+msgstr "No pending products."
+
+msgid "Nessun prodotto in scadenza."
+msgstr "No products expiring."
+
+msgid "Nessun prodotto trovato."
+msgstr "No products found."
+
+msgid "Nessun utente trovato."
+msgstr "No users found."
+
+msgid "Nessuna attivita' con questi filtri."
+msgstr "No activity with these filters."
+
+msgid "Nessuna attivita' registrata."
+msgstr "No activity recorded."
+
+msgid "Nessuna attivita' sospetta: nessun indirizzo ha superato"
+msgstr "No suspicious activity: no address has exceeded"
+
+msgid "Nessuna differenza: tutto torna"
+msgstr "No difference: everything adds up"
+
+msgid "Nessuna giacenza."
+msgstr "No stock."
+
+msgid "Nessuno scarto nel periodo."
+msgstr "Nothing discarded in this period."
+
+msgid "Niente da ordinare"
+msgstr "Nothing to order"
+
+msgid "Nome"
+msgstr "Name"
+
+msgid "Nome (es. Telefono di Mario)"
+msgstr "Name (e.g. Mario's phone)"
+
+msgid "Nome categoria non valido"
+msgstr "Invalid category name"
+
+msgid "Nome del dispositivo non valido"
+msgstr "Invalid device name"
+
+msgid "Nome del negozio"
+msgstr "Shop name"
+
+msgid "Nome del negozio non valido (2-60 caratteri)"
+msgstr "Invalid shop name (2-60 characters)"
+
+msgid "Nome non valido"
+msgstr "Invalid name"
+
+msgid "Nome sottocategoria non valido"
+msgstr "Invalid subcategory name"
+
+msgid "Nome, marca o codice"
+msgstr "Name, brand or code"
+
+msgid "Non ce n'erano"
+msgstr "There weren't any"
+
+msgid "Non conformi"
+msgstr "Non-compliant"
+
+msgid "Non puoi disattivare te stesso"
+msgstr "You can't deactivate yourself"
+
+msgid "Non puoi eliminare te stesso"
+msgstr "You can't delete yourself"
+
+msgid "Non puoi togliere il ruolo admin a te stesso"
+msgstr "You can't remove the admin role from yourself"
+
+msgid "Non riordinare piu'"
+msgstr "Don't reorder"
+
+msgid "Non riuscito"
+msgstr "Failed"
+
+msgid "Numero di pezzi non valido (1-99)"
+msgstr "Invalid number of items (1-99)"
+
+msgid "Nuova categoria"
+msgstr "New category"
+
+msgid "Nuova password"
+msgstr "New password"
+
+msgid "Nuova sottocategoria"
+msgstr "New subcategory"
+
+msgid "Nuovo dispositivo"
+msgstr "New device"
+
+msgid "Nuovo fornitore"
+msgstr "New supplier"
+
+msgid "Nuovo fornitore - Racoonix"
+msgstr "New supplier - Racoonix"
+
+msgid "Nuovo utente"
+msgstr "New user"
+
+msgid "Nuovo utente - Racoonix"
+msgstr "New user - Racoonix"
+
+msgid "Oggi"
+msgstr "Today"
+
+#, python-format
+msgid "Oggi ordina a %(fornitore)s"
+msgstr "Order from %(fornitore)s today"
+
+msgid "Oggi,"
+msgstr "Today,"
+
+msgid "Ogni giorno"
+msgstr "Every day"
+
+msgid "Ogni utente deve avere almeno un ruolo"
+msgstr "Every user must have at least one role"
+
+msgid "Ognuno con i suoi ruoli: dipendente, magazziniere o entrambi."
+msgstr "Each with their own roles: shop assistant, stockroom worker or both."
+
+msgid "Operazioni"
+msgstr "Actions"
+
+msgid "Oppure e' un altro codice di un prodotto gia' in catalogo:"
+msgstr "Or it's another code for a product already in the catalogue:"
+
+msgid "Ordinato il"
+msgstr "Ordered on"
+
+#, python-format
+msgid "Ordine %(negozio)s"
+msgstr "Order %(negozio)s"
+
+msgid "Ordine segnato come inviato"
+msgstr "Order marked as sent"
+
+msgid "Ordini"
+msgstr "Orders"
+
+msgid "Ordini - Racoonix"
+msgstr "Orders - Racoonix"
+
+msgid "Ordini ai fornitori"
+msgstr "Supplier orders"
+
+msgid "Ortofrutta"
+msgstr "Fruit and veg"
+
+msgid "Paese del negozio"
+msgstr "Shop country"
+
+msgid "Pagina non trovata"
+msgstr "Page not found"
+
+msgid "Pane"
+msgstr "Bread"
+
+msgid "Partita IVA"
+msgstr "VAT number"
+
+msgid "Partita IVA gia' presente"
+msgstr "VAT number already registered"
+
+msgid "Partita IVA non valida (11 cifre con cifra di controllo corretta)"
+msgstr "Invalid VAT number (11 digits with a correct check digit)"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Password attuale"
+msgstr "Current password"
+
+msgid "Password attuale errata"
+msgstr "Current password is wrong"
+
+msgid "Password cambiata"
+msgstr "Password changed"
+
+msgid "Password dimenticata"
+msgstr "Forgotten password"
+
+msgid "Password dimenticata - Racoonix"
+msgstr "Forgotten password - Racoonix"
+
+msgid "Password dimenticata?"
+msgstr "Forgotten your password?"
+
+msgid "Password temporanea"
+msgstr "Temporary password"
+
+msgid "Password temporanea - Racoonix"
+msgstr "Temporary password - Racoonix"
+
+msgid "Password temporanea generata"
+msgstr "Temporary password generated"
+
+msgid "Pasta"
+msgstr "Pasta"
+
+msgid "Pasta fresca"
+msgstr "Fresh pasta"
+
+msgid "Pasta secca"
+msgstr "Dried pasta"
+
+msgid "Per te"
+msgstr "For you"
+
+msgid "Per te stesso usa 'Cambia password'"
+msgstr "For yourself, use 'Change password'"
+
+msgid "Percentuale (1-90) o quantita' non valida"
+msgstr "Invalid percentage (1-90) or quantity"
+
+msgid "Perche'"
+msgstr "Why"
+
+msgid "Pesce surgelato"
+msgstr "Frozen fish"
+
+msgid "Pezzi da buttare"
+msgstr "Items to discard"
+
+msgid "Pezzi da spostare sullo scaffale"
+msgstr "Items to move to the shelf"
+
+msgid "Pezzi per confezione"
+msgstr "Items per pack"
+
+msgid "Pezzi tolti"
+msgstr "Items removed"
+
+msgid "Pochi passi e il tuo negozio e' pronto. Potrai cambiare tutto anche dopo, da Impostazioni."
+msgstr "A few steps and your shop is ready. You can change everything later, from Settings."
+
+msgid "Pollame"
+msgstr "Poultry"
+
+msgid "Pomodoro"
+msgstr "Tomatoes"
+
+msgid "Possibile attacco a forza bruta:"
+msgstr "Possible brute-force attack:"
+
+msgid "Presa visione"
+msgstr "Acknowledged"
+
+msgid "Prezzo"
+msgstr "Price"
+
+msgid "Prezzo al kg"
+msgstr "Price per kg"
+
+msgid "Prezzo al pezzo"
+msgstr "Price per item"
+
+#, python-format
+msgid "Prezzo di vendita (%(unita)s)"
+msgstr "Selling price (%(unita)s)"
+
+msgid "Prezzo non valido (esempio: 2,49)"
+msgstr "Invalid price (example: 2.49)"
+
+msgid "Prezzo per unita' di misura:"
+msgstr "Price per unit of measure:"
+
+msgid "Prima di usarlo, confronta l'"
+msgstr "Before using it, compare the"
+
+msgid "Prima fascia non valida (giorni 1-60, sconto 1-90%)"
+msgstr "Invalid first step (1-60 days, 1-90% discount)"
+
+msgid "Primi passi con Racoonix"
+msgstr "Getting started with Racoonix"
+
+msgid "Primo amministratore creato"
+msgstr "First administrator created"
+
+msgid "Prodotti da approvare"
+msgstr "Products to approve"
+
+msgid "Prodotti da approvare - Racoonix"
+msgstr "Products to approve - Racoonix"
+
+msgid "Prodotti da forno"
+msgstr "Baked goods"
+
+msgid "Prodotti e prezzi"
+msgstr "Products and prices"
+
+msgid "Prodotti piu' buttati"
+msgstr "Most discarded products"
+
+msgid "Prodotti senza codice"
+msgstr "Products without a code"
+
+msgid "Prodotto"
+msgstr "Product"
+
+msgid "Prodotto approvato"
+msgstr "Product approved"
+
+msgid "Prodotto gia' gestito"
+msgstr "Product already handled"
+
+msgid "Prodotto gia' scaduto: non si puo' caricare"
+msgstr "Product already expired: it can't be booked in"
+
+msgid "Prodotto in attesa di approvazione: puoi caricarlo solo in magazzino."
+msgstr "Product awaiting approval: you can only book it into the stockroom."
+
+msgid "Prodotto in esaurimento: non verra' piu' riordinato"
+msgstr "Product being phased out: it won't be reordered"
+
+msgid "Prodotto messo in esaurimento"
+msgstr "Product phased out"
+
+msgid "Prodotto non ammesso: contatta l'admin"
+msgstr "Product not allowed: contact the admin"
+
+msgid "Prodotto non ancora approvato"
+msgstr "Product not approved yet"
+
+msgid ""
+"Prodotto non in catalogo: verra' creato e dovra' essere approvato dall'admin. Fino ad allora "
+"resta solo in magazzino."
+msgstr ""
+"Product not in the catalogue: it will be created and must be approved by the admin. Until then it"
+" stays in the stockroom only."
+
+msgid "Prodotto nuovo"
+msgstr "New product"
+
+msgid "Prodotto rifiutato"
+msgstr "Product rejected"
+
+msgid "Programma sconto"
+msgstr "Schedule discount"
+
+msgid "Programmazione rimossa"
+msgstr "Schedule removed"
+
+msgid "Programmazione sconto rimossa"
+msgstr "Discount schedule removed"
+
+msgid "Prossimo ordine:"
+msgstr "Next order:"
+
+msgid "Quando"
+msgstr "When"
+
+msgid "Quanti ne hai trovati?"
+msgstr "How many did you find?"
+
+msgid "Quanti ne restano?"
+msgstr "How many are left?"
+
+msgid "Quantita'"
+msgstr "Quantity"
+
+#, python-format
+msgid "Quantita' mancante o non valida: %(prodotti)s"
+msgstr "Missing or invalid quantity: %(prodotti)s"
+
+msgid "Quantita' non valida"
+msgstr "Invalid quantity"
+
+msgid "Quantita' per pezzo"
+msgstr "Quantity per item"
+
+msgid "Quantita' salvate: il testo dell'ordine e' aggiornato"
+msgstr "Quantities saved: the order text has been updated"
+
+msgid "Questa categoria richiede la data di scadenza"
+msgstr "This category requires an expiry date"
+
+msgid "Questi prodotti non hanno un fornitore: impostalo nella scheda del catalogo."
+msgstr "These products have no supplier: set it on the catalogue page."
+
+msgid "Questo codice e' gia' associato a un prodotto"
+msgstr "This code is already linked to a product"
+
+msgid "Questo link non e' valido o e' scaduto."
+msgstr "This link isn't valid or has expired."
+
+msgid ""
+"Racoonix aspetta la configurazione iniziale. Per iniziare serve il link personale che compare sul"
+" server."
+msgstr ""
+"Racoonix is waiting for its initial setup. To start, you need the personal link shown on the "
+"server."
+
+msgid "Ragione sociale"
+msgstr "Company name"
+
+msgid "Ragione sociale non valida"
+msgstr "Invalid company name"
+
+msgid "Registro attivita'"
+msgstr "Activity log"
+
+msgid "Registro attivita' - Racoonix"
+msgstr "Activity log - Racoonix"
+
+msgid "Registro esportato"
+msgstr "Log exported"
+
+msgid "Regno Unito"
+msgstr "United Kingdom"
+
+msgid "Reset password"
+msgstr "Password reset"
+
+msgid "Revoca"
+msgstr "Revoke"
+
+msgid "Riattiva"
+msgstr "Reactivate"
+
+msgid "Richiesta di nuova password"
+msgstr "New password request"
+
+msgid "Richiesta di nuovo dispositivo"
+msgstr "New device request"
+
+msgid "Richiesta ignorata"
+msgstr "Request ignored"
+
+msgid "Richiesta registrata. Se l'utente esiste, l'amministratore ti dara' una password temporanea."
+msgstr "Request recorded. If the user exists, the administrator will give you a temporary password."
+
+msgid "Richieste di nuova password"
+msgstr "New password requests"
+
+msgid "Riempi lo scaffale"
+msgstr "Refill the shelf"
+
+msgid "Rifiuta"
+msgstr "Reject"
+
+msgid "Rifiuta e scarta la merce"
+msgstr "Reject and discard the stock"
+
+msgid "Rifornisci"
+msgstr "Restock"
+
+msgid "Rimossi"
+msgstr "Removed"
+
+msgid "Rimozione scaduti"
+msgstr "Expired items removed"
+
+msgid "Rimuovi"
+msgstr "Remove"
+
+msgid "Rimuovi programmazione"
+msgstr "Remove schedule"
+
+#, python-format
+msgid "Riordina quando in magazzino ne restano (%(unita)s)"
+msgstr "Reorder when the stockroom falls to (%(unita)s)"
+
+msgid "Ripeti la password"
+msgstr "Repeat the password"
+
+msgid "Ripeti nuova password"
+msgstr "Repeat new password"
+
+msgid "Riviste"
+msgstr "Magazines"
+
+msgid "Ruoli"
+msgstr "Roles"
+
+msgid "Ruoli modificati"
+msgstr "Roles changed"
+
+msgid "Salumi"
+msgstr "Cured meats"
+
+msgid "Salumi e formaggi"
+msgstr "Deli"
+
+msgid "Salva"
+msgstr "Save"
+
+msgid "Salva conteggio"
+msgstr "Save count"
+
+msgid "Salva quantita'"
+msgstr "Save quantities"
+
+msgid "Salva ruoli"
+msgstr "Save roles"
+
+msgid "Salva scheda"
+msgstr "Save details"
+
+msgid "Sblocca"
+msgstr "Unlock"
+
+#, python-format
+msgid "Scade il %(data)s (tra %(giorni)s gg): controlla %(dove)s"
+msgstr "Expires on %(data)s (in %(giorni)s days): check %(dove)s"
+
+msgid "Scadenza"
+msgstr "Expiry"
+
+msgid "Scadenza dal codice:"
+msgstr "Expiry from the code:"
+
+msgid "Scadenza obbligatoria al carico"
+msgstr "Expiry date required when booking in"
+
+msgid "Scaduti"
+msgstr "Expired"
+
+#, python-format
+msgid "Scaduto il %(data)s: togli %(dove)s"
+msgstr "Expired on %(data)s: remove %(dove)s"
+
+msgid "Scaffale rifornito"
+msgstr "Shelf restocked"
+
+msgid "Scaffali da riempire"
+msgstr "Shelves to refill"
+
+msgid "Scarti per motivo"
+msgstr "Waste by reason"
+
+msgid "Scarto per freschezza"
+msgstr "Discarded for freshness"
+
+msgid "Scegli almeno un ruolo"
+msgstr "Choose at least one role"
+
+msgid "Scegli il file dalla cartella Download."
+msgstr "Choose the file from the Downloads folder."
+
+msgid "Scegli il paese del negozio"
+msgstr "Choose the shop's country"
+
+msgid "Scegli la lingua del negozio"
+msgstr "Choose the shop's language"
+
+msgid "Scheda completa"
+msgstr "Full details"
+
+msgid "Scheda prodotto modificata"
+msgstr "Product details updated"
+
+msgid "Scheda salvata"
+msgstr "Details saved"
+
+msgid "Sconta"
+msgstr "Discount"
+
+msgid "Sconti attivi sui lotti:"
+msgstr "Active discounts on batches:"
+
+msgid "Sconto"
+msgstr "Discount"
+
+#, python-format
+msgid "Sconto -%(perc)s%% registrato: il dipendente ricevera' l'avviso del bollino"
+msgstr "-%(perc)s%% discount recorded: the shop assistant will be reminded to apply the sticker"
+
+msgid "Sconto applicato"
+msgstr "Discount applied"
+
+msgid "Sconto programmato"
+msgstr "Discount scheduled"
+
+msgid "Sconto programmato: -"
+msgstr "Scheduled discount: -"
+
+#, python-format
+msgid "Sconto suggerito 1: %%"
+msgstr "Suggested discount 1: %%"
+
+#, python-format
+msgid "Sconto suggerito 2: %%"
+msgstr "Suggested discount 2: %%"
+
+msgid "Sconto tolto"
+msgstr "Discount removed"
+
+msgid "Scrivi il tuo username: l'amministratore ricevera' la richiesta."
+msgstr "Enter your username: the administrator will receive the request."
+
+msgid "Scrivi per cercare, poi scegli dall'elenco"
+msgstr "Type to search, then pick from the list"
+
+msgid "Scrivi quanti ne hai trovati (0 se non ce n'erano)"
+msgstr "Enter how many you found (0 if there weren't any)"
+
+msgid "Scrivi quanti ne restano (0 se sono finiti)"
+msgstr "Enter how many are left (0 if none)"
+
+msgid "Scrivi un nome o leggi un codice"
+msgstr "Type a name or scan a code"
+
+msgid "Se coincide, il certificato e' quello vero. Se e' diversa,"
+msgstr "If it matches, the certificate is the genuine one. If it's different,"
+
+msgid "Se ne trovi un numero diverso, scrivi quello vero."
+msgstr "If you find a different number, enter the real one."
+
+msgid ""
+"Se non trovi la voce, cerca \"certificato\" nelle Impostazioni. Serve un blocco schermo (PIN o "
+"impronta)."
+msgstr ""
+"If you can't find the option, search for \"certificate\" in Settings. A screen lock (PIN or "
+"fingerprint) is required."
+
+msgid "Se su un dispositivo il nome non funziona:"
+msgstr "If the name doesn't work on a device:"
+
+msgid "Se un prodotto torna spesso qui, conviene ordinarne meno o scontarlo prima."
+msgstr "If a product keeps showing up here, order less of it or discount it sooner."
+
+msgid "Seconda fascia: meno giorni e sconto piu' alto della prima"
+msgstr "Second step: fewer days and a bigger discount than the first"
+
+msgid "Segna come ordinato"
+msgstr "Mark as ordered"
+
+msgid "Segnalato da"
+msgstr "Reported by"
+
+#, python-format
+msgid ""
+"Segnalato da %(utente)s: sullo scaffale sta finendo. In magazzino: %(quantita)s, metti davanti il"
+" lotto %(lotto)s%(scade)s"
+msgstr ""
+"Reported by %(utente)s: running low on the shelf. In the stockroom: %(quantita)s, put batch "
+"%(lotto)s at the front%(scade)s"
+
+msgid "Segnalato: chi sta in magazzino ricevera' il compito di riempire lo scaffale"
+msgstr "Reported: the stockroom will get a task to refill the shelf"
+
+msgid "Segnalato: sta finendo"
+msgstr "Reported: running low"
+
+msgid "Segnalazioni \"sta finendo\""
+msgstr "\"Running low\" reports"
+
+#, python-format
+msgid "Segnati come ordinati: %(numero)s. Usciranno dalla lista all'arrivo della merce"
+msgstr "Marked as ordered: %(numero)s. They'll leave the list when the goods arrive"
+
+msgid "Senza codice"
+msgstr "No code"
+
+msgid "Senza fornitore"
+msgstr "No supplier"
+
+msgid "Serve almeno il GTIN o il codice bilancia"
+msgstr "At least the GTIN or the weighed item code is required"
+
+msgid "Serve un EAN o UPC valido"
+msgstr "A valid EAN or UPC is required"
+
+msgid "Serviranno per sapere a chi riordinare."
+msgstr "You'll need them to know who to reorder from."
+
+msgid "Sessione scaduta, ricarica la pagina"
+msgstr "Session expired, reload the page"
+
+msgid "Si possono scontare solo lotti con scadenza futura"
+msgstr "Only batches with a future expiry date can be discounted"
+
+msgid "Si', elimina"
+msgstr "Yes, delete"
+
+msgid "Sicurezza"
+msgstr "Security"
+
+msgid "Sicurezza nelle ultime 24 ore"
+msgstr "Security in the last 24 hours"
+
+msgid "Sistema"
+msgstr "System"
+
+msgid "Situazione"
+msgstr "Overview"
+
+msgid "Soglia di riordino non valida"
+msgstr "Invalid reorder threshold"
+
+msgid "Sottocategoria"
+msgstr "Subcategory"
+
+msgid "Sottocategoria aggiunta"
+msgstr "Subcategory added"
+
+msgid "Sottocategoria gia' esistente"
+msgstr "Subcategory already exists"
+
+msgid "Sottocategoria modificata"
+msgstr "Subcategory updated"
+
+msgid "Sottocategorie"
+msgstr "Subcategories"
+
+#, python-format
+msgid "Spostati sullo scaffale: %(quantita)s"
+msgstr "Moved to the shelf: %(quantita)s"
+
+msgid "Sta finendo"
+msgstr "Running low"
+
+msgid "Stati Uniti"
+msgstr "United States"
+
+msgid "Stato"
+msgstr "Status"
+
+msgid "Stato:"
+msgstr "Status:"
+
+msgid "Storico ("
+msgstr "History ("
+
+msgid "Suino"
+msgstr "Pork"
+
+msgid "Sul server, nella cartella di Racoonix, lancia:"
+msgstr "On the server, in the Racoonix folder, run:"
+
+msgid "Sul server: ./racoonix.sh backup-automatico"
+msgstr "On the server: ./racoonix.sh backup-automatico"
+
+msgid "Sullo scaffale"
+msgstr "On the shelf"
+
+msgid "Sullo scaffale:"
+msgstr "On the shelf:"
+
+msgid "Surgelati"
+msgstr "Frozen food"
+
+msgid "Telefono"
+msgstr "Phone"
+
+msgid "Telefono non valido"
+msgstr "Invalid phone number"
+
+msgid "Tema chiaro"
+msgstr "Light theme"
+
+msgid "Tema scuro"
+msgstr "Dark theme"
+
+msgid "Tentativo da un dispositivo bloccato"
+msgstr "Attempt from a blocked device"
+
+msgid "Testo dell'ordine"
+msgstr "Order text"
+
+msgid "Togli"
+msgstr "Remove"
+
+msgid "Togli sconto"
+msgstr "Remove discount"
+
+msgid "Tolti e buttati"
+msgstr "Removed and discarded"
+
+msgid "Tolto dalla lista"
+msgstr "Removed from the list"
+
+msgid "Tolto dalla lista d'ordine"
+msgstr "Removed from the order list"
+
+msgid "Torna agli utenti"
+msgstr "Back to users"
+
+msgid "Torna alla home"
+msgstr "Back to home"
+
+msgid "Troppi tentativi, riprova tra poco"
+msgstr "Too many attempts, try again shortly"
+
+msgid "Tutte le categorie"
+msgstr "All categories"
+
+msgid "Tutte le persone"
+msgstr "Everyone"
+
+msgid "Tutti gli stati"
+msgstr "All statuses"
+
+msgid "Tutti i ruoli"
+msgstr "All roles"
+
+msgid "Tutto"
+msgstr "All"
+
+msgid "Tutto in ordine"
+msgstr "All good"
+
+msgid "Tutto ok"
+msgstr "All fine"
+
+msgid "Tutto quello che succede in Racoonix: chi, cosa, quando e da dove. Il registro e' in sola lettura."
+msgstr "Everything that happens in Racoonix: who, what, when and from where. The log is read-only."
+
+msgid "Ultime 24 ore"
+msgstr "Last 24 hours"
+
+msgid "Ultimi 30 giorni"
+msgstr "Last 30 days"
+
+msgid "Ultimi 7 giorni"
+msgstr "Last 7 days"
+
+msgid "Unione non possibile: controlla il prodotto scelto"
+msgstr "Merge not possible: check the chosen product"
+
+msgid "Unisci come codice aggiuntivo"
+msgstr "Merge as an additional code"
+
+msgid "Unita'"
+msgstr "Unit"
+
+msgid "Unita' non valida"
+msgstr "Invalid unit"
+
+msgid "Usa fotocamera"
+msgstr "Use camera"
+
+msgid "Uscita"
+msgstr "Sign-out"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Username gia' in uso"
+msgstr "Username already taken"
+
+msgid "Username non valido (3-40 caratteri: lettere, numeri, _ . -)"
+msgstr "Invalid username (3-40 characters: letters, numbers, _ . -)"
+
+msgid "Utente"
+msgstr "User"
+
+msgid "Utente creato"
+msgstr "User created"
+
+msgid "Utente disattivato"
+msgstr "User deactivated"
+
+msgid "Utente eliminato (storico conservato)"
+msgstr "User deleted (history kept)"
+
+msgid "Utente eliminato definitivamente"
+msgstr "User permanently deleted"
+
+msgid "Utente riattivato"
+msgstr "User reactivated"
+
+msgid "Utente sbloccato"
+msgstr "User unlocked"
+
+msgid "Utente:"
+msgstr "User:"
+
+msgid "Utenti"
+msgstr "Users"
+
+msgid "Utenti - Racoonix"
+msgstr "Users - Racoonix"
+
+msgid "Utenti e dispositivi"
+msgstr "Users and devices"
+
+msgid "Vai"
+msgstr "Go"
+
+msgid "Vai a rifornire"
+msgstr "Go and restock"
+
+msgid "Vai all'approvazione"
+msgstr "Go to approval"
+
+msgid "Valore calcolato al prezzo di vendita attuale."
+msgstr "Value calculated at the current selling price."
+
+msgid "Valore perso"
+msgstr "Value lost"
+
+msgid "Valore scarti"
+msgstr "Value of waste"
+
+msgid "Vedi nel registro"
+msgstr "See in the log"
+
+msgid "Vedi tutto"
+msgstr "See all"
+
+msgid "Venduto a peso (kg)"
+msgstr "Sold by weight (kg)"
+
+msgid "Venduto a pezzo"
+msgstr "Sold by item"
+
+msgid "Verdura"
+msgstr "Vegetables"
+
+msgid "Verdure surgelate"
+msgstr "Frozen vegetables"
+
+msgid "Verifica scadenza"
+msgstr "Expiry check"
+
+msgid "Verifiche fatte"
+msgstr "Checks done"
+
+msgid "Viene mostrata una sola volta. Comunicala di persona: al primo accesso dovra' cambiarla."
+msgstr "It's shown only once. Hand it over in person: they'll have to change it on first sign-in."
+
+msgid "Yogurt"
+msgstr "Yoghurt"
+
+msgid "a"
+msgstr "at"
+
+msgid "a giorni"
+msgstr "at days"
+
+msgid "admin"
+msgstr "admin"
+
+msgid "aggiunto in approvazione"
+msgstr "added at approval"
+
+msgid "al"
+msgstr "to"
+
+msgid "al kg"
+msgstr "per kg"
+
+msgid "approvato"
+msgstr "approved"
+
+msgid "attivo"
+msgstr "active"
+
+msgid "azione"
+msgstr "action"
+
+msgid "bloccato"
+msgstr "locked"
+
+msgid "buttati"
+msgstr "discarded"
+
+msgid "categoria"
+msgstr "category"
+
+msgid "che scadono il"
+msgstr "expiring on"
+
+msgid "da controllare"
+msgstr "to check"
+
+msgid "da ordinare"
+msgstr "to order"
+
+msgid "dalla scadenza"
+msgstr "before expiry"
+
+#, python-format
+msgid "dallo scaffale il lotto %(lotto)s"
+msgstr "batch %(lotto)s from the shelf"
+
+msgid "data_ora"
+msgstr "date_time"
+
+msgid "del certificato installato (nei dettagli del certificato, sul telefono) con questa:"
+msgstr "of the installed certificate (in the certificate details, on the phone) with this one:"
+
+msgid "descrizione"
+msgstr "description"
+
+msgid "dettaglio"
+msgstr "details"
+
+msgid "di"
+msgstr "of"
+
+msgid "dipendente"
+msgstr "shop assistant"
+
+msgid "disattivata"
+msgstr "deactivated"
+
+msgid "disattivato"
+msgstr "deactivated"
+
+msgid "e lancia"
+msgstr "and run"
+
+msgid "gg"
+msgstr "days"
+
+msgid "gg · poi -"
+msgstr "days · then -"
+
+msgid "giorni"
+msgstr "days"
+
+msgid ""
+"ha operato nel sistema. Verra' tolto dall'elenco, non potra' piu' accedere e perdera' tutti i "
+"ruoli, ma il suo nome restera' nello storico delle operazioni che ha svolto."
+msgstr ""
+"has worked in the system. They'll be removed from the list, won't be able to sign in and will "
+"lose all roles, but their name will stay in the history of the actions they took."
+
+msgid "impronta SHA-256"
+msgstr "SHA-256 fingerprint"
+
+msgid "in attesa"
+msgstr "pending"
+
+msgid "in attesa di approvazione"
+msgstr "awaiting approval"
+
+msgid "in esaurimento"
+msgstr "being phased out"
+
+msgid "in magazzino"
+msgstr "in the stockroom"
+
+msgid "in magazzino:"
+msgstr "in the stockroom:"
+
+msgid "in scadenza"
+msgstr "expiring"
+
+msgid "in scadenza entro"
+msgstr "expiring within"
+
+msgid "lotto"
+msgstr "batch"
+
+msgid "magazziniere"
+msgstr "stockroom worker"
+
+msgid "mostra tutto"
+msgstr "show all"
+
+msgid "nessun lotto messo"
+msgstr "no batch put out"
+
+msgid "nessuno"
+msgstr "none"
+
+msgid "non attivo"
+msgstr "inactive"
+
+msgid "non ha mai operato nel sistema: verra' eliminato definitivamente."
+msgstr "has never worked in the system: they'll be permanently deleted."
+
+msgid "non si ordina"
+msgstr "no orders"
+
+msgid "non usarlo"
+msgstr "don't use it"
+
+msgid "oggi"
+msgstr "today"
+
+msgid "opz."
+msgstr "opt."
+
+msgid "ordina oggi"
+msgstr "order today"
+
+msgid "ordinato"
+msgstr "ordered"
+
+msgid "password temporanea"
+msgstr "temporary password"
+
+msgid "pezzi"
+msgstr "items"
+
+msgid "pezzi, o kg se a peso"
+msgstr "items, or kg if sold by weight"
+
+msgid "pezzo"
+msgstr "item"
+
+msgid "prodotti"
+msgstr "products"
+
+msgid "prossimo ordine:"
+msgstr "next order:"
+
+msgid "pz"
+msgstr "pcs"
+
+msgid "quantita' da definire"
+msgstr "quantity to be confirmed"
+
+msgid "revocato"
+msgstr "revoked"
+
+msgid "richiesta dispositivo"
+msgstr "device request"
+
+msgid "rimosso"
+msgstr "removed"
+
+msgid "scade oggi"
+msgstr "expires today"
+
+msgid "scaduto"
+msgstr "expired"
+
+msgid "senza nessun avviso di sicurezza"
+msgstr "without any security warning"
+
+msgid "si ordina"
+msgstr "orders placed"
+
+msgid "si'"
+msgstr "yes"
+
+msgid "sullo scaffale"
+msgstr "on the shelf"
+
+#, python-format
+msgid "sullo scaffale il lotto %(lotto)s"
+msgstr "batch %(lotto)s on the shelf"
+
+msgid "tentativi falliti da"
+msgstr "failed attempts from"
+
+msgid "tentativi falliti."
+msgstr "failed attempts."
+
+msgid "tutti"
+msgstr "all"
+
+msgid "ultimo uso"
+msgstr "last used"
+
+msgid "unita':"
+msgstr "unit:"
+
+msgid "utente"
+msgstr "user"
+
+msgid "viene scaricato."
+msgstr "is downloaded."
+
+msgid "vuoto = solo su segnalazione"
+msgstr "empty = only when reported"
+
+msgid "— scegli il prodotto —"
+msgstr "— choose the product —"
+
+msgid "← Catalogo"
+msgstr "← Catalogue"
+
+msgid "← Fornitori"
+msgstr "← Suppliers"
+
+msgid "← Nuovo codice"
+msgstr "← New code"
+
+msgid "← Piu' recenti"
+msgstr "← Newer"
+
+msgid "← Torna al login"
+msgstr "← Back to sign-in"
+
+msgid "← Utenti"
+msgstr "← Users"
+
+msgid "→ Fine."
+msgstr "→ Done."
+
+msgid "→ conferma l'installazione."
+msgstr "→ confirm the installation."
+

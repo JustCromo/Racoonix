@@ -1,7 +1,7 @@
 """Ordini ai fornitori: la lista nasce dalle segnalazioni 'Sta finendo' e dalle soglie di magazzino."""
 from datetime import datetime, timezone
 
-from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
 from sqlalchemy.orm import selectinload
 
 from . import db
@@ -10,6 +10,8 @@ from .carico import _quantita as leggi_quantita
 from .formato import quantita as mostra_quantita
 from .models import Prodotto, Riordino
 from .riordini import APERTI
+from .lingua import _, nella_lingua_del_negozio, testo_negozio
+from .negozio import impostazioni
 
 bp = Blueprint("ordini", __name__, url_prefix="/admin/ordini")
 
@@ -18,15 +20,19 @@ def _ean(gtin):
     return gtin[1:] if gtin and gtin.startswith("0") else gtin
 
 
+@nella_lingua_del_negozio
 def _testo_ordine(gruppo):
     f = gruppo["fornitore"]
-    righe = [f"Buongiorno{', ' + f.ragione_sociale if f else ''}, ecco il nostro ordine:"]
+    if f:
+        righe = [_("Buongiorno %(fornitore)s, ecco il nostro ordine:", fornitore=f.ragione_sociale)]
+    else:
+        righe = [_("Buongiorno, ecco il nostro ordine:")]
     for r in gruppo["da_ordinare"]:
         p = r.prodotto
-        q = mostra_quantita(r.quantita, p.unita) if r.quantita else "quantita' da definire"
+        q = mostra_quantita(r.quantita, p.unita) if r.quantita else _("quantita' da definire")
         codice = f" (EAN {_ean(p.gtin)})" if p.gtin else ""
         righe.append(f"- {p.descrizione}{codice}: {q}")
-    righe.append(f"Grazie, {current_app.config['MARKET_NAME']}")
+    righe.append(_("Grazie, %(negozio)s", negozio=impostazioni()["nome"]))
     return "\n".join(righe)
 
 
@@ -53,7 +59,8 @@ def _gruppi():
 @bp.get("/")
 @richiede_ruolo("admin")
 def pagina():
-    return render_template("ordini.html", gruppi=_gruppi())
+    oggetto = testo_negozio("Ordine %(negozio)s", negozio=impostazioni()["nome"])
+    return render_template("ordini.html", gruppi=_gruppi(), oggetto_ordine=oggetto)
 
 
 @bp.post("/fornitore/<int:fid>")
@@ -76,16 +83,16 @@ def fornitore(fid):
     torna = redirect(url_for(".pagina", _anchor=f"fornitore-{fid}"))
     if errori:
         db.session.rollback()
-        flash("Quantita' mancante o non valida: " + ", ".join(errori[:3]), "errore")
+        flash(_("Quantita' mancante o non valida: %(prodotti)s", prodotti=", ".join(errori[:3])), "errore")
         return torna
     if azione == "ordina" and righe:
         adesso = datetime.now(timezone.utc)
         for r in righe:
             r.stato, r.ordinato_da, r.ordinato_il = "ordinato", g.utente.id, adesso
         registra("riordino_ordinato", g.utente.id, f"fornitore {fid}, {len(righe)} prodotti")
-        messaggio = f"Segnati come ordinati: {len(righe)}. Usciranno dalla lista all'arrivo della merce"
+        messaggio = _("Segnati come ordinati: %(numero)s. Usciranno dalla lista all'arrivo della merce", numero=len(righe))
     else:
-        messaggio = "Quantita' salvate: il testo dell'ordine e' aggiornato"
+        messaggio = _("Quantita' salvate: il testo dell'ordine e' aggiornato")
     db.session.commit()
     flash(messaggio, "ok")
     return torna
@@ -105,5 +112,5 @@ def riga(rid, azione):
         registra("riordino_annullato" if azione == "togli" else "prodotto_esaurimento",
                  g.utente.id, f"prodotto {r.prodotto_id}")
         db.session.commit()
-        flash("Tolto dalla lista" if azione == "togli" else "Prodotto in esaurimento: non verra' piu' riordinato", "ok")
+        flash(_("Tolto dalla lista") if azione == "togli" else _("Prodotto in esaurimento: non verra' piu' riordinato"), "ok")
     return redirect(url_for(".pagina", _anchor=f"fornitore-{fid}"))

@@ -8,6 +8,7 @@ from flask import (Blueprint, flash, g, make_response, redirect, render_template
 from . import db
 from .auth import ph, registra, richiede_ruolo
 from .models import Ruolo, Utente
+from .lingua import _
 
 bp = Blueprint("utenti", __name__, url_prefix="/admin/utenti")
 USERNAME_OK = re.compile(r"^[a-zA-Z0-9_.-]{3,40}$")
@@ -77,7 +78,7 @@ def _elenco(errore=None, codice=200):
 @bp.get("/risultati")
 @richiede_ruolo("admin")
 def risultati():
-    utenti, _, _, _ = _cerca_utenti()
+    utenti, _x, _x, _x = _cerca_utenti()
     return render_template("_utenti_risultati.html", utenti=utenti, ruoli=_tutti_i_ruoli(),
                            adesso=datetime.now(timezone.utc))
 
@@ -105,11 +106,11 @@ def nuovo():
     scelti = _ruoli_dal_form()
     errore = None
     if not USERNAME_OK.match(username):
-        errore = "Username non valido (3-40 caratteri: lettere, numeri, _ . -)"
+        errore = _("Username non valido (3-40 caratteri: lettere, numeri, _ . -)")
     elif not scelti:
-        errore = "Scegli almeno un ruolo"
+        errore = _("Scegli almeno un ruolo")
     elif db.session.scalar(db.select(Utente).filter_by(username=username)):
-        errore = "Username gia' in uso"
+        errore = _("Username gia' in uso")
     if errore:
         return render_template("utenti_nuovo.html", ruoli=_tutti_i_ruoli(),
                                errore=errore, username=username), 400
@@ -131,12 +132,12 @@ def ruoli(utente_id):
     utente = db.get_or_404(Utente, utente_id)
     scelti = _ruoli_dal_form()
     if not scelti:
-        return _elenco("Ogni utente deve avere almeno un ruolo", 400)
+        return _elenco(_("Ogni utente deve avere almeno un ruolo"), 400)
     toglie_admin = utente.ha_ruolo("admin") and not any(r.nome == "admin" for r in scelti)
     if toglie_admin and utente.id == g.utente.id:
-        return _elenco("Non puoi togliere il ruolo admin a te stesso", 400)
+        return _elenco(_("Non puoi togliere il ruolo admin a te stesso"), 400)
     if toglie_admin and _altri_admin_attivi(utente.id) == 0:
-        return _elenco("Deve restare almeno un admin attivo", 400)
+        return _elenco(_("Deve restare almeno un admin attivo"), 400)
     utente.ruoli = list(scelti)
     registra("ruoli_modificati", g.utente.id,
              f"{utente.username}: {', '.join(r.nome for r in scelti)}")
@@ -149,9 +150,9 @@ def ruoli(utente_id):
 def attivo(utente_id):
     utente = db.get_or_404(Utente, utente_id)
     if utente.id == g.utente.id:
-        return _elenco("Non puoi disattivare te stesso", 400)
+        return _elenco(_("Non puoi disattivare te stesso"), 400)
     if utente.attivo and utente.ha_ruolo("admin") and _altri_admin_attivi(utente.id) == 0:
-        return _elenco("Deve restare almeno un admin attivo", 400)
+        return _elenco(_("Deve restare almeno un admin attivo"), 400)
     utente.attivo = not utente.attivo
     if not utente.attivo:
         utente.token_sessione = None
@@ -179,7 +180,7 @@ def sblocca(utente_id):
 def reset_password(utente_id):
     utente = db.get_or_404(Utente, utente_id)
     if utente.id == g.utente.id:
-        return _elenco("Per te stesso usa 'Cambia password'", 400)
+        return _elenco(_("Per te stesso usa 'Cambia password'"), 400)
     password = _password_temporanea()
     utente.password_hash = ph.hash(password)
     utente.deve_cambiare_password = True
@@ -225,9 +226,9 @@ def conferma_elimina(utente_id):
 def elimina(utente_id):
     utente = db.get_or_404(Utente, utente_id)
     if utente.id == g.utente.id:
-        return _elenco("Non puoi eliminare te stesso", 400)
+        return _elenco(_("Non puoi eliminare te stesso"), 400)
     if utente.attivo and utente.ha_ruolo("admin") and _altri_admin_attivi(utente.id) == 0:
-        return _elenco("Deve restare almeno un admin attivo", 400)
+        return _elenco(_("Deve restare almeno un admin attivo"), 400)
     nome = utente.username
     if _ha_storico(utente.id):
         utente.eliminato = True
@@ -237,11 +238,11 @@ def elimina(utente_id):
         from .accessi import revoca_tutti
         revoca_tutti(utente.id)
         registra("utente_archiviato", g.utente.id, nome)
-        messaggio = f"{nome} eliminato dall'elenco: le sue operazioni restano nello storico"
+        messaggio = _("%(utente)s eliminato dall'elenco: le sue operazioni restano nello storico", utente=nome)
     else:
         registra("utente_eliminato", g.utente.id, nome)
         db.session.delete(utente)
-        messaggio = f"{nome} eliminato definitivamente"
+        messaggio = _("%(utente)s eliminato definitivamente", utente=nome)
     db.session.commit()
     flash(messaggio, "ok")
     return redirect(url_for(".elenco"))
@@ -259,22 +260,22 @@ def dispositivo(did, azione):
     utente = voce.utente
     if azione == "approva":
         if voce.stato != "in_attesa":
-            flash("Dispositivo gia' gestito", "errore")
+            flash(_("Dispositivo gia' gestito"), "errore")
             return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
         nome = (request.form.get("nome") or "").strip()
         if nome and not re.fullmatch(r"[\w .'()/-]{1,60}", nome):
-            flash("Nome del dispositivo non valido", "errore")
+            flash(_("Nome del dispositivo non valido"), "errore")
             return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
         voce.stato = "approvato"
         voce.nome = nome or None
         voce.approvato_da = g.utente.id
         voce.approvato_il = datetime.now(timezone.utc)
         registra("dispositivo_approvato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
-        messaggio = f"Dispositivo di {utente.username} approvato"
+        messaggio = _("Dispositivo di %(utente)s approvato", utente=utente.username)
     else:
         voce.stato = "revocato"
         registra("dispositivo_revocato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
-        messaggio = f"Dispositivo di {utente.username} revocato: e' bloccato per qualunque account"
+        messaggio = _("Dispositivo di %(utente)s revocato: e' bloccato per qualunque account", utente=utente.username)
     ancora_in_attesa = db.session.scalar(db.select(DispositivoAccesso.id).filter_by(
         utente_id=utente.id, stato="in_attesa").limit(1))
     if not ancora_in_attesa:

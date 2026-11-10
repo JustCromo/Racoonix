@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Catalogo - Racoonix{% endblock %}
+{% block titolo %}{{ _("Catalogo - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<div class="intestazione"><h1>Catalogo prodotti</h1><a class="pulsante" href="{{ url_for('prodotti.attesa') }}">Da approvare</a></div>
+<div class="intestazione"><h1>{{ _("Catalogo prodotti") }}</h1><a class="pulsante" href="{{ url_for('prodotti.attesa') }}">{{ _("Da approvare") }}</a></div>
 <form method="get" action="{{ url_for('anagrafica.catalogo') }}" class="riga"
       hx-get="{{ url_for('anagrafica.catalogo_risultati') }}" hx-trigger="submit" hx-target="#risultati">
-  <input name="q" value="{{ q }}" maxlength="100" placeholder="Nome, marca o codice" autocomplete="off"
+  <input name="q" value="{{ q }}" maxlength="100" placeholder="{{ _("Nome, marca o codice") }}" autocomplete="off"
          hx-get="{{ url_for('anagrafica.catalogo_risultati') }}" hx-trigger="input changed delay:300ms"
          hx-target="#risultati" hx-include="closest form">
   <select name="stato" hx-get="{{ url_for('anagrafica.catalogo_risultati') }}" hx-trigger="change"
           hx-target="#risultati" hx-include="closest form">
-    <option value="">Tutti gli stati</option>
-    {% for s, etichetta in [("attivo", "Attivi"), ("in_attesa", "In attesa"), ("rimosso", "Rimossi")] %}
+    <option value="">{{ _("Tutti gli stati") }}</option>
+    {% for s, etichetta in [("attivo", _("Attivi")), ("in_attesa", _("In attesa")), ("rimosso", _("Rimossi"))] %}
     <option value="{{ s }}" {% if s == stato %}selected{% endif %}>{{ etichetta }}</option>
     {% endfor %}
   </select>

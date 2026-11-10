@@ -7,12 +7,17 @@ VERDE=$'\e[32m'; GIALLO=$'\e[33m'; ROSSO=$'\e[31m'; GRASSETTO=$'\e[1m'; RESET=$'
 BACKUP_DIR="backup"
 BACKUP_DA_TENERE="${BACKUP_DA_TENERE:-14}"
 
+# Lingua dei messaggi: quella scelta all'installazione, altrimenti quella del sistema.
+LINGUA=$(grep -s '^RACOONIX_LINGUA=' .env | cut -d= -f2 || true)
+[[ -z "$LINGUA" ]] && { [[ "${LANG:-}" == en* ]] && LINGUA=en || LINGUA=it; }
+t() { if [[ "$LINGUA" == en ]]; then echo "$2"; else echo "$1"; fi; }
+
 ok()      { echo "${VERDE}✔${RESET} $*"; }
 info()    { echo "${GRASSETTO}›${RESET} $*"; }
 avviso()  { echo "${GIALLO}!${RESET} $*"; }
 errore()  { echo "${ROSSO}✘ $*${RESET}" >&2; exit 1; }
 chiedi()  { local r; read -rp "$1${2:+ [$2]}: " r; echo "${r:-${2:-}}"; }
-conferma(){ local r; read -rp "$1 [s/N]: " r; [[ "$r" =~ ^[sS]$ ]]; }
+conferma(){ local r; read -rp "$1 [$(t s/N y/N)]: " r; [[ "$r" =~ ^[sSyY]$ ]]; }
 dc()      { docker compose ${RACOONIX_PROGETTO:+-p "$RACOONIX_PROGETTO"} "$@"; }
 valida_ip() { [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; }
 
@@ -22,27 +27,39 @@ ip_locale() {
 }
 
 controlla_requisiti() {
-  command -v docker >/dev/null || errore "Docker non trovato. Su Ubuntu: sudo apt install docker.io docker-compose-v2"
-  docker compose version >/dev/null 2>&1 || errore "Manca Docker Compose v2. Su Ubuntu: sudo apt install docker-compose-v2"
-  docker info >/dev/null 2>&1 || errore "Docker non risponde: il servizio e' avviato? Il tuo utente e' nel gruppo docker?"
-  command -v openssl >/dev/null || errore "Manca openssl. Su Ubuntu: sudo apt install openssl"
-  ok "Requisiti presenti"
+  command -v docker >/dev/null || errore "$(t "Docker non trovato. Su Ubuntu: sudo apt install docker.io docker-compose-v2" "Docker not found. On Ubuntu: sudo apt install docker.io docker-compose-v2")"
+  docker compose version >/dev/null 2>&1 || errore "$(t "Manca Docker Compose v2. Su Ubuntu: sudo apt install docker-compose-v2" "Docker Compose v2 is missing. On Ubuntu: sudo apt install docker-compose-v2")"
+  docker info >/dev/null 2>&1 || errore "$(t "Docker non risponde: il servizio e' avviato? Il tuo utente e' nel gruppo docker?" "Docker isn't responding: is the service running? Is your user in the docker group?")"
+  command -v openssl >/dev/null || errore "$(t "Manca openssl. Su Ubuntu: sudo apt install openssl" "openssl is missing. On Ubuntu: sudo apt install openssl")"
+  ok "$(t "Requisiti presenti" "Requirements found")"
 }
 
 controlla_installato() {
-  [[ -s secrets/db_password && -f .env ]] || errore "Racoonix non e' installato qui. Usa: ./racoonix.sh installa"
+  [[ -f .env ]] || errore "$(t "Racoonix non e' installato qui. Usa: ./racoonix.sh installa" "Racoonix isn't installed here. Use: ./racoonix.sh install")"
+  # Installazioni precedenti: l'indirizzo si chiamava RACOONIX_SNI
+  if ! grep -q '^RACOONIX_IP=' .env && grep -q '^RACOONIX_SNI=' .env; then
+    echo "RACOONIX_IP=$(grep '^RACOONIX_SNI=' .env | cut -d= -f2)" >> .env
+  fi
+}
+
+# Installazioni precedenti: i segreti stavano nella cartella secrets/. Li copio nei volumi una volta sola
+# (lo script non sovrascrive mai un segreto gia' presente), cosi' il database esistente continua a funzionare.
+importa_segreti_vecchi() {
+  [[ -s secrets/db_password ]] || return 0
+  dc run --rm --no-deps --cap-add DAC_READ_SEARCH -v "$PWD/secrets:/vecchi:ro" segreti
+  avviso "$(t "Segreti importati nei volumi Docker: dopo aver controllato che tutto funzioni, puoi cancellare la cartella secrets/" "Secrets imported into Docker volumes: once you've checked everything works, you can delete the secrets/ folder")"
 }
 
 attendi_avvio() {
-  info "Attendo l'avvio di Racoonix..."
+  info "$(t "Attendo l'avvio di Racoonix..." "Waiting for Racoonix to start...")"
   for _ in $(seq 1 60); do
     if dc exec -T app python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)" >/dev/null 2>&1; then
-      ok "Racoonix e' attivo"
+      ok "$(t "Racoonix e' attivo" "Racoonix is running")"
       return 0
     fi
     sleep 2
   done
-  errore "Racoonix non risponde. Controlla i log con: ./racoonix.sh log"
+  errore "$(t "Racoonix non risponde. Controlla i log con: ./racoonix.sh log" "Racoonix isn't responding. Check the logs with: ./racoonix.sh logs")"
 }
 
 esporta_certificato() {
@@ -51,142 +68,41 @@ esporta_certificato() {
     sleep 1
   done
   if [[ ! -s racoonix-root.crt ]]; then
-    avviso "Certificato non ancora pronto: riprova tra poco con ./racoonix.sh certificato"
+    avviso "$(t "Certificato non ancora pronto: riprova tra poco con ./racoonix.sh certificato" "Certificate not ready yet: try again shortly with ./racoonix.sh certificate")"
     return 0
   fi
-  ok "Certificato esportato in racoonix-root.crt"
-  echo "  Impronta SHA-256 (confrontala sul dispositivo dopo l'installazione):"
+  ok "$(t "Certificato esportato in racoonix-root.crt" "Certificate exported to racoonix-root.crt")"
+  echo "  $(t "Impronta SHA-256 (confrontala sul dispositivo dopo l'installazione):" "SHA-256 fingerprint (compare it on the device after installing):")"
   echo "  $(openssl x509 -in racoonix-root.crt -noout -fingerprint -sha256 | cut -d= -f2)"
 }
 
-indirizzo() { grep '^RACOONIX_SNI=' .env | cut -d= -f2; }
+indirizzo() { grep '^RACOONIX_IP=' .env | cut -d= -f2; }
+nome_rete() { grep '^RACOONIX_NOME=' .env | cut -d= -f2; }
 
-# Annuncia il nome (es. racoonix.local) nella rete con mDNS, come fanno le stampanti di rete.
-# Non rinomina il computer: un piccolo servizio di sistema pubblica il nome con l'IP del server.
-configura_nome() {
-  local nome="$1" ip="$2"
-  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] && valida_ip "$ip" || { avviso "Nome o IP non validi"; return 1; }
-  if [[ "$nome" != *.local ]]; then
-    info "$nome non e' un nome .local: va registrato nel DNS del router, che deve puntare a $ip"
-    return 0
-  fi
-  command -v systemctl >/dev/null || { avviso "Serve systemd per annunciare $nome"; return 1; }
-  info "Annuncio $nome nella rete del negozio: servono i permessi di amministratore (sudo)"
-  if ! command -v avahi-publish >/dev/null; then
-    if command -v apt-get >/dev/null; then sudo apt-get install -y -qq avahi-daemon avahi-utils >/dev/null
-    elif command -v pacman >/dev/null; then sudo pacman -S --needed --noconfirm avahi >/dev/null
-    elif command -v dnf >/dev/null; then sudo dnf install -y -q avahi avahi-tools
-    else avviso "Installa avahi con il gestore pacchetti del sistema, poi: ./racoonix.sh nome"; return 1
-    fi
-  fi
-  sudo systemctl enable --now avahi-daemon >/dev/null 2>&1 || { avviso "avahi-daemon non si avvia"; return 1; }
-
-  if [[ "$(hostname)" == "${nome%.local}" ]]; then
-    # Il computer si chiama gia' cosi': avahi annuncia il nome da solo
-    sudo systemctl disable --now racoonix-nome >/dev/null 2>&1 || true
-  else
-    sudo tee /etc/systemd/system/racoonix-nome.service >/dev/null << UNIT
-[Unit]
-Description=Racoonix: annuncia ${nome} nella rete locale (mDNS)
-After=avahi-daemon.service network-online.target
-Requires=avahi-daemon.service
-Wants=network-online.target
-
-[Service]
-ExecStart=$(command -v avahi-publish) -a -R ${nome} ${ip}
-Restart=always
-RestartSec=10
-DynamicUser=yes
-NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-PrivateTmp=yes
-
-[Install]
-WantedBy=multi-user.target
-UNIT
-    sudo systemctl daemon-reload
-    sudo systemctl enable racoonix-nome >/dev/null 2>&1
-    sudo systemctl restart racoonix-nome
-  fi
-
-  # Se c'e' un firewall attivo, lascio passare mDNS (porta UDP 5353)
-  if command -v ufw >/dev/null && sudo ufw status 2>/dev/null | grep -q "Status: active"; then
-    sudo ufw allow 5353/udp comment "mDNS Racoonix" >/dev/null
-  elif command -v firewall-cmd >/dev/null && sudo firewall-cmd --state >/dev/null 2>&1; then
-    sudo firewall-cmd --permanent --add-service=mdns >/dev/null && sudo firewall-cmd --reload >/dev/null
-  fi
-
-  sleep 2
-  if [[ "$(hostname)" == "${nome%.local}" ]] || systemctl is-active --quiet racoonix-nome; then
-    ok "Racoonix e' raggiungibile anche come https://$nome"
-  else
-    avviso "Il nome non si e' attivato (forse e' gia' usato da un altro dispositivo). Controlla: systemctl status racoonix-nome"
-    return 1
-  fi
+mostra_link() {
+  dc run --rm --no-deps app python -m racoonix.configurazione
 }
 
+# L'installazione fa solo la parte tecnica, senza domande: lingua, paese, fuso orario, nome del negozio
+# e account admin si scelgono poi dal browser, con il link monouso che compare alla fine.
 installa() {
-  [[ -s secrets/db_password ]] && errore "Racoonix risulta gia' installato qui. Per aggiornarlo: ./racoonix.sh aggiorna"
+  [[ -f .env ]] && errore "$(t "Racoonix risulta gia' installato qui. Per aggiornarlo: ./racoonix.sh aggiorna" "Racoonix is already installed here. To update it: ./racoonix.sh update")"
   controlla_requisiti
-  echo; echo "${GRASSETTO}Installazione di Racoonix${RESET}"; echo
+  local ip="${1:-$(ip_locale)}" nome="${2:-racoonix.local}"
+  valida_ip "$ip" || errore "$(t "Non riesco a trovare l'IP di questo server. Indicalo tu: ./racoonix.sh installa 192.168.1.50" "Can't detect this server's IP. Give it yourself: ./racoonix.sh install 192.168.1.50")"
+  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "$(t "Nome non valido, per esempio racoonix.local" "Invalid name, for example racoonix.local")"
+  echo; echo "${GRASSETTO}$(t "Installazione di Racoonix" "Installing Racoonix")${RESET}"; echo
+  info "$(t "Indirizzo del server:" "Server address:") $ip  ·  $(t "nome:" "name:") $nome"
 
-  local negozio ip admin_ip reti suggerito nome
-  negozio=$(chiedi "Nome del negozio" "Il mio negozio")
-  [[ "$negozio" =~ ^[[:alnum:][:space:]\'.,\&-]{2,60}$ ]] || errore "Nome non valido: 2-60 caratteri tra lettere, numeri, spazi e . , ' & -"
-  ip=$(chiedi "IP di questo server nella rete del negozio" "$(ip_locale)")
-  valida_ip "$ip" || errore "IP non valido"
-  suggerito="${SSH_CLIENT:-}"; suggerito="${suggerito%% *}"
-  [[ -z "$suggerito" ]] && suggerito="$ip"
-  info "L'area admin sara' raggiungibile solo dal computer dell'amministratore."
-  admin_ip=$(chiedi "IP del computer dell'amministratore" "$suggerito")
-  nome=$(chiedi "Nome di Racoonix nella rete del negozio" "racoonix.local")
-  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "Nome non valido: lettere minuscole, numeri e trattini, per esempio racoonix.local"
-  valida_ip "$admin_ip" || errore "IP non valido"
-  reti="$admin_ip/32"
-  # Se l'admin usa il browser sul server stesso, le richieste arrivano dalla rete interna di Docker.
-  [[ "$admin_ip" == "$ip" ]] && reti="$reti,172.16.0.0/12"
-
-  mkdir -p secrets && chmod 700 secrets
-  openssl rand -base64 32 | tr -d '\n' > secrets/db_password
-  openssl rand -hex 32 | tr -d '\n' > secrets/flask_secret
-  openssl rand -hex 32 | tr -d '\n' > secrets/db_app_password
-  : > secrets/admin_credentials
-  chmod 644 secrets/*
-  ok "Segreti generati (password del database e chiavi interne)"
-
-  cat > .env << EOF
-MARKET_NAME=$negozio
-RACOONIX_HOST=localhost, $ip, $nome
-RACOONIX_SNI=$ip
-RACOONIX_NOME=$nome
-ADMIN_IP_CONSENTITI=$reti
-EOF
+  printf 'RACOONIX_IP=%s\nRACOONIX_NOME=%s\n' "$ip" "$nome" > .env
   chmod 600 .env
-  ok "Configurazione salvata in .env"
-  configura_nome "$nome" "$ip" || avviso "Racoonix resta raggiungibile dall'IP. Per riprovare con il nome: ./racoonix.sh nome"
-
-  info "Preparo l'applicazione (la prima volta puo' richiedere qualche minuto)..."
-  dc build app
-  echo; info "Scegli le credenziali dell'amministratore:"
-  until dc run --rm --no-deps -v ./secrets:/out app python -m racoonix.crea_admin; do
-    avviso "Riprova."
-  done
-
+  info "$(t "Preparo l'applicazione (la prima volta puo' richiedere qualche minuto)..." "Preparing the application (the first time can take a few minutes)...")"
+  dc build
+  importa_segreti_vecchi
   dc up -d
   attendi_avvio
-  : > secrets/admin_credentials
-  ok "Impronta della password admin rimossa dal disco: non serve piu'"
   esporta_certificato
-
-  echo
-  echo "${GRASSETTO}Racoonix e' pronto.${RESET}"
-  echo "  Apri:          https://$ip"
-  echo "  Da questo PC:  https://localhost"
-  echo
-  echo "  Prima di aprirlo dagli altri dispositivi, installa su ognuno il certificato racoonix-root.crt"
-  echo "  come 'certificato CA', e controlla che l'impronta coincida con quella mostrata sopra."
-  echo "  Backup automatici ogni notte: ./racoonix.sh backup-automatico"
+  mostra_link
 }
 
 backup() {
@@ -195,31 +111,32 @@ backup() {
   local file="$BACKUP_DIR/racoonix-$(date +%Y%m%d-%H%M%S).dump"
   if ! dc exec -T db pg_dump -U racoonix -d racoonix --format=custom > "$file" || [[ ! -s "$file" ]]; then
     rm -f "$file"
-    errore "Backup non riuscito"
+    errore "$(t "Backup non riuscito" "Backup failed")"
   fi
   chmod 600 "$file"
-  ok "Backup salvato: $file ($(du -h "$file" | cut -f1))"
+  ok "$(t "Backup salvato:" "Backup saved:") $file ($(du -h "$file" | cut -f1))"
   ls -1t "$BACKUP_DIR"/racoonix-*.dump | tail -n +$((BACKUP_DA_TENERE + 1)) | xargs -r rm -f
 }
 
 backup_automatico() {
   controlla_installato
-  command -v crontab >/dev/null || errore "crontab non disponibile su questo sistema"
+  command -v crontab >/dev/null || errore "$(t "crontab non disponibile su questo sistema" "crontab isn't available on this system")"
   local riga="30 2 * * * cd '$(pwd)' && ./racoonix.sh backup >> $BACKUP_DIR/backup.log 2>&1"
   { { crontab -l 2>/dev/null || true; } | grep -v "racoonix.sh backup" || true; echo "$riga"; } | crontab -
-  ok "Backup automatico ogni notte alle 02:30 (vengono tenuti gli ultimi $BACKUP_DA_TENERE)"
+  ok "$(t "Backup automatico ogni notte alle 02:30 (vengono tenuti gli ultimi $BACKUP_DA_TENERE)" "Automatic backup every night at 02:30 (the last $BACKUP_DA_TENERE are kept)")"
 }
 
 ripristina() {
   controlla_installato
   local file="${1:-}" copia r
-  [[ -f "$file" ]] || errore "Indica il file da ripristinare, es.: ./racoonix.sh ripristina backup/racoonix-20261109-023000.dump"
-  avviso "Il database attuale verra' SOSTITUITO con: $file"
-  read -rp "Scrivi RIPRISTINA per confermare: " r
-  [[ "$r" == "RIPRISTINA" ]] || errore "Annullato: nessuna modifica"
+  [[ -f "$file" ]] || errore "$(t "Indica il file da ripristinare, es.: ./racoonix.sh ripristina backup/racoonix-20261109-023000.dump" "Give the file to restore, e.g.: ./racoonix.sh restore backup/racoonix-20261109-023000.dump")"
+  avviso "$(t "Il database attuale verra' SOSTITUITO con:" "The current database will be REPLACED with:") $file"
+  local parola; parola=$(t RIPRISTINA RESTORE)
+  read -rp "$(t "Scrivi RIPRISTINA per confermare:" "Type RESTORE to confirm:") " r
+  [[ "$r" == "$parola" ]] || errore "$(t "Annullato: nessuna modifica" "Cancelled: nothing changed")"
   copia=$(mktemp)
   cp "$file" "$copia"
-  info "Prima salvo lo stato attuale, per sicurezza"
+  info "$(t "Prima salvo lo stato attuale, per sicurezza" "First, saving the current state, to be safe")"
   backup
   dc stop app scheduler
   dc exec -T db dropdb -U racoonix --if-exists racoonix
@@ -228,40 +145,70 @@ ripristina() {
   rm -f "$copia"
   dc up -d
   attendi_avvio
-  ok "Ripristino completato"
+  ok "$(t "Ripristino completato" "Restore complete")"
 }
 
 aggiorna() {
   controlla_installato
-  info "Backup di sicurezza prima dell'aggiornamento"
+  info "$(t "Backup di sicurezza prima dell'aggiornamento" "Safety backup before updating")"
   backup
   if [[ -d .git ]]; then
-    git diff --quiet && git diff --cached --quiet || errore "Ci sono modifiche locali al codice: salvale o annullale prima di aggiornare"
+    git diff --quiet && git diff --cached --quiet || errore "$(t "Ci sono modifiche locali al codice: salvale o annullale prima di aggiornare" "There are local code changes: commit or discard them before updating")"
     git pull --ff-only
   fi
-  info "Scarico le immagini aggiornate (correzioni di sicurezza di Caddy e PostgreSQL)"
+  info "$(t "Scarico le immagini aggiornate (correzioni di sicurezza di Caddy e PostgreSQL)" "Downloading updated images (Caddy and PostgreSQL security fixes)")"
   dc pull db caddy
   dc build --pull
+  importa_segreti_vecchi
   dc up -d
   attendi_avvio
-  ok "Aggiornato: le modifiche al database sono state applicate in automatico"
+  ok "$(t "Aggiornato: le modifiche al database sono state applicate in automatico" "Updated: database changes were applied automatically")"
+  if systemctl is-enabled racoonix-nome >/dev/null 2>&1; then
+    avviso "$(t "Il nome in rete ora lo annuncia un container: rimuovi il vecchio servizio con" "The network name is now announced by a container: remove the old service with"): sudo systemctl disable --now racoonix-nome && sudo rm /etc/systemd/system/racoonix-nome.service"
+  fi
 }
 
 stato() {
   controlla_installato
   dc ps
   echo
-  info "Indirizzo: https://$(indirizzo)"
+  info "$(t "Indirizzo:" "Address:") https://$(indirizzo)"
   local versione
   versione=$(dc exec -T app flask --app racoonix:create_app db current 2>/dev/null | tail -1 || true)
-  info "Versione del database: ${versione:-non disponibile}"
+  info "$(t "Versione del database:" "Database version:") ${versione:-$(t "non disponibile" "not available")}"
+}
+
+cambia_nome() {
+  local nome="$1"
+  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "$(t "Indica il nuovo nome, per esempio: ./racoonix.sh nome negozio.local" "Give the new name, for example: ./racoonix.sh name shop.local")"
+  sed -i '/^RACOONIX_NOME=/d' .env && echo "RACOONIX_NOME=$nome" >> .env
+  dc up -d --force-recreate caddy app mdns
+  ok "$(t "Ora Racoonix e' raggiungibile anche come" "Racoonix can now also be reached at") https://$nome"
 }
 
 aiuto() {
-  cat << EOF
+  if [[ "$LINGUA" == en ]]; then
+    cat << EOF
+${GRASSETTO}Racoonix${RESET} - management
+
+  ./racoonix.sh install [IP]         install (then set it up from the browser)
+  ./racoonix.sh link                 show the setup link again
+  ./racoonix.sh start | stop         start or stop Racoonix
+  ./racoonix.sh status               running services, address and database version
+  ./racoonix.sh logs [service]       live logs (default: app)
+  ./racoonix.sh update               backup, download the new version and apply it
+  ./racoonix.sh backup               database backup in $BACKUP_DIR/
+  ./racoonix.sh auto-backup          backup every night at 02:30
+  ./racoonix.sh restore FILE         restore a backup (asks for confirmation)
+  ./racoonix.sh certificate          export the certificate for devices
+  ./racoonix.sh name NAME            change the network name (default: racoonix.local)
+EOF
+  else
+    cat << EOF
 ${GRASSETTO}Racoonix${RESET} - gestione
 
-  ./racoonix.sh installa             prima installazione guidata
+  ./racoonix.sh installa [IP]        installa (poi si configura dal browser)
+  ./racoonix.sh link                 mostra di nuovo il link della configurazione
   ./racoonix.sh avvia | ferma        avvia o ferma Racoonix
   ./racoonix.sh stato                servizi attivi, indirizzo e versione del database
   ./racoonix.sh log [servizio]       log in tempo reale (predefinito: app)
@@ -270,22 +217,24 @@ ${GRASSETTO}Racoonix${RESET} - gestione
   ./racoonix.sh backup-automatico    backup ogni notte alle 02:30
   ./racoonix.sh ripristina FILE      ripristina un backup (chiede conferma)
   ./racoonix.sh certificato          esporta il certificato per i dispositivi
-  ./racoonix.sh nome                 annuncia di nuovo il nome (es. racoonix.local) nella rete
+  ./racoonix.sh nome NOME            cambia il nome in rete (predefinito: racoonix.local)
 EOF
+  fi
 }
 
 case "${1:-aiuto}" in
-  installa)          installa ;;
-  avvia)             controlla_installato; dc up -d; attendi_avvio; info "Indirizzo: https://$(indirizzo)" ;;
-  ferma)             controlla_installato; dc stop; ok "Racoonix fermato" ;;
-  stato)             stato ;;
-  log)               dc logs -f --tail 100 "${2:-app}" ;;
-  aggiorna)          aggiorna ;;
-  backup)            backup ;;
-  backup-automatico) backup_automatico ;;
-  ripristina)        ripristina "${2:-}" ;;
-  certificato)       controlla_installato; esporta_certificato ;;
-  nome)              controlla_installato; configura_nome "$(grep '^RACOONIX_NOME=' .env | cut -d= -f2)" "$(indirizzo)" ;;
-  aiuto|-h|--help)   aiuto ;;
-  *)                 aiuto; exit 1 ;;
+  installa|install)                 installa "${2:-}" "${3:-}" ;;
+  avvia|start)                      controlla_installato; importa_segreti_vecchi; dc up -d; attendi_avvio; info "$(t "Indirizzo:" "Address:") https://$(indirizzo)" ;;
+  ferma|stop)                       controlla_installato; dc stop; ok "$(t "Racoonix fermato" "Racoonix stopped")" ;;
+  stato|status)                     stato ;;
+  log|logs)                         dc logs -f --tail 100 "${2:-app}" ;;
+  aggiorna|update)                  aggiorna ;;
+  backup)                           backup ;;
+  backup-automatico|auto-backup)    backup_automatico ;;
+  ripristina|restore)               ripristina "${2:-}" ;;
+  certificato|certificate)          controlla_installato; esporta_certificato ;;
+  nome|name)                        controlla_installato; cambia_nome "${2:-}" ;;
+  link)                             controlla_installato; mostra_link ;;
+  aiuto|help|-h|--help)             aiuto ;;
+  *)                                aiuto; exit 1 ;;
 esac

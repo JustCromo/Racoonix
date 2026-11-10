@@ -5,6 +5,7 @@ from pathlib import Path
 
 from . import create_app, db
 from .codici import gtin_valido, piva_valida
+from .lingua import testo_negozio
 from .models import Categoria, CodiceAggiuntivo, Fornitore, Prodotto, Sottocategoria
 
 
@@ -42,9 +43,9 @@ def main(percorso):
             unita, prezzo = voce.get("unita"), voce.get("prezzo_centesimi")
             pezzi = voce.get("formato_pezzi") or 1
             quantita, unita_formato = voce.get("formato_quantita"), voce.get("formato_unita")
-            categoria = db.session.scalar(db.select(Categoria).filter_by(nome=voce.get("categoria")))
+            categoria = db.session.scalar(db.select(Categoria).filter_by(nome=testo_negozio(voce.get("categoria") or "")))
             sotto = db.session.scalar(db.select(Sottocategoria).filter_by(
-                categoria_id=categoria.id, nome=voce.get("sottocategoria"))) if categoria else None
+                categoria_id=categoria.id, nome=testo_negozio(voce.get("sottocategoria") or ""))) if categoria else None
             valido = (
                 (not gtin or gtin_valido(gtin)) and unita in ("pezzo", "kg")
                 and isinstance(prezzo, int) and prezzo >= 0

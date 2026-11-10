@@ -1,9 +1,9 @@
 {% if not righe %}
-<p class="sotto spazio">Nessuna attivita' con questi filtri.</p>
+<p class="sotto spazio">{{ _("Nessuna attivita' con questi filtri.") }}</p>
 {% else %}
 <div class="tabella-wrap spazio">
   <table>
-    <tr><th>Quando</th><th>Cosa</th><th>Chi</th><th>Dettaglio</th><th>Da dove</th></tr>
+    <tr><th>{{ _("Quando") }}</th><th>{{ _("Cosa") }}</th><th>{{ _("Chi") }}</th><th>{{ _("Dettaglio") }}</th><th>{{ _("Da dove") }}</th></tr>
     {% for r in righe %}
     <tr>
       <td>{{ r.voce.data_ora|data_ora }}</td>
@@ -18,11 +18,11 @@
 <div class="azioni">
   {% if pagina > 0 %}
   <button type="button" class="piccolo secondario" hx-get="{{ url_for('registro.risultati') }}" hx-include="#filtri-registro"
-          hx-vals='{"pagina": "{{ pagina - 1 }}"}' hx-target="#registro">&larr; Piu' recenti</button>
+          hx-vals='{"pagina": "{{ pagina - 1 }}"}' hx-target="#registro">{{ _("← Piu' recenti") }}</button>
   {% endif %}
   {% if altre %}
   <button type="button" class="piccolo secondario" hx-get="{{ url_for('registro.risultati') }}" hx-include="#filtri-registro"
-          hx-vals='{"pagina": "{{ pagina + 1 }}"}' hx-target="#registro">Meno recenti &rarr;</button>
+          hx-vals='{"pagina": "{{ pagina + 1 }}"}' hx-target="#registro">{{ _("Meno recenti →") }}</button>
   {% endif %}
 </div>
 {% endif %}

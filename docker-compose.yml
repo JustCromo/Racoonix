@@ -5,7 +5,23 @@ x-indurito: &indurito
   security_opt: ["no-new-privileges:true"]
   cap_drop: [ALL]
 
+# I segreti nascono al primo avvio dentro volumi Docker: ogni servizio monta solo quelli che gli servono.
+x-segreti-app: &segreti-app segreti_app:/run/secrets/app:ro
+
 services:
+  segreti:
+    image: racoonix-app:latest
+    pull_policy: never
+    restart: "no"
+    <<: *indurito
+    user: "0:0"
+    read_only: true
+    command: ["python", "-m", "racoonix.segreti"]
+    volumes:
+      - segreti_db:/segreti/db
+      - segreti_app:/segreti/app
+    network_mode: none
+
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -13,10 +29,13 @@ services:
     environment:
       POSTGRES_DB: racoonix
       POSTGRES_USER: racoonix
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    secrets: [db_password]
+      POSTGRES_PASSWORD_FILE: /run/secrets/db/db_password
     volumes:
       - db_data:/var/lib/postgresql/data
+      - segreti_db:/run/secrets/db:ro
+    depends_on:
+      segreti:
+        condition: service_completed_successfully
     networks: [backend]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U racoonix -d racoonix"]
@@ -33,10 +52,16 @@ services:
     tmpfs: [/tmp]
     command: ["python", "-m", "racoonix.bootstrap"]
     environment:
-      MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
       RACOONIX_DB_RUOLO: proprietario
-      TZ: Europe/Rome
-    secrets: [db_password, db_app_password, flask_secret, admin_credentials]
+      # Solo per le installazioni precedenti: al primo avvio le loro impostazioni passano nel database
+      MARKET_NAME: ${MARKET_NAME:-}
+      RACOONIX_LINGUA: ${RACOONIX_LINGUA:-}
+      RACOONIX_PAESE: ${RACOONIX_PAESE:-}
+      RACOONIX_FUSO: ${RACOONIX_FUSO:-}
+      ADMIN_IP_CONSENTITI: ${ADMIN_IP_CONSENTITI:-}
+    volumes:
+      - segreti_db:/run/secrets/db:ro
+      - *segreti-app
     depends_on:
       db:
         condition: service_healthy
@@ -50,12 +75,11 @@ services:
     read_only: true
     tmpfs: [/tmp]
     environment:
-      MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
-      ADMIN_IP_CONSENTITI: ${ADMIN_IP_CONSENTITI:-127.0.0.1/32}
-      RACOONIX_INDIRIZZO: ${RACOONIX_SNI:-localhost}
+      RACOONIX_IP: ${RACOONIX_IP:-localhost}
+      RACOONIX_INDIRIZZO: ${RACOONIX_IP:-localhost}
       RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
-      TZ: Europe/Rome
-    secrets: [db_app_password, flask_secret]
+    volumes:
+      - *segreti-app
     depends_on:
       migrazioni:
         condition: service_completed_successfully
@@ -69,10 +93,8 @@ services:
     read_only: true
     tmpfs: [/tmp]
     command: ["python", "-m", "racoonix.scheduler"]
-    environment:
-      MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
-      TZ: Europe/Rome
-    secrets: [db_app_password, flask_secret]
+    volumes:
+      - *segreti-app
     depends_on:
       app:
         condition: service_started
@@ -86,8 +108,8 @@ services:
     cap_add: [NET_BIND_SERVICE]
     ports: ["80:80", "443:443"]
     environment:
-      RACOONIX_HOST: ${RACOONIX_HOST:-localhost}
-      RACOONIX_SNI: ${RACOONIX_SNI:-localhost}
+      RACOONIX_HOST: "localhost, ${RACOONIX_IP:-localhost}, ${RACOONIX_NOME:-racoonix.local}"
+      RACOONIX_SNI: ${RACOONIX_IP:-localhost}
       RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
@@ -95,6 +117,18 @@ services:
       - caddy_config:/config
     depends_on: [app]
     networks: [frontend]
+
+  # Annuncia racoonix.local nella rete: deve vedere la rete del server, ma non ha altri permessi.
+  mdns:
+    build: ./mdns
+    image: racoonix-mdns:latest
+    restart: unless-stopped
+    <<: *indurito
+    read_only: true
+    network_mode: host
+    environment:
+      RACOONIX_IP: ${RACOONIX_IP:-}
+      RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
 
 networks:
   backend:
@@ -105,13 +139,5 @@ volumes:
   db_data:
   caddy_data:
   caddy_config:
-
-secrets:
-  db_password:
-    file: ./secrets/db_password
-  flask_secret:
-    file: ./secrets/flask_secret
-  db_app_password:
-    file: ./secrets/db_app_password
-  admin_credentials:
-    file: ./secrets/admin_credentials
+  segreti_db:
+  segreti_app:

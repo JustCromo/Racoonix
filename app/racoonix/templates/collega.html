@@ -1,54 +1,54 @@
 {% extends "base.html" %}
 {% block classe_main %}largo{% endblock %}
-{% block titolo %}Collega un dispositivo - Racoonix{% endblock %}
+{% block titolo %}{{ _("Collega un dispositivo - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Collega un telefono o un PC</h1>
-<p class="sotto">Da fare una volta sola per ogni telefono, tablet o computer, collegato alla stessa rete Wi-Fi del negozio.</p>
+<h1>{{ _("Collega un telefono o un PC") }}</h1>
+<p class="sotto">{{ _("Da fare una volta sola per ogni telefono, tablet o computer, collegato alla stessa rete Wi-Fi del negozio.") }}</p>
 
 <div class="due-colonne spazio">
   <section class="scheda">
-    <h2>1. Scarica e installa il certificato</h2>
+    <h2>{{ _("1. Scarica e installa il certificato") }}</h2>
     <div class="qr">{{ qr_certificato }}</div>
     <p class="sotto centrato">{{ url_certificato }}</p>
-    <p>Il certificato permette al telefono di riconoscere Racoonix e proteggere i dati con la crittografia.</p>
+    <p>{{ _("Il certificato permette al telefono di riconoscere Racoonix e proteggere i dati con la crittografia.") }}</p>
     <details class="spazio">
       <summary>Android</summary>
       <ol>
-        <li>Inquadra il QR: il file <strong>racoonix-ca.crt</strong> viene scaricato.</li>
-        <li>Impostazioni → <em>Sicurezza</em> → <em>Crittografia e credenziali</em> (o <em>Altre impostazioni di sicurezza</em>) → <em>Installa un certificato</em> → <strong>Certificato CA</strong> → conferma l'installazione.</li>
-        <li>Scegli il file dalla cartella Download.</li>
+        <li>{{ _("Inquadra il QR: il file") }} <strong>racoonix-ca.crt</strong> {{ _("viene scaricato.") }}</li>
+        <li>{{ _("Impostazioni →") }} <em>{{ _("Sicurezza") }}</em> → <em>{{ _("Crittografia e credenziali") }}</em> (o <em>{{ _("Altre impostazioni di sicurezza") }}</em>) → <em>{{ _("Installa un certificato") }}</em> → <strong>{{ _("Certificato CA") }}</strong> {{ _("→ conferma l'installazione.") }}</li>
+        <li>{{ _("Scegli il file dalla cartella Download.") }}</li>
       </ol>
-      <p class="sotto">Se non trovi la voce, cerca "certificato" nelle Impostazioni. Serve un blocco schermo (PIN o impronta).</p>
+      <p class="sotto">{{ _("Se non trovi la voce, cerca \"certificato\" nelle Impostazioni. Serve un blocco schermo (PIN o impronta).") }}</p>
     </details>
     <details class="spazio">
       <summary>iPhone</summary>
       <ol>
-        <li>Inquadra il QR con la fotocamera e consenti il download del profilo.</li>
-        <li>Impostazioni → Profilo scaricato → <strong>Installa</strong>.</li>
-        <li>Impostazioni → Generali → Info → Impostazioni attendibilita' certificati → attiva il certificato.</li>
+        <li>{{ _("Inquadra il QR con la fotocamera e consenti il download del profilo.") }}</li>
+        <li>{{ _("Impostazioni → Profilo scaricato →") }} <strong>{{ _("Installa") }}</strong>.</li>
+        <li>{{ _("Impostazioni → Generali → Info → Impostazioni attendibilita' certificati → attiva il certificato.") }}</li>
       </ol>
     </details>
     <details class="spazio">
-      <summary>Computer (Windows, Mac, Linux)</summary>
-      <p>Apri sul computer l'indirizzo sotto il QR per scaricare il certificato, poi:</p>
+      <summary>{{ _("Computer (Windows, Mac, Linux)") }}</summary>
+      <p>{{ _("Apri sul computer l'indirizzo sotto il QR per scaricare il certificato, poi:") }}</p>
       <ul>
-        <li><strong>Windows</strong>: doppio clic sul file → Installa certificato → Utente corrente → "Colloca tutti i certificati nel seguente archivio" → <strong>Autorita' di certificazione radice attendibili</strong> → Fine.</li>
-        <li><strong>Mac</strong>: doppio clic sul file → si apre Accesso Portachiavi → doppio clic sul certificato → Fidati → <strong>Fidati sempre</strong>.</li>
-        <li><strong>Linux</strong>: <code>sudo trust anchor racoonix-ca.crt</code> (Arch, Fedora) oppure copialo in <code>/usr/local/share/ca-certificates/</code> e lancia <code>sudo update-ca-certificates</code> (Ubuntu, Debian).</li>
+        <li><strong>Windows</strong>{{ _(": doppio clic sul file → Installa certificato → Utente corrente → \"Colloca tutti i certificati nel seguente archivio\" →") }} <strong>{{ _("Autorita' di certificazione radice attendibili") }}</strong> {{ _("→ Fine.") }}</li>
+        <li><strong>Mac</strong>{{ _(": doppio clic sul file → si apre Accesso Portachiavi → doppio clic sul certificato → Fidati →") }} <strong>{{ _("Fidati sempre") }}</strong>.</li>
+        <li><strong>Linux</strong>: <code>sudo trust anchor racoonix-ca.crt</code> {{ _("(Arch, Fedora) oppure copialo in") }} <code>/usr/local/share/ca-certificates/</code> {{ _("e lancia") }} <code>sudo update-ca-certificates</code> {{ _("(Ubuntu, Debian).") }}</li>
       </ul>
-      <p class="sotto">Firefox puo' usare un archivio suo: se mostra ancora l'avviso, importalo da Impostazioni → Privacy e sicurezza → Certificati → Mostra certificati → Autorita' → Importa.</p>
+      <p class="sotto">{{ _("Firefox puo' usare un archivio suo: se mostra ancora l'avviso, importalo da Impostazioni → Privacy e sicurezza → Certificati → Mostra certificati → Autorita' → Importa.") }}</p>
     </details>
   </section>
 
   <section class="scheda">
-    <h2>2. Verifica e apri Racoonix</h2>
-    <p>Prima di usarlo, confronta l'<strong>impronta SHA-256</strong> del certificato installato (nei dettagli del certificato, sul telefono) con questa:</p>
-    {% if impronta %}<pre>{{ impronta }}</pre>{% else %}<p class="errore">Impronta non disponibile: riprova tra poco.</p>{% endif %}
-    <p class="sotto">Se coincide, il certificato e' quello vero. Se e' diversa, <strong>non usarlo</strong>: qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal telefono e avvisa chi gestisce il server.</p>
+    <h2>{{ _("2. Verifica e apri Racoonix") }}</h2>
+    <p>{{ _("Prima di usarlo, confronta l'") }}<strong>{{ _("impronta SHA-256") }}</strong> {{ _("del certificato installato (nei dettagli del certificato, sul telefono) con questa:") }}</p>
+    {% if impronta %}<pre>{{ impronta }}</pre>{% else %}<p class="errore">{{ _("Impronta non disponibile: riprova tra poco.") }}</p>{% endif %}
+    <p class="sotto">{{ _("Se coincide, il certificato e' quello vero. Se e' diversa,") }} <strong>{{ _("non usarlo") }}</strong>{{ _(": qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal telefono e avvisa chi gestisce il server.") }}</p>
     <div class="qr spazio">{{ qr_app }}</div>
     <p class="sotto centrato">{{ url_app }}</p>
-    {% if url_app_ip != url_app %}<p class="sotto centrato">Se su un dispositivo il nome non funziona: {{ url_app_ip }}</p>{% endif %}
-    <p>Inquadra il secondo QR: Racoonix deve aprirsi <strong>senza nessun avviso di sicurezza</strong>.</p>
+    {% if url_app_ip != url_app %}<p class="sotto centrato">{{ _("Se su un dispositivo il nome non funziona:") }} {{ url_app_ip }}</p>{% endif %}
+    <p>{{ _("Inquadra il secondo QR: Racoonix deve aprirsi") }} <strong>{{ _("senza nessun avviso di sicurezza") }}</strong>.</p>
   </section>
 </div>
 {% endblock %}

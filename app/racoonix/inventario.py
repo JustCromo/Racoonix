@@ -15,6 +15,7 @@ from .prodotti import _chiudi_notifiche
 from .notifiche import _apri, controlla_scaffali
 from .riordini import apri_riordino, riordino_aperto
 from .sconti import applica_programmati, crea_sconto, sconto_attivo, togli_sconto
+from .lingua import _, force_locale, lingua_negozio
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
 ID_OK = re.compile(r"^[0-9]{1,9}$")
@@ -140,10 +141,10 @@ def rifornisci(prodotto_id):
     q, categoria_id = _filtri(request.form)
     prodotto = db.get_or_404(Prodotto, prodotto_id)
     if prodotto.stato != "attivo":
-        return _risposta(prodotto, "Prodotto non ancora approvato", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Prodotto non ancora approvato"), "errore", q, categoria_id)
     quantita = leggi_quantita(request.form.get("quantita"), prodotto.unita)
     if not quantita:
-        return _risposta(prodotto, "Quantita' non valida", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Quantita' non valida"), "errore", q, categoria_id)
 
     oggi = date.today()
     lotti = db.session.scalars(
@@ -154,7 +155,7 @@ def rifornisci(prodotto_id):
         .with_for_update()).all()
     disponibile = sum(l.qta_magazzino for l in lotti)
     if quantita > disponibile:
-        return _risposta(prodotto, f"In magazzino ci sono solo {mostra_quantita(disponibile, prodotto.unita)}",
+        return _risposta(prodotto, _("In magazzino ci sono solo %(quantita)s", quantita=mostra_quantita(disponibile, prodotto.unita)),
                          "errore", q, categoria_id)
 
     restante = quantita
@@ -170,7 +171,7 @@ def rifornisci(prodotto_id):
     registra("rifornimento", g.utente.id, f"prodotto {prodotto.id}, quantita {quantita}")
     db.session.commit()
     controlla_scaffali([prodotto.id])
-    return _risposta(prodotto, f"Spostati sullo scaffale: {mostra_quantita(quantita, prodotto.unita)}",
+    return _risposta(prodotto, _("Spostati sullo scaffale: %(quantita)s", quantita=mostra_quantita(quantita, prodotto.unita)),
                      "ok", q, categoria_id)
 
 
@@ -192,20 +193,20 @@ def sconta(lotto_id):
         togli_sconto(lotto)
         registra("sconto_tolto", g.utente.id, f"lotto {lotto.id}")
         db.session.commit()
-        return _risposta(prodotto, "Sconto tolto", "ok", q, categoria_id)
+        return _risposta(prodotto, _("Sconto tolto"), "ok", q, categoria_id)
 
     perc = _intero(request.form.get("perc"), 1, 90)
     totale = lotto.qta_esposta + lotto.qta_magazzino
     testo_q = (request.form.get("quantita") or "").strip()
     quantita = leggi_quantita(testo_q, prodotto.unita) if testo_q else totale
     if lotto.data_scadenza is None or lotto.data_scadenza <= date.today():
-        return _risposta(prodotto, "Si possono scontare solo lotti con scadenza futura", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Si possono scontare solo lotti con scadenza futura"), "errore", q, categoria_id)
     if perc is None or not quantita or quantita > totale:
-        return _risposta(prodotto, "Percentuale (1-90) o quantita' non valida", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Percentuale (1-90) o quantita' non valida"), "errore", q, categoria_id)
     crea_sconto(lotto, perc, quantita, "manuale", g.utente.id)
     registra("sconto_manuale", g.utente.id, f"lotto {lotto.id}, {perc}%, quantita {quantita}")
     db.session.commit()
-    return _risposta(prodotto, f"Sconto -{perc}% registrato: il dipendente ricevera' l'avviso del bollino",
+    return _risposta(prodotto, _("Sconto -%(perc)s%% registrato: il dipendente ricevera' l'avviso del bollino", perc=perc),
                      "ok", q, categoria_id)
 
 
@@ -220,23 +221,23 @@ def programma(prodotto_id):
         prodotto.sconto2_giorni = prodotto.sconto2_perc = None
         registra("programmazione_rimossa", g.utente.id, f"prodotto {prodotto.id}")
         db.session.commit()
-        return _risposta(prodotto, "Programmazione rimossa", "ok", q, categoria_id)
+        return _risposta(prodotto, _("Programmazione rimossa"), "ok", q, categoria_id)
 
     g1, p1 = _intero(f.get("g1"), 1, 60), _intero(f.get("p1"), 1, 90)
     testo_g2, testo_p2 = (f.get("g2") or "").strip(), (f.get("p2") or "").strip()
     g2 = _intero(testo_g2, 0, 60) if testo_g2 else None
     p2 = _intero(testo_p2, 1, 90) if testo_p2 else None
     if g1 is None or p1 is None:
-        return _risposta(prodotto, "Prima fascia non valida (giorni 1-60, sconto 1-90%)", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Prima fascia non valida (giorni 1-60, sconto 1-90%)"), "errore", q, categoria_id)
     if (testo_g2 or testo_p2) and (g2 is None or p2 is None or g2 >= g1 or p2 <= p1):
-        return _risposta(prodotto, "Seconda fascia: meno giorni e sconto piu' alto della prima", "errore",
+        return _risposta(prodotto, _("Seconda fascia: meno giorni e sconto piu' alto della prima"), "errore",
                          q, categoria_id)
     prodotto.sconto1_giorni, prodotto.sconto1_perc = g1, p1
     prodotto.sconto2_giorni, prodotto.sconto2_perc = g2, p2
     registra("programmazione_sconto", g.utente.id, f"prodotto {prodotto.id}: {g1}gg {p1}%, {g2}gg {p2}%")
     db.session.commit()
     applica_programmati()
-    return _risposta(prodotto, "Sconto programmato", "ok", q, categoria_id)
+    return _risposta(prodotto, _("Sconto programmato"), "ok", q, categoria_id)
 
 
 @bp.post("/<int:prodotto_id>/conteggio")
@@ -253,7 +254,7 @@ def conteggio(prodotto_id):
         testo = (request.form.get(f"mag_{lotto.id}") or "").strip()
         valore = leggi_quantita(testo, prodotto.unita) if testo else lotto.qta_magazzino
         if valore is None:
-            return _risposta(prodotto, "Quantita' non valida", "errore", q, categoria_id)
+            return _risposta(prodotto, _("Quantita' non valida"), "errore", q, categoria_id)
         nuovi[lotto.id] = valore
 
     differenza, dettagli = 0, []
@@ -265,12 +266,12 @@ def conteggio(prodotto_id):
     prodotto.ultima_conta_il = adesso()
     if not dettagli:
         db.session.commit()
-        return _risposta(prodotto, "Nessuna differenza: tutto torna", "ok", q, categoria_id)
+        return _risposta(prodotto, _("Nessuna differenza: tutto torna"), "ok", q, categoria_id)
     registra("rettifica", g.utente.id, f"conteggio magazzino prodotto {prodotto.id}; " + "; ".join(dettagli))
     db.session.commit()
     controlla_scaffali([prodotto.id])
     segno = "+" if differenza > 0 else "−"
-    return _risposta(prodotto, f"Conteggio salvato: differenza {segno}{mostra_quantita(abs(differenza), prodotto.unita)}",
+    return _risposta(prodotto, _("Conteggio salvato: differenza %(differenza)s", differenza=segno + mostra_quantita(abs(differenza), prodotto.unita)),
                      "ok", q, categoria_id)
 
 
@@ -281,24 +282,26 @@ def finendo(prodotto_id):
     q, categoria_id = _filtri(request.form)
     prodotto = db.get_or_404(Prodotto, prodotto_id)
     if prodotto.stato != "attivo":
-        return _risposta(prodotto, "Prodotto non ancora approvato", "errore", q, categoria_id)
+        return _risposta(prodotto, _("Prodotto non ancora approvato"), "errore", q, categoria_id)
     oggi = date.today()
     lotti = sorted((l for l in prodotto.lotti if l.qta_magazzino > 0 and _vendibile(l, oggi)),
                    key=lambda l: (l.data_scadenza is None, l.data_scadenza or oggi, l.data_carico))
     magazzino = sum(l.qta_magazzino for l in lotti)
     if magazzino > 0:
         primo = lotti[0]
-        scade = f" (scade il {data_it(primo.data_scadenza)})" if primo.data_scadenza else ""
-        _apri("riempi", prodotto.id, "magazziniere",
-              f"Segnalato da {g.utente.username}: sullo scaffale sta finendo. In magazzino: "
-              f"{mostra_quantita(magazzino, prodotto.unita)}, metti davanti il lotto {primo.codice_lotto}{scade}")
-        messaggio = "Segnalato: chi sta in magazzino ricevera' il compito di riempire lo scaffale"
+        with force_locale(lingua_negozio()):
+            scade = _(" (scade il %(data)s)", data=data_it(primo.data_scadenza)) if primo.data_scadenza else ""
+            nota = _("Segnalato da %(utente)s: sullo scaffale sta finendo. In magazzino: %(quantita)s, "
+                     "metti davanti il lotto %(lotto)s%(scade)s", utente=g.utente.username,
+                     quantita=mostra_quantita(magazzino, prodotto.unita), lotto=primo.codice_lotto, scade=scade)
+        _apri("riempi", prodotto.id, "magazziniere", nota)
+        messaggio = _("Segnalato: chi sta in magazzino ricevera' il compito di riempire lo scaffale")
     elif prodotto.in_esaurimento:
-        messaggio = "Magazzino vuoto, ma il prodotto e' in esaurimento: non verra' riordinato"
+        messaggio = _("Magazzino vuoto, ma il prodotto e' in esaurimento: non verra' riordinato")
     elif apri_riordino(prodotto, "segnalazione", g.utente.id):
-        messaggio = "Magazzino vuoto: aggiunto alla lista d'ordine"
+        messaggio = _("Magazzino vuoto: aggiunto alla lista d'ordine")
     else:
-        messaggio = "Magazzino vuoto: e' gia' nella lista d'ordine"
+        messaggio = _("Magazzino vuoto: e' gia' nella lista d'ordine")
     registra("segnalazione_mancanza", g.utente.id, f"prodotto {prodotto.id}, magazzino {magazzino}")
     db.session.commit()
     return _risposta(prodotto, messaggio, "ok", q, categoria_id)

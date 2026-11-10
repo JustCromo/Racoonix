@@ -1,0 +1,2290 @@
+# Translations template for Racoonix.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the Racoonix project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Racoonix 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-11-10 15:09+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#, python-format
+msgid " (scade il %(data)s)"
+msgstr ""
+
+#, python-format
+msgid "%% su"
+msgstr ""
+
+#, python-format
+msgid "%(categoria)s: la seconda fascia deve avere meno giorni della prima"
+msgstr ""
+
+#, python-format
+msgid "%(categoria)s: valori non validi"
+msgstr ""
+
+#, python-format
+msgid "%(num)s dispositivo revocato: resta bloccato per qualunque account."
+msgid_plural "%(num)s dispositivi revocati: restano bloccati per qualunque account."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(quantita)s dal magazzino (lotto %(lotto)s)"
+msgstr ""
+
+#, python-format
+msgid "%(quantita)s in magazzino (lotto %(lotto)s)"
+msgstr ""
+
+#, python-format
+msgid "%(utente)s chiede di accedere da %(dispositivo)s"
+msgstr ""
+
+#, python-format
+msgid "%(utente)s eliminato dall'elenco: le sue operazioni restano nello storico"
+msgstr ""
+
+#, python-format
+msgid "%(utente)s eliminato definitivamente"
+msgstr ""
+
+#, python-format
+msgid "%(utente)s ha chiesto di reimpostare la password"
+msgstr ""
+
+msgid "(Arch, Fedora) oppure copialo in"
+msgstr ""
+
+msgid "(Ubuntu, Debian)."
+msgstr ""
+
+msgid "(contato il"
+msgstr ""
+
+msgid "(eliminato)"
+msgstr ""
+
+msgid "(facoltativa)"
+msgstr ""
+
+msgid "(off)"
+msgstr ""
+
+msgid "(preferibilmente entro)"
+msgstr ""
+
+msgid "(scade il"
+msgstr ""
+
+msgid "(tu)"
+msgstr ""
+
+msgid "(ultimo alle"
+msgstr ""
+
+msgid "(vuoto = tutto)"
+msgstr ""
+
+msgid "+ Aggiungi fornitore"
+msgstr ""
+
+msgid ", poi -"
+msgstr ""
+
+msgid "- Racoonix"
+msgstr ""
+
+#, python-format
+msgid ". Attenzione: browser gia' registrato da %(utenti)s"
+msgstr ""
+
+msgid "1. Scarica e installa il certificato"
+msgstr ""
+
+msgid "2. Verifica e apri Racoonix"
+msgstr ""
+
+msgid ""
+": doppio clic sul file → Installa certificato → Utente corrente → "
+"\"Colloca tutti i certificati nel seguente archivio\" →"
+msgstr ""
+
+msgid ""
+": doppio clic sul file → si apre Accesso Portachiavi → doppio clic sul "
+"certificato → Fidati →"
+msgstr ""
+
+msgid ""
+": qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal "
+"telefono e avvisa chi gestisce il server."
+msgstr ""
+
+msgid "Accedi"
+msgstr ""
+
+msgid "Accedi - Racoonix"
+msgstr ""
+
+msgid "Accessi falliti"
+msgstr ""
+
+msgid "Accesso non consentito"
+msgstr ""
+
+msgid "Accesso non riuscito"
+msgstr ""
+
+msgid ""
+"Accesso non riuscito. Se e' il primo accesso da questo dispositivo, "
+"potrebbe servire l'approvazione dell'amministratore."
+msgstr ""
+
+msgid "Accesso riuscito"
+msgstr ""
+
+msgid "Accesso tentato durante il blocco dell'account"
+msgstr ""
+
+msgid "Account bloccati"
+msgstr ""
+
+msgid "Account bloccato per troppi tentativi"
+msgstr ""
+
+msgid "Acqua"
+msgstr ""
+
+msgid "Admin da dispositivi non autorizzati"
+msgstr ""
+
+msgid "Admin da un dispositivo non autorizzato"
+msgstr ""
+
+msgid "Aggiungi"
+msgstr ""
+
+msgid "Aggiungi fornitore"
+msgstr ""
+
+msgid "Aggiungi i fornitori"
+msgstr ""
+
+msgid "Al primo accesso devi scegliere una nuova password."
+msgstr ""
+
+msgid ""
+"Almeno 12 caratteri. Una frase che ricordi facilmente e' piu' sicura di "
+"una parola complicata."
+msgstr ""
+
+msgid "Altre impostazioni di sicurezza"
+msgstr ""
+
+msgid ""
+"Altri codici che identificano lo stesso prodotto, per esempio una nuova "
+"confezione."
+msgstr ""
+
+msgid "Anagrafica"
+msgstr ""
+
+msgid "Annulla"
+msgstr ""
+
+msgid "Annulla ordine"
+msgstr ""
+
+msgid "Aperta il"
+msgstr ""
+
+#, python-format
+msgid ""
+"Applica il bollino -%(perc)s%% su %(quantita)s (lotto %(lotto)s, scade il"
+" %(data)s)"
+msgstr ""
+
+msgid "Applica sconto"
+msgstr ""
+
+msgid "Approva"
+msgstr ""
+
+msgid "Apri come email"
+msgstr ""
+
+msgid ""
+"Apri sul computer l'indirizzo sotto il QR per scaricare il certificato, "
+"poi:"
+msgstr ""
+
+#, python-format
+msgid "Arrivato da %(giorni)s giorni: controlla %(dove)s"
+msgstr ""
+
+msgid "Attiva"
+msgstr ""
+
+msgid "Attiva i backup notturni"
+msgstr ""
+
+msgid "Attivi"
+msgstr ""
+
+msgid "Attivita' recenti"
+msgstr ""
+
+msgid "Autorita' di certificazione radice attendibili"
+msgstr ""
+
+msgid "Avanti"
+msgstr ""
+
+msgid "Avviso scadenza (giorni prima)"
+msgstr ""
+
+msgid "Backup notturni confermati"
+msgstr ""
+
+msgid "Benvenuto in Racoonix"
+msgstr ""
+
+msgid "Bevande"
+msgstr ""
+
+msgid "Bibite"
+msgstr ""
+
+msgid "Biscotti"
+msgstr ""
+
+msgid "Bloccati"
+msgstr ""
+
+msgid "Bollini da applicare"
+msgstr ""
+
+msgid "Bollino applicato"
+msgstr ""
+
+msgid "Bollino sconto applicato"
+msgstr ""
+
+msgid "Bovino"
+msgstr ""
+
+msgid "Buon pomeriggio"
+msgstr ""
+
+msgid "Buonasera"
+msgstr ""
+
+msgid "Buongiorno"
+msgstr ""
+
+#, python-format
+msgid "Buongiorno %(fornitore)s, ecco il nostro ordine:"
+msgstr ""
+
+msgid "Buongiorno, ecco il nostro ordine:"
+msgstr ""
+
+msgid "Butta"
+msgstr ""
+
+msgid "Cambia password"
+msgstr ""
+
+msgid "Cambia password - Racoonix"
+msgstr ""
+
+msgid "Cambia tema"
+msgstr ""
+
+msgid "Carica"
+msgstr ""
+
+msgid "Carica la prima merce"
+msgstr ""
+
+msgid "Carico"
+msgstr ""
+
+msgid "Carico - Racoonix"
+msgstr ""
+
+msgid "Carico merce"
+msgstr ""
+
+msgid "Carico merce - Racoonix"
+msgstr ""
+
+msgid "Carico scaduto, rileggi il codice"
+msgstr ""
+
+msgid "Carne"
+msgstr ""
+
+msgid "Casa e igiene"
+msgstr ""
+
+msgid "Catalogo"
+msgstr ""
+
+msgid "Catalogo - Racoonix"
+msgstr ""
+
+msgid "Catalogo prodotti"
+msgstr ""
+
+msgid "Categoria"
+msgstr ""
+
+msgid "Categoria aggiunta"
+msgstr ""
+
+msgid "Categoria gia' esistente"
+msgstr ""
+
+msgid "Categoria modificata"
+msgstr ""
+
+msgid "Categoria non valida"
+msgstr ""
+
+msgid "Categorie"
+msgstr ""
+
+msgid "Categorie - Racoonix"
+msgstr ""
+
+msgid "Cerca"
+msgstr ""
+
+msgid "Cerca nel dettaglio o per IP"
+msgstr ""
+
+msgid "Cerca per nome, partita IVA, telefono o email"
+msgstr ""
+
+msgid "Cerca per username"
+msgstr ""
+
+msgid "Certificato CA"
+msgstr ""
+
+msgid "Certificato e primo accesso dei dipendenti."
+msgstr ""
+
+msgid "Chi"
+msgstr ""
+
+msgid "Chiudi avviso"
+msgstr ""
+
+msgid "Chiusa il"
+msgstr ""
+
+msgid "Classificazione"
+msgstr ""
+
+msgid "Codice aggiunto"
+msgstr ""
+
+#, python-format
+msgid "Codice aggiunto a %(prodotto)s, merce spostata"
+msgstr ""
+
+msgid "Codice articolo a peso (5 cifre, facoltativo)"
+msgstr ""
+
+msgid "Codice bilancia gia' usato da un altro prodotto"
+msgstr ""
+
+msgid "Codice bilancia: servono 5 cifre"
+msgstr ""
+
+msgid "Codice di configurazione errato o scaduto"
+msgstr ""
+
+msgid "Codice non riconosciuto"
+msgstr ""
+
+msgid "Codice rimosso"
+msgstr ""
+
+msgid "Codice unito a un prodotto esistente"
+msgstr ""
+
+msgid "Codice:"
+msgstr ""
+
+msgid "Codici EAN aggiuntivi"
+msgstr ""
+
+msgid "Collega dispositivi"
+msgstr ""
+
+msgid "Collega i telefoni"
+msgstr ""
+
+msgid "Collega un dispositivo - Racoonix"
+msgstr ""
+
+msgid "Collega un telefono o un PC"
+msgstr ""
+
+msgid "Completa la configurazione"
+msgstr ""
+
+msgid "Computer (Windows, Mac, Linux)"
+msgstr ""
+
+msgid "Computer dell'amministratore"
+msgstr ""
+
+msgid "Con il lettore o la fotocamera: lotti e scadenze partono da qui."
+msgstr ""
+
+msgid "Con password temporanea"
+msgstr ""
+
+msgid "Conferma"
+msgstr ""
+
+msgid "Configurazione completata: entra con il tuo account."
+msgstr ""
+
+msgid "Configurazione iniziale"
+msgstr ""
+
+msgid "Configurazione iniziale completata"
+msgstr ""
+
+msgid "Conserve"
+msgstr ""
+
+msgid "Conta il magazzino"
+msgstr ""
+
+#, python-format
+msgid "Conteggio salvato: differenza %(differenza)s"
+msgstr ""
+
+msgid "Controlla freschezza"
+msgstr ""
+
+msgid "Controllo freschezza (giorni)"
+msgstr ""
+
+msgid "Copia"
+msgstr ""
+
+msgid "Copiato"
+msgstr ""
+
+msgid "Correzione quantita'"
+msgstr ""
+
+msgid "Cosa"
+msgstr ""
+
+msgid "Cose da fare"
+msgstr ""
+
+msgid "Cose da fare - Racoonix"
+msgstr ""
+
+msgid "Crea gli account dei dipendenti"
+msgstr ""
+
+msgid "Crea utente"
+msgstr ""
+
+msgid "Creato il"
+msgstr ""
+
+msgid "Crittografia e credenziali"
+msgstr ""
+
+msgid "Da approvare"
+msgstr ""
+
+msgid "Da dove"
+msgstr ""
+
+msgid ""
+"Da fare una volta sola per ogni telefono, tablet o computer, collegato "
+"alla stessa rete Wi-Fi del negozio."
+msgstr ""
+
+msgid "Da ordinare"
+msgstr ""
+
+msgid "Da ordinare ai fornitori"
+msgstr ""
+
+msgid "Da rimuovere"
+msgstr ""
+
+msgid "Dal"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Dashboard - Racoonix"
+msgstr ""
+
+msgid "Data di scadenza non plausibile"
+msgstr ""
+
+msgid "Data di scadenza non valida"
+msgstr ""
+
+msgid "Dati non validi: controlla nome, categoria e prezzo"
+msgstr ""
+
+msgid "Decide la valuta e il formato delle date."
+msgstr ""
+
+msgid "Descrizione (facoltativa)"
+msgstr ""
+
+msgid "Descrizione non valida"
+msgstr ""
+
+msgid "Deteriorati"
+msgstr ""
+
+msgid "Detersivi"
+msgstr ""
+
+msgid "Dettaglio"
+msgstr ""
+
+msgid "Deve restare almeno un admin attivo"
+msgstr ""
+
+msgid "Dipendenti: scaffali"
+msgstr ""
+
+msgid "Disattiva"
+msgstr ""
+
+msgid "Disattivati"
+msgstr ""
+
+msgid "Dispositivi ("
+msgstr ""
+
+msgid "Dispositivi da approvare"
+msgstr ""
+
+msgid "Dispositivo approvato"
+msgstr ""
+
+#, python-format
+msgid "Dispositivo di %(utente)s approvato"
+msgstr ""
+
+#, python-format
+msgid "Dispositivo di %(utente)s revocato: e' bloccato per qualunque account"
+msgstr ""
+
+msgid "Dispositivo gia' gestito"
+msgstr ""
+
+msgid "Dispositivo revocato"
+msgstr ""
+
+msgid "Dolci"
+msgstr ""
+
+msgid "EAN aggiuntivo aggiunto"
+msgstr ""
+
+msgid "EAN aggiuntivo rimosso"
+msgstr ""
+
+msgid "Edicola"
+msgstr ""
+
+msgid "Editoriale"
+msgstr ""
+
+msgid "Elimina"
+msgstr ""
+
+msgid "Elimina utente - Racoonix"
+msgstr ""
+
+msgid "Eliminare"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Email non valida"
+msgstr ""
+
+msgid "Errore interno"
+msgstr ""
+
+msgid "Esci"
+msgstr ""
+
+msgid "Esempio: 6 pezzi da 1500 ml diventa \"6 × 1,5 l\"."
+msgstr ""
+
+msgid "Esiste gia' un fornitore con questa ragione sociale"
+msgstr ""
+
+msgid "Esporta CSV"
+msgstr ""
+
+msgid ""
+"Etichetta di una bilancia del negozio: per i prodotti a peso scegli il "
+"prodotto dall'elenco qui sotto"
+msgstr ""
+
+msgid "Fatto"
+msgstr ""
+
+msgid "Ferma fotocamera"
+msgstr ""
+
+msgid "Fidati sempre"
+msgstr ""
+
+msgid "Figurine e carte"
+msgstr ""
+
+msgid "Finiti"
+msgstr ""
+
+msgid ""
+"Firefox puo' usare un archivio suo: se mostra ancora l'avviso, importalo "
+"da Impostazioni → Privacy e sicurezza → Certificati → Mostra certificati "
+"→ Autorita' → Importa."
+msgstr ""
+
+msgid "Formaggi"
+msgstr ""
+
+msgid "Formaggi freschi"
+msgstr ""
+
+msgid "Formato non valido: servono quantita' e unita'"
+msgstr ""
+
+msgid "Fornitore"
+msgstr ""
+
+msgid "Fornitore aggiunto"
+msgstr ""
+
+#, python-format
+msgid "Fornitore aggiunto: %(nome)s"
+msgstr ""
+
+msgid "Fornitore attivo"
+msgstr ""
+
+msgid "Fornitore modificato"
+msgstr ""
+
+msgid "Fornitore non valido"
+msgstr ""
+
+msgid "Fornitore salvato"
+msgstr ""
+
+msgid "Fornitori"
+msgstr ""
+
+msgid "Fornitori - Racoonix"
+msgstr ""
+
+msgid "Forno"
+msgstr ""
+
+msgid "Fotocamera non disponibile"
+msgstr ""
+
+msgid "Freschezza controllata"
+msgstr ""
+
+msgid "Freschezza da controllare"
+msgstr ""
+
+msgid "Frutta"
+msgstr ""
+
+msgid "Fuso orario"
+msgstr ""
+
+msgid "Fuso orario non valido: sceglilo dall'elenco"
+msgstr ""
+
+msgid "Genera password temporanea"
+msgstr ""
+
+msgid "Gestita da"
+msgstr ""
+
+msgid "Gia' gestita da qualcun altro"
+msgstr ""
+
+msgid "Giorni d'ordine"
+msgstr ""
+
+msgid "Giorni di preavviso non validi (0-60)"
+msgstr ""
+
+msgid "Giorni in cui si ordina"
+msgstr ""
+
+msgid "Giorni non indicati: impostali in Modifica."
+msgstr ""
+
+#, python-format
+msgid "Grazie, %(negozio)s"
+msgstr ""
+
+msgid "Guida ai primi passi mostrata"
+msgstr ""
+
+msgid "Guida ai primi passi nascosta"
+msgstr ""
+
+msgid "Identita'"
+msgstr ""
+
+msgid "Igiene personale"
+msgstr ""
+
+msgid "Ignora"
+msgstr ""
+
+msgid ""
+"Il certificato permette al telefono di riconoscere Racoonix e proteggere "
+"i dati con la crittografia."
+msgstr ""
+
+#, python-format
+msgid "Il computer che stai usando (%(ip)s) deve restare tra quelli autorizzati"
+msgstr ""
+
+msgid "Il computer dell'amministratore"
+msgstr ""
+
+msgid "Il mio negozio"
+msgstr ""
+
+msgid "Il negozio"
+msgstr ""
+
+msgid "Il tuo account"
+msgstr ""
+
+msgid ""
+"Il tuo account non ha ancora un ruolo: chiedi all'amministratore di "
+"assegnartene uno."
+msgstr ""
+
+msgid "Impostazioni"
+msgstr ""
+
+msgid "Impostazioni del negozio"
+msgstr ""
+
+msgid "Impostazioni del negozio modificate"
+msgstr ""
+
+msgid "Impostazioni salvate"
+msgstr ""
+
+msgid "Impostazioni →"
+msgstr ""
+
+msgid ""
+"Impostazioni → Generali → Info → Impostazioni attendibilita' certificati "
+"→ attiva il certificato."
+msgstr ""
+
+msgid "Impostazioni → Profilo scaricato →"
+msgstr ""
+
+msgid "Impronta non disponibile: riprova tra poco."
+msgstr ""
+
+msgid "In arrivo"
+msgstr ""
+
+msgid "In attesa"
+msgstr ""
+
+msgid "In esaurimento: non riordinare piu'"
+msgstr ""
+
+msgid "In magazzino"
+msgstr ""
+
+msgid "In magazzino ("
+msgstr ""
+
+#, python-format
+msgid "In magazzino ci sono solo %(quantita)s"
+msgstr ""
+
+msgid "In magazzino:"
+msgstr ""
+
+msgid "In scadenza"
+msgstr ""
+
+msgid "In scadenza entro 3 giorni"
+msgstr ""
+
+msgid "In scadenza entro 7 giorni"
+msgstr ""
+
+msgid "Indirizzi coinvolti"
+msgstr ""
+
+#, python-format
+msgid ""
+"Indirizzi da cui funzionano le funzioni del titolare, separati da "
+"virgole. Il computer che stai usando ha l'indirizzo %(ip)s e deve restare"
+" tra questi."
+msgstr ""
+
+msgid "Indirizzi dell'amministratore non validi"
+msgstr ""
+
+msgid "Indirizzo IP"
+msgstr ""
+
+msgid "Indirizzo del computer dell'amministratore non valido"
+msgstr ""
+
+msgid "Inquadra il QR con la fotocamera e consenti il download del profilo."
+msgstr ""
+
+msgid "Inquadra il QR: il file"
+msgstr ""
+
+msgid "Inquadra il secondo QR: Racoonix deve aprirsi"
+msgstr ""
+
+msgid "Inserisci almeno una quantita'"
+msgstr ""
+
+msgid "Installa"
+msgstr ""
+
+msgid "Installa un certificato"
+msgstr ""
+
+msgid "Inventario"
+msgstr ""
+
+msgid "Inventario - Racoonix"
+msgstr ""
+
+msgid "Invia richiesta"
+msgstr ""
+
+msgid "Italia"
+msgstr ""
+
+msgid "Kg da buttare"
+msgstr ""
+
+msgid "Kg da spostare sullo scaffale"
+msgstr ""
+
+msgid "Kg tolti"
+msgstr ""
+
+msgid "L'operazione non si puo' annullare e viene registrata nel log di audit."
+msgstr ""
+
+msgid ""
+"La lingua dei testi condivisi (notifiche, ordini, categorie). Ogni "
+"persona puo' comunque scegliere la sua."
+msgstr ""
+
+msgid ""
+"La lista nasce dalle segnalazioni \"Sta finendo\" e dalle soglie di "
+"magazzino. Quando la merce arriva con il carico, il prodotto esce da qui "
+"da solo."
+msgstr ""
+
+#, python-format
+msgid "La nuova password deve avere almeno %(numero)s caratteri"
+msgstr ""
+
+msgid "La nuova password deve essere diversa dalla attuale"
+msgstr ""
+
+#, python-format
+msgid "La password deve avere almeno %(numero)s caratteri"
+msgstr ""
+
+msgid "La password temporanea la genera il sistema."
+msgstr ""
+
+msgid ""
+"La ragione sociale e' il nome ufficiale dell'azienda, con la forma "
+"giuridica (Srl, Spa, Snc...)."
+msgstr ""
+
+msgid "La sottocategoria deve appartenere alla categoria scelta"
+msgstr ""
+
+msgid "Latte"
+msgstr ""
+
+msgid "Latticini"
+msgstr ""
+
+msgid "Le due password non coincidono"
+msgstr ""
+
+msgid ""
+"Le funzioni del titolare funzioneranno solo da questo computer. Di solito"
+" e' quello che stai usando adesso, gia' inserito qui sotto."
+msgstr ""
+
+msgid ""
+"Le funzioni di amministrazione non sono disponibili da questo "
+"dispositivo: usa il computer autorizzato."
+msgstr ""
+
+msgid "Leggi o scrivi il codice"
+msgstr ""
+
+msgid "Legumi"
+msgstr ""
+
+msgid "Lingua del negozio"
+msgstr ""
+
+msgid "Lotti in scadenza"
+msgstr ""
+
+msgid "Lotti in scadenza nei prossimi 14 giorni"
+msgstr ""
+
+msgid "Lotti monitorati"
+msgstr ""
+
+msgid "Lotto"
+msgstr ""
+
+msgid "Lotto (facoltativo)"
+msgstr ""
+
+msgid "Lotto dal codice:"
+msgstr ""
+
+msgid "Lotto non valido"
+msgstr ""
+
+msgid "Magazzinieri: magazzino"
+msgstr ""
+
+msgid "Magazzino"
+msgstr ""
+
+msgid "Magazzino e scadenze"
+msgstr ""
+
+msgid "Magazzino sotto soglia"
+msgstr ""
+
+msgid "Magazzino vuoto, ma il prodotto e' in esaurimento: non verra' riordinato"
+msgstr ""
+
+msgid "Magazzino vuoto: aggiunto alla lista d'ordine"
+msgstr ""
+
+msgid "Magazzino vuoto: e' gia' nella lista d'ordine"
+msgstr ""
+
+msgid "Marca"
+msgstr ""
+
+msgid "Marca non valida"
+msgstr ""
+
+msgid "Meno recenti →"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Menu principale"
+msgstr ""
+
+msgid "Merce in magazzino"
+msgstr ""
+
+msgid "Merendine"
+msgstr ""
+
+msgid "Messi subito sullo scaffale ("
+msgstr ""
+
+msgid "Modifica"
+msgstr ""
+
+msgid "Mostra di nuovo la guida ai primi passi"
+msgstr ""
+
+msgid "Mostra password"
+msgstr ""
+
+msgid "Mostro solo i prodotti"
+msgstr ""
+
+msgid "Motivo"
+msgstr ""
+
+msgid "Nascondi la guida"
+msgstr ""
+
+msgid "Nascondi password"
+msgstr ""
+
+msgid "Negozio"
+msgstr ""
+
+msgid "Nessun codice aggiuntivo."
+msgstr ""
+
+msgid "Nessun fornitore"
+msgstr ""
+
+msgid "Nessun fornitore trovato."
+msgstr ""
+
+msgid "Nessun prodotto in attesa."
+msgstr ""
+
+msgid "Nessun prodotto in scadenza."
+msgstr ""
+
+msgid "Nessun prodotto trovato."
+msgstr ""
+
+msgid "Nessun utente trovato."
+msgstr ""
+
+msgid "Nessuna attivita' con questi filtri."
+msgstr ""
+
+msgid "Nessuna attivita' registrata."
+msgstr ""
+
+msgid "Nessuna attivita' sospetta: nessun indirizzo ha superato"
+msgstr ""
+
+msgid "Nessuna differenza: tutto torna"
+msgstr ""
+
+msgid "Nessuna giacenza."
+msgstr ""
+
+msgid "Nessuno scarto nel periodo."
+msgstr ""
+
+msgid "Niente da ordinare"
+msgstr ""
+
+msgid "Nome"
+msgstr ""
+
+msgid "Nome (es. Telefono di Mario)"
+msgstr ""
+
+msgid "Nome categoria non valido"
+msgstr ""
+
+msgid "Nome del dispositivo non valido"
+msgstr ""
+
+msgid "Nome del negozio"
+msgstr ""
+
+msgid "Nome del negozio non valido (2-60 caratteri)"
+msgstr ""
+
+msgid "Nome non valido"
+msgstr ""
+
+msgid "Nome sottocategoria non valido"
+msgstr ""
+
+msgid "Nome, marca o codice"
+msgstr ""
+
+msgid "Non ce n'erano"
+msgstr ""
+
+msgid "Non conformi"
+msgstr ""
+
+msgid "Non puoi disattivare te stesso"
+msgstr ""
+
+msgid "Non puoi eliminare te stesso"
+msgstr ""
+
+msgid "Non puoi togliere il ruolo admin a te stesso"
+msgstr ""
+
+msgid "Non riordinare piu'"
+msgstr ""
+
+msgid "Non riuscito"
+msgstr ""
+
+msgid "Numero di pezzi non valido (1-99)"
+msgstr ""
+
+msgid "Nuova categoria"
+msgstr ""
+
+msgid "Nuova password"
+msgstr ""
+
+msgid "Nuova sottocategoria"
+msgstr ""
+
+msgid "Nuovo dispositivo"
+msgstr ""
+
+msgid "Nuovo fornitore"
+msgstr ""
+
+msgid "Nuovo fornitore - Racoonix"
+msgstr ""
+
+msgid "Nuovo utente"
+msgstr ""
+
+msgid "Nuovo utente - Racoonix"
+msgstr ""
+
+msgid "Oggi"
+msgstr ""
+
+#, python-format
+msgid "Oggi ordina a %(fornitore)s"
+msgstr ""
+
+msgid "Oggi,"
+msgstr ""
+
+msgid "Ogni giorno"
+msgstr ""
+
+msgid "Ogni utente deve avere almeno un ruolo"
+msgstr ""
+
+msgid "Ognuno con i suoi ruoli: dipendente, magazziniere o entrambi."
+msgstr ""
+
+msgid "Operazioni"
+msgstr ""
+
+msgid "Oppure e' un altro codice di un prodotto gia' in catalogo:"
+msgstr ""
+
+msgid "Ordinato il"
+msgstr ""
+
+#, python-format
+msgid "Ordine %(negozio)s"
+msgstr ""
+
+msgid "Ordine segnato come inviato"
+msgstr ""
+
+msgid "Ordini"
+msgstr ""
+
+msgid "Ordini - Racoonix"
+msgstr ""
+
+msgid "Ordini ai fornitori"
+msgstr ""
+
+msgid "Ortofrutta"
+msgstr ""
+
+msgid "Paese del negozio"
+msgstr ""
+
+msgid "Pagina non trovata"
+msgstr ""
+
+msgid "Pane"
+msgstr ""
+
+msgid "Partita IVA"
+msgstr ""
+
+msgid "Partita IVA gia' presente"
+msgstr ""
+
+msgid "Partita IVA non valida (11 cifre con cifra di controllo corretta)"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Password attuale"
+msgstr ""
+
+msgid "Password attuale errata"
+msgstr ""
+
+msgid "Password cambiata"
+msgstr ""
+
+msgid "Password dimenticata"
+msgstr ""
+
+msgid "Password dimenticata - Racoonix"
+msgstr ""
+
+msgid "Password dimenticata?"
+msgstr ""
+
+msgid "Password temporanea"
+msgstr ""
+
+msgid "Password temporanea - Racoonix"
+msgstr ""
+
+msgid "Password temporanea generata"
+msgstr ""
+
+msgid "Pasta"
+msgstr ""
+
+msgid "Pasta fresca"
+msgstr ""
+
+msgid "Pasta secca"
+msgstr ""
+
+msgid "Per te"
+msgstr ""
+
+msgid "Per te stesso usa 'Cambia password'"
+msgstr ""
+
+msgid "Percentuale (1-90) o quantita' non valida"
+msgstr ""
+
+msgid "Perche'"
+msgstr ""
+
+msgid "Pesce surgelato"
+msgstr ""
+
+msgid "Pezzi da buttare"
+msgstr ""
+
+msgid "Pezzi da spostare sullo scaffale"
+msgstr ""
+
+msgid "Pezzi per confezione"
+msgstr ""
+
+msgid "Pezzi tolti"
+msgstr ""
+
+msgid ""
+"Pochi passi e il tuo negozio e' pronto. Potrai cambiare tutto anche dopo,"
+" da Impostazioni."
+msgstr ""
+
+msgid "Pollame"
+msgstr ""
+
+msgid "Pomodoro"
+msgstr ""
+
+msgid "Possibile attacco a forza bruta:"
+msgstr ""
+
+msgid "Presa visione"
+msgstr ""
+
+msgid "Prezzo"
+msgstr ""
+
+msgid "Prezzo al kg"
+msgstr ""
+
+msgid "Prezzo al pezzo"
+msgstr ""
+
+#, python-format
+msgid "Prezzo di vendita (%(unita)s)"
+msgstr ""
+
+msgid "Prezzo non valido (esempio: 2,49)"
+msgstr ""
+
+msgid "Prezzo per unita' di misura:"
+msgstr ""
+
+msgid "Prima di usarlo, confronta l'"
+msgstr ""
+
+msgid "Prima fascia non valida (giorni 1-60, sconto 1-90%)"
+msgstr ""
+
+msgid "Primi passi con Racoonix"
+msgstr ""
+
+msgid "Primo amministratore creato"
+msgstr ""
+
+msgid "Prodotti da approvare"
+msgstr ""
+
+msgid "Prodotti da approvare - Racoonix"
+msgstr ""
+
+msgid "Prodotti da forno"
+msgstr ""
+
+msgid "Prodotti e prezzi"
+msgstr ""
+
+msgid "Prodotti piu' buttati"
+msgstr ""
+
+msgid "Prodotti senza codice"
+msgstr ""
+
+msgid "Prodotto"
+msgstr ""
+
+msgid "Prodotto approvato"
+msgstr ""
+
+msgid "Prodotto gia' gestito"
+msgstr ""
+
+msgid "Prodotto gia' scaduto: non si puo' caricare"
+msgstr ""
+
+msgid "Prodotto in attesa di approvazione: puoi caricarlo solo in magazzino."
+msgstr ""
+
+msgid "Prodotto in esaurimento: non verra' piu' riordinato"
+msgstr ""
+
+msgid "Prodotto messo in esaurimento"
+msgstr ""
+
+msgid "Prodotto non ammesso: contatta l'admin"
+msgstr ""
+
+msgid "Prodotto non ancora approvato"
+msgstr ""
+
+msgid ""
+"Prodotto non in catalogo: verra' creato e dovra' essere approvato "
+"dall'admin. Fino ad allora resta solo in magazzino."
+msgstr ""
+
+msgid "Prodotto nuovo"
+msgstr ""
+
+msgid "Prodotto rifiutato"
+msgstr ""
+
+msgid "Programma sconto"
+msgstr ""
+
+msgid "Programmazione rimossa"
+msgstr ""
+
+msgid "Programmazione sconto rimossa"
+msgstr ""
+
+msgid "Prossimo ordine:"
+msgstr ""
+
+msgid "Quando"
+msgstr ""
+
+msgid "Quanti ne hai trovati?"
+msgstr ""
+
+msgid "Quanti ne restano?"
+msgstr ""
+
+msgid "Quantita'"
+msgstr ""
+
+#, python-format
+msgid "Quantita' mancante o non valida: %(prodotti)s"
+msgstr ""
+
+msgid "Quantita' non valida"
+msgstr ""
+
+msgid "Quantita' per pezzo"
+msgstr ""
+
+msgid "Quantita' salvate: il testo dell'ordine e' aggiornato"
+msgstr ""
+
+msgid "Questa categoria richiede la data di scadenza"
+msgstr ""
+
+msgid ""
+"Questi prodotti non hanno un fornitore: impostalo nella scheda del "
+"catalogo."
+msgstr ""
+
+msgid "Questo codice e' gia' associato a un prodotto"
+msgstr ""
+
+msgid "Questo link non e' valido o e' scaduto."
+msgstr ""
+
+msgid ""
+"Racoonix aspetta la configurazione iniziale. Per iniziare serve il link "
+"personale che compare sul server."
+msgstr ""
+
+msgid "Ragione sociale"
+msgstr ""
+
+msgid "Ragione sociale non valida"
+msgstr ""
+
+msgid "Registro attivita'"
+msgstr ""
+
+msgid "Registro attivita' - Racoonix"
+msgstr ""
+
+msgid "Registro esportato"
+msgstr ""
+
+msgid "Regno Unito"
+msgstr ""
+
+msgid "Reset password"
+msgstr ""
+
+msgid "Revoca"
+msgstr ""
+
+msgid "Riattiva"
+msgstr ""
+
+msgid "Richiesta di nuova password"
+msgstr ""
+
+msgid "Richiesta di nuovo dispositivo"
+msgstr ""
+
+msgid "Richiesta ignorata"
+msgstr ""
+
+msgid ""
+"Richiesta registrata. Se l'utente esiste, l'amministratore ti dara' una "
+"password temporanea."
+msgstr ""
+
+msgid "Richieste di nuova password"
+msgstr ""
+
+msgid "Riempi lo scaffale"
+msgstr ""
+
+msgid "Rifiuta"
+msgstr ""
+
+msgid "Rifiuta e scarta la merce"
+msgstr ""
+
+msgid "Rifornisci"
+msgstr ""
+
+msgid "Rimossi"
+msgstr ""
+
+msgid "Rimozione scaduti"
+msgstr ""
+
+msgid "Rimuovi"
+msgstr ""
+
+msgid "Rimuovi programmazione"
+msgstr ""
+
+#, python-format
+msgid "Riordina quando in magazzino ne restano (%(unita)s)"
+msgstr ""
+
+msgid "Ripeti la password"
+msgstr ""
+
+msgid "Ripeti nuova password"
+msgstr ""
+
+msgid "Riviste"
+msgstr ""
+
+msgid "Ruoli"
+msgstr ""
+
+msgid "Ruoli modificati"
+msgstr ""
+
+msgid "Salumi"
+msgstr ""
+
+msgid "Salumi e formaggi"
+msgstr ""
+
+msgid "Salva"
+msgstr ""
+
+msgid "Salva conteggio"
+msgstr ""
+
+msgid "Salva quantita'"
+msgstr ""
+
+msgid "Salva ruoli"
+msgstr ""
+
+msgid "Salva scheda"
+msgstr ""
+
+msgid "Sblocca"
+msgstr ""
+
+#, python-format
+msgid "Scade il %(data)s (tra %(giorni)s gg): controlla %(dove)s"
+msgstr ""
+
+msgid "Scadenza"
+msgstr ""
+
+msgid "Scadenza dal codice:"
+msgstr ""
+
+msgid "Scadenza obbligatoria al carico"
+msgstr ""
+
+msgid "Scaduti"
+msgstr ""
+
+#, python-format
+msgid "Scaduto il %(data)s: togli %(dove)s"
+msgstr ""
+
+msgid "Scaffale rifornito"
+msgstr ""
+
+msgid "Scaffali da riempire"
+msgstr ""
+
+msgid "Scarti per motivo"
+msgstr ""
+
+msgid "Scarto per freschezza"
+msgstr ""
+
+msgid "Scegli almeno un ruolo"
+msgstr ""
+
+msgid "Scegli il file dalla cartella Download."
+msgstr ""
+
+msgid "Scegli il paese del negozio"
+msgstr ""
+
+msgid "Scegli la lingua del negozio"
+msgstr ""
+
+msgid "Scheda completa"
+msgstr ""
+
+msgid "Scheda prodotto modificata"
+msgstr ""
+
+msgid "Scheda salvata"
+msgstr ""
+
+msgid "Sconta"
+msgstr ""
+
+msgid "Sconti attivi sui lotti:"
+msgstr ""
+
+msgid "Sconto"
+msgstr ""
+
+#, python-format
+msgid ""
+"Sconto -%(perc)s%% registrato: il dipendente ricevera' l'avviso del "
+"bollino"
+msgstr ""
+
+msgid "Sconto applicato"
+msgstr ""
+
+msgid "Sconto programmato"
+msgstr ""
+
+msgid "Sconto programmato: -"
+msgstr ""
+
+#, python-format
+msgid "Sconto suggerito 1: %%"
+msgstr ""
+
+#, python-format
+msgid "Sconto suggerito 2: %%"
+msgstr ""
+
+msgid "Sconto tolto"
+msgstr ""
+
+msgid "Scrivi il tuo username: l'amministratore ricevera' la richiesta."
+msgstr ""
+
+msgid "Scrivi per cercare, poi scegli dall'elenco"
+msgstr ""
+
+msgid "Scrivi quanti ne hai trovati (0 se non ce n'erano)"
+msgstr ""
+
+msgid "Scrivi quanti ne restano (0 se sono finiti)"
+msgstr ""
+
+msgid "Scrivi un nome o leggi un codice"
+msgstr ""
+
+msgid "Se coincide, il certificato e' quello vero. Se e' diversa,"
+msgstr ""
+
+msgid "Se ne trovi un numero diverso, scrivi quello vero."
+msgstr ""
+
+msgid ""
+"Se non trovi la voce, cerca \"certificato\" nelle Impostazioni. Serve un "
+"blocco schermo (PIN o impronta)."
+msgstr ""
+
+msgid "Se su un dispositivo il nome non funziona:"
+msgstr ""
+
+msgid ""
+"Se un prodotto torna spesso qui, conviene ordinarne meno o scontarlo "
+"prima."
+msgstr ""
+
+msgid "Seconda fascia: meno giorni e sconto piu' alto della prima"
+msgstr ""
+
+msgid "Segna come ordinato"
+msgstr ""
+
+msgid "Segnalato da"
+msgstr ""
+
+#, python-format
+msgid ""
+"Segnalato da %(utente)s: sullo scaffale sta finendo. In magazzino: "
+"%(quantita)s, metti davanti il lotto %(lotto)s%(scade)s"
+msgstr ""
+
+msgid ""
+"Segnalato: chi sta in magazzino ricevera' il compito di riempire lo "
+"scaffale"
+msgstr ""
+
+msgid "Segnalato: sta finendo"
+msgstr ""
+
+msgid "Segnalazioni \"sta finendo\""
+msgstr ""
+
+#, python-format
+msgid ""
+"Segnati come ordinati: %(numero)s. Usciranno dalla lista all'arrivo della"
+" merce"
+msgstr ""
+
+msgid "Senza codice"
+msgstr ""
+
+msgid "Senza fornitore"
+msgstr ""
+
+msgid "Serve almeno il GTIN o il codice bilancia"
+msgstr ""
+
+msgid "Serve un EAN o UPC valido"
+msgstr ""
+
+msgid "Serviranno per sapere a chi riordinare."
+msgstr ""
+
+msgid "Sessione scaduta, ricarica la pagina"
+msgstr ""
+
+msgid "Si possono scontare solo lotti con scadenza futura"
+msgstr ""
+
+msgid "Si', elimina"
+msgstr ""
+
+msgid "Sicurezza"
+msgstr ""
+
+msgid "Sicurezza nelle ultime 24 ore"
+msgstr ""
+
+msgid "Sistema"
+msgstr ""
+
+msgid "Situazione"
+msgstr ""
+
+msgid "Soglia di riordino non valida"
+msgstr ""
+
+msgid "Sottocategoria"
+msgstr ""
+
+msgid "Sottocategoria aggiunta"
+msgstr ""
+
+msgid "Sottocategoria gia' esistente"
+msgstr ""
+
+msgid "Sottocategoria modificata"
+msgstr ""
+
+msgid "Sottocategorie"
+msgstr ""
+
+#, python-format
+msgid "Spostati sullo scaffale: %(quantita)s"
+msgstr ""
+
+msgid "Sta finendo"
+msgstr ""
+
+msgid "Stati Uniti"
+msgstr ""
+
+msgid "Stato"
+msgstr ""
+
+msgid "Stato:"
+msgstr ""
+
+msgid "Storico ("
+msgstr ""
+
+msgid "Suino"
+msgstr ""
+
+msgid "Sul server, nella cartella di Racoonix, lancia:"
+msgstr ""
+
+msgid "Sul server: ./racoonix.sh backup-automatico"
+msgstr ""
+
+msgid "Sullo scaffale"
+msgstr ""
+
+msgid "Sullo scaffale:"
+msgstr ""
+
+msgid "Surgelati"
+msgstr ""
+
+msgid "Telefono"
+msgstr ""
+
+msgid "Telefono non valido"
+msgstr ""
+
+msgid "Tema chiaro"
+msgstr ""
+
+msgid "Tema scuro"
+msgstr ""
+
+msgid "Tentativo da un dispositivo bloccato"
+msgstr ""
+
+msgid "Testo dell'ordine"
+msgstr ""
+
+msgid "Togli"
+msgstr ""
+
+msgid "Togli sconto"
+msgstr ""
+
+msgid "Tolti e buttati"
+msgstr ""
+
+msgid "Tolto dalla lista"
+msgstr ""
+
+msgid "Tolto dalla lista d'ordine"
+msgstr ""
+
+msgid "Torna agli utenti"
+msgstr ""
+
+msgid "Torna alla home"
+msgstr ""
+
+msgid "Troppi tentativi, riprova tra poco"
+msgstr ""
+
+msgid "Tutte le categorie"
+msgstr ""
+
+msgid "Tutte le persone"
+msgstr ""
+
+msgid "Tutti gli stati"
+msgstr ""
+
+msgid "Tutti i ruoli"
+msgstr ""
+
+msgid "Tutto"
+msgstr ""
+
+msgid "Tutto in ordine"
+msgstr ""
+
+msgid "Tutto ok"
+msgstr ""
+
+msgid ""
+"Tutto quello che succede in Racoonix: chi, cosa, quando e da dove. Il "
+"registro e' in sola lettura."
+msgstr ""
+
+msgid "Ultime 24 ore"
+msgstr ""
+
+msgid "Ultimi 30 giorni"
+msgstr ""
+
+msgid "Ultimi 7 giorni"
+msgstr ""
+
+msgid "Unione non possibile: controlla il prodotto scelto"
+msgstr ""
+
+msgid "Unisci come codice aggiuntivo"
+msgstr ""
+
+msgid "Unita'"
+msgstr ""
+
+msgid "Unita' non valida"
+msgstr ""
+
+msgid "Usa fotocamera"
+msgstr ""
+
+msgid "Uscita"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Username gia' in uso"
+msgstr ""
+
+msgid "Username non valido (3-40 caratteri: lettere, numeri, _ . -)"
+msgstr ""
+
+msgid "Utente"
+msgstr ""
+
+msgid "Utente creato"
+msgstr ""
+
+msgid "Utente disattivato"
+msgstr ""
+
+msgid "Utente eliminato (storico conservato)"
+msgstr ""
+
+msgid "Utente eliminato definitivamente"
+msgstr ""
+
+msgid "Utente riattivato"
+msgstr ""
+
+msgid "Utente sbloccato"
+msgstr ""
+
+msgid "Utente:"
+msgstr ""
+
+msgid "Utenti"
+msgstr ""
+
+msgid "Utenti - Racoonix"
+msgstr ""
+
+msgid "Utenti e dispositivi"
+msgstr ""
+
+msgid "Vai"
+msgstr ""
+
+msgid "Vai a rifornire"
+msgstr ""
+
+msgid "Vai all'approvazione"
+msgstr ""
+
+msgid "Valore calcolato al prezzo di vendita attuale."
+msgstr ""
+
+msgid "Valore perso"
+msgstr ""
+
+msgid "Valore scarti"
+msgstr ""
+
+msgid "Vedi nel registro"
+msgstr ""
+
+msgid "Vedi tutto"
+msgstr ""
+
+msgid "Venduto a peso (kg)"
+msgstr ""
+
+msgid "Venduto a pezzo"
+msgstr ""
+
+msgid "Verdura"
+msgstr ""
+
+msgid "Verdure surgelate"
+msgstr ""
+
+msgid "Verifica scadenza"
+msgstr ""
+
+msgid "Verifiche fatte"
+msgstr ""
+
+msgid ""
+"Viene mostrata una sola volta. Comunicala di persona: al primo accesso "
+"dovra' cambiarla."
+msgstr ""
+
+msgid "Yogurt"
+msgstr ""
+
+msgid "a"
+msgstr ""
+
+msgid "a giorni"
+msgstr ""
+
+msgid "admin"
+msgstr ""
+
+msgid "aggiunto in approvazione"
+msgstr ""
+
+msgid "al"
+msgstr ""
+
+msgid "al kg"
+msgstr ""
+
+msgid "approvato"
+msgstr ""
+
+msgid "attivo"
+msgstr ""
+
+msgid "azione"
+msgstr ""
+
+msgid "bloccato"
+msgstr ""
+
+msgid "buttati"
+msgstr ""
+
+msgid "categoria"
+msgstr ""
+
+msgid "che scadono il"
+msgstr ""
+
+msgid "da controllare"
+msgstr ""
+
+msgid "da ordinare"
+msgstr ""
+
+msgid "dalla scadenza"
+msgstr ""
+
+#, python-format
+msgid "dallo scaffale il lotto %(lotto)s"
+msgstr ""
+
+msgid "data_ora"
+msgstr ""
+
+msgid ""
+"del certificato installato (nei dettagli del certificato, sul telefono) "
+"con questa:"
+msgstr ""
+
+msgid "descrizione"
+msgstr ""
+
+msgid "dettaglio"
+msgstr ""
+
+msgid "di"
+msgstr ""
+
+msgid "dipendente"
+msgstr ""
+
+msgid "disattivata"
+msgstr ""
+
+msgid "disattivato"
+msgstr ""
+
+msgid "e lancia"
+msgstr ""
+
+msgid "gg"
+msgstr ""
+
+msgid "gg · poi -"
+msgstr ""
+
+msgid "giorni"
+msgstr ""
+
+msgid ""
+"ha operato nel sistema. Verra' tolto dall'elenco, non potra' piu' "
+"accedere e perdera' tutti i ruoli, ma il suo nome restera' nello storico "
+"delle operazioni che ha svolto."
+msgstr ""
+
+msgid "impronta SHA-256"
+msgstr ""
+
+msgid "in attesa"
+msgstr ""
+
+msgid "in attesa di approvazione"
+msgstr ""
+
+msgid "in esaurimento"
+msgstr ""
+
+msgid "in magazzino"
+msgstr ""
+
+msgid "in magazzino:"
+msgstr ""
+
+msgid "in scadenza"
+msgstr ""
+
+msgid "in scadenza entro"
+msgstr ""
+
+msgid "lotto"
+msgstr ""
+
+msgid "magazziniere"
+msgstr ""
+
+msgid "mostra tutto"
+msgstr ""
+
+msgid "nessun lotto messo"
+msgstr ""
+
+msgid "nessuno"
+msgstr ""
+
+msgid "non attivo"
+msgstr ""
+
+msgid "non ha mai operato nel sistema: verra' eliminato definitivamente."
+msgstr ""
+
+msgid "non si ordina"
+msgstr ""
+
+msgid "non usarlo"
+msgstr ""
+
+msgid "oggi"
+msgstr ""
+
+msgid "opz."
+msgstr ""
+
+msgid "ordina oggi"
+msgstr ""
+
+msgid "ordinato"
+msgstr ""
+
+msgid "password temporanea"
+msgstr ""
+
+msgid "pezzi"
+msgstr ""
+
+msgid "pezzi, o kg se a peso"
+msgstr ""
+
+msgid "pezzo"
+msgstr ""
+
+msgid "prodotti"
+msgstr ""
+
+msgid "prossimo ordine:"
+msgstr ""
+
+msgid "pz"
+msgstr ""
+
+msgid "quantita' da definire"
+msgstr ""
+
+msgid "revocato"
+msgstr ""
+
+msgid "richiesta dispositivo"
+msgstr ""
+
+msgid "rimosso"
+msgstr ""
+
+msgid "scade oggi"
+msgstr ""
+
+msgid "scaduto"
+msgstr ""
+
+msgid "senza nessun avviso di sicurezza"
+msgstr ""
+
+msgid "si ordina"
+msgstr ""
+
+msgid "si'"
+msgstr ""
+
+msgid "sullo scaffale"
+msgstr ""
+
+#, python-format
+msgid "sullo scaffale il lotto %(lotto)s"
+msgstr ""
+
+msgid "tentativi falliti da"
+msgstr ""
+
+msgid "tentativi falliti."
+msgstr ""
+
+msgid "tutti"
+msgstr ""
+
+msgid "ultimo uso"
+msgstr ""
+
+msgid "unita':"
+msgstr ""
+
+msgid "utente"
+msgstr ""
+
+msgid "viene scaricato."
+msgstr ""
+
+msgid "vuoto = solo su segnalazione"
+msgstr ""
+
+msgid "— scegli il prodotto —"
+msgstr ""
+
+msgid "← Catalogo"
+msgstr ""
+
+msgid "← Fornitori"
+msgstr ""
+
+msgid "← Nuovo codice"
+msgstr ""
+
+msgid "← Piu' recenti"
+msgstr ""
+
+msgid "← Torna al login"
+msgstr ""
+
+msgid "← Utenti"
+msgstr ""
+
+msgid "→ Fine."
+msgstr ""
+
+msgid "→ conferma l'installazione."
+msgstr ""
+

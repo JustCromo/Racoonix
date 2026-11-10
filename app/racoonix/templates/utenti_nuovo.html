@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block titolo %}Nuovo utente - Racoonix{% endblock %}
+{% block titolo %}{{ _("Nuovo utente - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <section class="scheda stretta">
-  <p><a href="{{ url_for('utenti.elenco') }}">&larr; Utenti</a></p>
-  <h1>Nuovo utente</h1>
+  <p><a href="{{ url_for('utenti.elenco') }}">{{ _("← Utenti") }}</a></p>
+  <h1>{{ _("Nuovo utente") }}</h1>
   {% if errore %}<p class="errore">{{ errore }}</p>{% endif %}
   <form method="post" action="{{ url_for('utenti.nuovo') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Username <input name="username" value="{{ username or '' }}" maxlength="40" autocomplete="off" required></label>
-    <p>Ruoli</p>
+    <label>{{ _("Username") }} <input name="username" value="{{ username or '' }}" maxlength="40" autocomplete="off" required></label>
+    <p>{{ _("Ruoli") }}</p>
     {% for r in ruoli %}
-    <label class="spunta"><input type="checkbox" name="ruoli" value="{{ r.nome }}"> {{ r.nome }}</label>
+    <label class="spunta"><input type="checkbox" name="ruoli" value="{{ r.nome }}"> {{ nome_ruolo(r.nome) }}</label>
     {% endfor %}
-    <p class="sotto">La password temporanea la genera il sistema.</p>
-    <button type="submit">Crea utente</button>
+    <p class="sotto">{{ _("La password temporanea la genera il sistema.") }}</p>
+    <button type="submit">{{ _("Crea utente") }}</button>
   </form>
 </section>
 {% endblock %}

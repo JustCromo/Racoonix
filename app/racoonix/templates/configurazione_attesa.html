@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titolo %}Racoonix{% endblock %}
+{% block contenuto %}
+<section class="scheda stretta">
+  <img class="logo-accesso" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+  <h1 class="centrato">Racoonix</h1>
+  {% if errore %}
+  <p class="errore">{{ _("Questo link non e' valido o e' scaduto.") }}</p>
+  {% endif %}
+  <p>{{ _("Racoonix aspetta la configurazione iniziale. Per iniziare serve il link personale che compare sul server.") }}</p>
+  <p class="sotto">{{ _("Sul server, nella cartella di Racoonix, lancia:") }}</p>
+  <pre>./racoonix.sh link</pre>
+</section>
+{% endblock %}

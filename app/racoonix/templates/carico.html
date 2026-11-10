@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% block titolo %}Carico merce - Racoonix{% endblock %}
+{% block titolo %}{{ _("Carico merce - Racoonix") }}{% endblock %}
 {% block contenuto %}
-<h1>Carico merce</h1>
+<h1>{{ _("Carico merce") }}</h1>
 <section class="scheda">
   <form id="modulo-codice" method="post" action="{{ url_for('carico.leggi') }}" class="riga">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input id="codice" name="codice" autocomplete="off" autofocus maxlength="250" placeholder="Leggi o scrivi il codice">
-    <button type="submit">Avanti</button>
+    <input id="codice" name="codice" autocomplete="off" autofocus maxlength="250" placeholder="{{ _("Leggi o scrivi il codice") }}">
+    <button type="submit">{{ _("Avanti") }}</button>
   </form>
-  <button id="avvia" type="button" class="secondario">Usa fotocamera</button>
+  <button id="avvia" type="button" class="secondario">{{ _("Usa fotocamera") }}</button>
   <div id="lettore"></div>
 </section>
 {% if sfusi %}
 <section class="scheda spazio">
-  <h2>Prodotti senza codice</h2>
+  <h2>{{ _("Prodotti senza codice") }}</h2>
   <form method="post" action="{{ url_for('carico.sfuso') }}" class="riga">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <select name="prodotto_id">{% for p in sfusi %}<option value="{{ p.id }}">{{ p.nome }}</option>{% endfor %}</select>
-    <button type="submit">Avanti</button>
+    <button type="submit">{{ _("Avanti") }}</button>
   </form>
 </section>
 {% endif %}
