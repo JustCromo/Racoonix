@@ -47,6 +47,7 @@
     <p class="sotto">Se coincide, il certificato e' quello vero. Se e' diversa, <strong>non usarlo</strong>: qualcuno potrebbe averlo sostituito durante il download. Eliminalo dal telefono e avvisa chi gestisce il server.</p>
     <div class="qr spazio">{{ qr_app }}</div>
     <p class="sotto centrato">{{ url_app }}</p>
+    {% if url_app_ip != url_app %}<p class="sotto centrato">Se su un dispositivo il nome non funziona: {{ url_app_ip }}</p>{% endif %}
     <p>Inquadra il secondo QR: Racoonix deve aprirsi <strong>senza nessun avviso di sicurezza</strong>.</p>
   </section>
 </div>

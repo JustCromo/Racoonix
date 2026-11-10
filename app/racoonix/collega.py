@@ -39,7 +39,8 @@ def _qr(testo):
 def pagina():
     indirizzo = os.environ.get("RACOONIX_INDIRIZZO", "localhost")
     url_certificato = f"http://{indirizzo}/racoonix-ca.crt"
-    url_app = f"https://{indirizzo}/"
-    return render_template("collega.html", url_certificato=url_certificato, url_app=url_app,
+    url_app_ip = f"https://{indirizzo}/"
+    url_app = f"https://{os.environ.get('RACOONIX_NOME') or indirizzo}/"
+    return render_template("collega.html", url_certificato=url_certificato, url_app=url_app, url_app_ip=url_app_ip,
                            qr_certificato=_qr(url_certificato), qr_app=_qr(url_app),
                            impronta=_impronta_certificato())

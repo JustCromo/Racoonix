@@ -35,6 +35,14 @@
 	}
 }
 
+# HTTP con il nome interno: resta sul nome
+http://{$RACOONIX_NOME} {
+	import certificato
+	handle {
+		redir https://{$RACOONIX_NOME}{uri} permanent
+	}
+}
+
 # HTTP: solo il certificato (per i dispositivi nuovi), tutto il resto va su HTTPS.
 :80 {
 	import certificato

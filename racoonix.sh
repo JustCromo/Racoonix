@@ -66,7 +66,7 @@ installa() {
   controlla_requisiti
   echo; echo "${GRASSETTO}Installazione di Racoonix${RESET}"; echo
 
-  local negozio ip admin_ip reti suggerito
+  local negozio ip admin_ip reti suggerito nome
   negozio=$(chiedi "Nome del negozio" "Il mio negozio")
   [[ "$negozio" =~ ^[[:alnum:][:space:]\'.,\&-]{2,60}$ ]] || errore "Nome non valido: 2-60 caratteri tra lettere, numeri, spazi e . , ' & -"
   ip=$(chiedi "IP di questo server nella rete del negozio" "$(ip_locale)")
@@ -75,6 +75,12 @@ installa() {
   [[ -z "$suggerito" ]] && suggerito="$ip"
   info "L'area admin sara' raggiungibile solo dal computer dell'amministratore."
   admin_ip=$(chiedi "IP del computer dell'amministratore" "$suggerito")
+  nome=$(chiedi "Nome di Racoonix nella rete del negozio" "racoonix.local")
+  [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "Nome non valido: lettere minuscole, numeri e trattini, per esempio racoonix.local"
+  if [[ "$nome" == *.local ]]; then
+    [[ "$(hostname)" == "${nome%.local}" ]] || info "Per usare $nome, il nome di questo computer deve essere ${nome%.local}: sudo hostnamectl set-hostname ${nome%.local}"
+    systemctl is-active --quiet avahi-daemon 2>/dev/null || info "Per annunciare $nome nella rete serve avahi: sudo apt install avahi-daemon"
+  fi
   valida_ip "$admin_ip" || errore "IP non valido"
   reti="$admin_ip/32"
   # Se l'admin usa il browser sul server stesso, le richieste arrivano dalla rete interna di Docker.
@@ -90,8 +96,9 @@ installa() {
 
   cat > .env << EOF
 MARKET_NAME=$negozio
-RACOONIX_HOST=localhost, $ip
+RACOONIX_HOST=localhost, $ip, $nome
 RACOONIX_SNI=$ip
+RACOONIX_NOME=$nome
 ADMIN_IP_CONSENTITI=$reti
 EOF
   chmod 600 .env

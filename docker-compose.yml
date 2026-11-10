@@ -53,6 +53,7 @@ services:
       MARKET_NAME: ${MARKET_NAME:-Racoonix Demo}
       ADMIN_IP_CONSENTITI: ${ADMIN_IP_CONSENTITI:-127.0.0.1/32}
       RACOONIX_INDIRIZZO: ${RACOONIX_SNI:-localhost}
+      RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
       TZ: Europe/Rome
     secrets: [db_app_password, flask_secret]
     depends_on:
@@ -87,6 +88,7 @@ services:
     environment:
       RACOONIX_HOST: ${RACOONIX_HOST:-localhost}
       RACOONIX_SNI: ${RACOONIX_SNI:-localhost}
+      RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
