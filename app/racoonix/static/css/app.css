@@ -446,3 +446,6 @@ fieldset.scelte .carte-scelta { width: 100%; }
 .tendina-voce.attiva { background: rgba(217, 164, 65, .18); }
 .tendina-voce[aria-selected="true"] { font-weight: 800; color: var(--miele-testo, #8A5F0E); }
 .tendina-vuoto { padding: .6rem .7rem; color: var(--testo-2); }
+
+/* --- Cio' che e' segnato "hidden" resta nascosto, anche se un'altra regola gli da' un display --- */
+[hidden] { display: none !important; }
