@@ -39,10 +39,29 @@ def _percorso_interno(percorso):
             and not percorso.startswith(("//", "/\\")))
 
 
+def _richiesta_htmx():
+    return request.headers.get("HX-Request") == "true"
+
+
+def _verso(url, resta_se_sei_gia_qui=False):
+    """Le richieste automatiche (contatore, aggiornamenti ogni 20 secondi) aggiornano un pezzetto di pagina:
+    un reindirizzamento normale ci infilerebbe dentro un'intera pagina. Per loro: HX-Redirect, che fa
+    cambiare pagina al browser, oppure nessuna risposta se la persona e' gia' sulla pagina giusta."""
+    if not _richiesta_htmx():
+        return redirect(url)
+    from urllib.parse import urlsplit
+    risposta = make_response("", 204)
+    if not (resta_se_sei_gia_qui and urlsplit(request.headers.get("HX-Current-URL", "")).path == url):
+        risposta.headers["HX-Redirect"] = url
+    return risposta
+
+
 def _vai_al_login():
-    if request.method == "GET" and _percorso_interno(request.path):
-        session["dopo_login"] = request.path
-    return redirect(url_for("auth.login"))
+    from urllib.parse import urlsplit
+    pagina = urlsplit(request.headers.get("HX-Current-URL", "")).path if _richiesta_htmx() else request.path
+    if request.method == "GET" and _percorso_interno(pagina):
+        session["dopo_login"] = pagina
+    return _verso(url_for("auth.login"))
 
 
 def registra(azione, utente_id=None, dettaglio=None):
@@ -94,7 +113,8 @@ def _dispositivo_ok(utente):
 def obbligo_cambio_password():
     consentiti = ("auth.cambia_password", "auth.logout", "static")
     if g.utente and g.utente.deve_cambiare_password and request.endpoint not in consentiti:
-        return redirect(url_for("auth.cambia_password"))
+        # Mentre la persona scrive la nuova password, il contatore che si aggiorna da solo non deve toccare la pagina
+        return _verso(url_for("auth.cambia_password"), resta_se_sei_gia_qui=True)
 
 
 def login_richiesto(vista):
