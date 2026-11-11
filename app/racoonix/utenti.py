@@ -14,8 +14,13 @@ bp = Blueprint("utenti", __name__, url_prefix="/admin/utenti")
 USERNAME_OK = re.compile(r"^[a-zA-Z0-9_.-]{3,40}$")
 
 
+ALFABETO_TEMPORANEA = "abcdefghjkmnpqrstuvwxyz23456789"
+
+
 def _password_temporanea():
-    return secrets.token_urlsafe(12)
+    """Facile da dettare e da scrivere sul telefono: niente l/1/i, o/0, maiuscole o simboli."""
+    gruppi = ("".join(secrets.choice(ALFABETO_TEMPORANEA) for _x in range(5)) for _y in range(3))
+    return "-".join(gruppi)
 
 
 def _tutti_i_ruoli():

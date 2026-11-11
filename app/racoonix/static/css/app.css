@@ -449,3 +449,11 @@ fieldset.scelte .carte-scelta { width: 100%; }
 
 /* --- Cio' che e' segnato "hidden" resta nascosto, anche se un'altra regola gli da' un display --- */
 [hidden] { display: none !important; }
+
+/* --- Racoonix dichiara di gestire chiaro e scuro: i browser non ricolorano la pagina da soli --- */
+:root, [data-theme="scuro"] { color-scheme: light dark; }
+
+/* --- Sul telefono le schede strette occupano tutta la larghezza, anche dentro il contenuto --- */
+@media (max-width: 900px) {
+  .contenuto > .scheda.stretta, .accesso > .scheda.stretta { width: auto; max-width: none; margin: .5rem 0; }
+}
