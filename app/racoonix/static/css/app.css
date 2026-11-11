@@ -427,3 +427,22 @@ fieldset.scelte legend { font-weight: 700; margin-bottom: .2rem; }
 fieldset.scelte { display: block; }
 fieldset.scelte > p.sotto { margin: 0 0 .2rem; }
 fieldset.scelte .carte-scelta { width: 100%; }
+
+/* --- Menu a tendina con ricerca (fuso orario) --- */
+.tendina { position: relative; margin-top: .3rem; }
+.tendina-bottone { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .65rem .8rem;
+  border: 1px solid var(--bordo); border-radius: 11px; background: var(--superficie-2); color: var(--testo);
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.tendina-bottone::after { content: ""; width: .5rem; height: .5rem; margin-left: .8rem; flex-shrink: 0;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); opacity: .7; }
+.tendina-bottone[aria-expanded="true"] { border-color: var(--miele); outline: 3px solid rgba(217, 164, 65, .35); }
+.tendina-pannello { position: absolute; z-index: 30; top: calc(100% + .35rem); left: 0; right: 0; padding: .5rem;
+  background: var(--superficie); border: 1px solid var(--bordo); border-radius: 14px; box-shadow: 0 12px 32px rgba(46, 58, 89, .18); }
+.tendina-cerca { margin: 0 0 .4rem; }
+.tendina-elenco { list-style: none; margin: 0; padding: 0; max-height: 17rem; overflow-y: auto; }
+.tendina-gruppo { position: sticky; top: 0; padding: .45rem .6rem .25rem; background: var(--superficie);
+  font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--testo-2); }
+.tendina-voce { padding: .5rem .7rem; border-radius: 9px; cursor: pointer; }
+.tendina-voce.attiva { background: rgba(217, 164, 65, .18); }
+.tendina-voce[aria-selected="true"] { font-weight: 800; color: var(--miele-testo, #8A5F0E); }
+.tendina-vuoto { padding: .6rem .7rem; color: var(--testo-2); }

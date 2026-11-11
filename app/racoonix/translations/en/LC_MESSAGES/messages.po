@@ -2303,3 +2303,12 @@ msgstr "Antarctica"
 
 msgid "Artico"
 msgstr "Arctic"
+
+msgid "Scegli la citta' piu' vicina, o cercala"
+msgstr "Choose the nearest city, or search for it"
+
+msgid "Cerca una citta'..."
+msgstr "Search for a city..."
+
+msgid "Nessun risultato"
+msgstr "No results"

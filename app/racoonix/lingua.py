@@ -55,7 +55,8 @@ def nome_stato(stato):
 TESTI_JS = [lazy_gettext("Mostra password"), lazy_gettext("Nascondi password"), lazy_gettext("Chiudi avviso"),
             lazy_gettext("Copia"), lazy_gettext("Copiato"), lazy_gettext("Non riuscito"),
             lazy_gettext("Usa fotocamera"), lazy_gettext("Ferma fotocamera"),
-            lazy_gettext("Fotocamera non disponibile")]
+            lazy_gettext("Fotocamera non disponibile"), lazy_gettext("Cerca una citta'..."),
+            lazy_gettext("Nessun risultato")]
 
 
 def testi_js():

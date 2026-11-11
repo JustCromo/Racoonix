@@ -33,8 +33,8 @@
 
 <fieldset class="scelte">
   <legend>{{ _("Fuso orario") }}</legend>
-  <label>{{ _("Scegli la citta' piu' vicina (con il menu aperto, scrivi le prime lettere per saltare)") }}
-    <select name="fuso" required>
+  <label>{{ _("Scegli la citta' piu' vicina, o cercala") }}
+    <select name="fuso" required data-tendina>
       {% for gruppo, voci in fusi %}
       <optgroup label="{{ gruppo }}">
         {% for valore, nome in voci %}<option value="{{ valore }}"{% if valore == valori.fuso %} selected{% endif %}>{{ nome }}</option>{% endfor %}
