@@ -57,7 +57,8 @@ def impostazioni():
 def salva(**valori):
     from .models import Impostazione
     for chiave, valore in valori.items():
-        assert chiave in CHIAVI, chiave
+        if chiave not in CHIAVI:
+            raise ValueError(f"Impostazione sconosciuta: {chiave}")
         voce = db.session.get(Impostazione, f"negozio.{chiave}") or Impostazione(chiave=f"negozio.{chiave}", valore="")
         voce.valore = str(valore)
         db.session.add(voce)

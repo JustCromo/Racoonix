@@ -157,7 +157,7 @@ aggiorna() {
     git pull --ff-only
   fi
   info "$(t "Scarico le immagini aggiornate (correzioni di sicurezza di Caddy e PostgreSQL)" "Downloading updated images (Caddy and PostgreSQL security fixes)")"
-  dc pull db caddy
+  dc pull caddy
   dc build --pull
   importa_segreti_vecchi
   dc up -d
