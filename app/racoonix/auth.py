@@ -56,6 +56,25 @@ def _verso(url, resta_se_sei_gia_qui=False):
     return risposta
 
 
+def _ritorno():
+    """Dopo il cambio di lingua o di tema si torna alla pagina di prima, ma solo se e' una pagina che si puo' riaprire:
+    il risultato di un modulo inviato (per esempio il carico appena letto) non esiste da solo, e darebbe errore."""
+    from urllib.parse import urlsplit
+    from flask import current_app
+    from werkzeug.exceptions import HTTPException
+    from werkzeug.routing import RequestRedirect
+    percorso = urlsplit(request.referrer or "").path
+    if not _percorso_interno(percorso):
+        return url_for("home")
+    try:
+        current_app.url_map.bind("localhost").match(percorso, method="GET")
+        return percorso
+    except RequestRedirect as spostato:
+        return urlsplit(spostato.new_url).path
+    except HTTPException:
+        return url_for("home")
+
+
 def _vai_al_login():
     from urllib.parse import urlsplit
     pagina = urlsplit(request.headers.get("HX-Current-URL", "")).path if _richiesta_htmx() else request.path
@@ -274,8 +293,7 @@ def cambia_tema():
     from urllib.parse import urlsplit
     g.utente.tema = "scuro" if g.utente.tema == "chiaro" else "chiaro"
     db.session.commit()
-    ritorno = urlsplit(request.referrer or "").path
-    return redirect(ritorno if _percorso_interno(ritorno) else url_for("home"))
+    return redirect(_ritorno())
 
 
 @bp.post("/lingua")
@@ -288,5 +306,4 @@ def cambia_lingua():
         abort(400)
     g.utente.lingua = scelta
     db.session.commit()
-    ritorno = urlsplit(request.referrer or "").path
-    return redirect(ritorno if _percorso_interno(ritorno) else url_for("home"))
+    return redirect(_ritorno())

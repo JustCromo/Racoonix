@@ -127,6 +127,7 @@ def create_app():
 
     app.register_error_handler(403, lambda e: errore(_("Accesso non consentito"), 403))
     app.register_error_handler(404, lambda e: errore(_("Pagina non trovata"), 404))
+    app.register_error_handler(405, lambda e: errore(_("Questa pagina non si puo' aprire direttamente"), 405))
     app.register_error_handler(429, lambda e: errore(_("Troppi tentativi, riprova tra poco"), 429))
     app.register_error_handler(500, lambda e: errore(_("Errore interno"), 500))
     app.register_error_handler(CSRFError, lambda e: errore(_("Sessione scaduta, ricarica la pagina"), 400))

@@ -2558,3 +2558,6 @@ msgstr "never"
 
 msgid "per un minuto"
 msgstr "for one minute"
+
+msgid "Questa pagina non si puo' aprire direttamente"
+msgstr "This page can't be opened directly"
