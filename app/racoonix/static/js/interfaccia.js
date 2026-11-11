@@ -150,3 +150,11 @@
   document.addEventListener("DOMContentLoaded", () => applica(document));
   document.addEventListener("htmx:afterSettle", (evento) => applica(evento.target));
 })();
+
+// Calendario: si apre cliccando in qualunque punto del campo data, non solo sull'icona
+document.addEventListener("click", (e) => {
+  const campo = e.target.closest && e.target.closest('input[type="date"]');
+  if (campo && typeof campo.showPicker === "function") {
+    try { campo.showPicker(); } catch (_errore) { /* il browser non lo permette: resta l'icona */ }
+  }
+});

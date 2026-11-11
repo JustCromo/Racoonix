@@ -305,7 +305,7 @@ msgid "Cambia tema"
 msgstr "Change theme"
 
 msgid "Carica"
-msgstr "Load"
+msgstr "Book in"
 
 msgid "Carica la prima merce"
 msgstr "Book in your first delivery"
