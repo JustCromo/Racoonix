@@ -89,8 +89,11 @@ def risultati():
 
 
 def _mostra_password(utente, password):
+    from .benvenuto import prepara
+    link, qr = prepara(utente)
+    db.session.commit()
     risposta = make_response(render_template("utenti_password.html",
-                                             utente=utente, password=password))
+                                             utente=utente, password=password, link=link, qr=qr))
     risposta.headers["Cache-Control"] = "no-store"
     return risposta
 
@@ -259,24 +262,36 @@ def dispositivo(did, azione):
     """Approva (con un nome facoltativo) o revoca un dispositivo personale di un utente."""
     from flask import abort
     from .models import DispositivoAccesso, Notifica
-    if azione not in ("approva", "revoca"):
+    if azione not in ("approva", "revoca", "riabilita"):
         abort(404)
     voce = db.get_or_404(DispositivoAccesso, did)
     utente = voce.utente
+    # Dalla pagina Dispositivi si torna li', dalla scheda dell'utente si torna alla scheda
+    torna = redirect(url_for(".dispositivi") if request.form.get("da") == "dispositivi"
+                     else url_for(".elenco", _anchor=f"utente-{utente.id}"))
     if azione == "approva":
         if voce.stato != "in_attesa":
             flash(_("Dispositivo gia' gestito"), "errore")
-            return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
+            return torna
         nome = (request.form.get("nome") or "").strip()
         if nome and not re.fullmatch(r"[\w .'()/-]{1,60}", nome):
             flash(_("Nome del dispositivo non valido"), "errore")
-            return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
+            return torna
         voce.stato = "approvato"
         voce.nome = nome or None
         voce.approvato_da = g.utente.id
         voce.approvato_il = datetime.now(timezone.utc)
         registra("dispositivo_approvato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
         messaggio = _("Dispositivo di %(utente)s approvato", utente=utente.username)
+    elif azione == "riabilita":
+        if voce.stato != "revocato" or not utente.attivo or utente.eliminato:
+            flash(_("Si possono riabilitare solo i dispositivi bloccati di utenti attivi"), "errore")
+            return torna
+        voce.stato = "approvato"
+        voce.approvato_da = g.utente.id
+        voce.approvato_il = datetime.now(timezone.utc)
+        registra("dispositivo_riabilitato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
+        messaggio = _("Dispositivo di %(utente)s riabilitato", utente=utente.username)
     else:
         voce.stato = "revocato"
         registra("dispositivo_revocato", g.utente.id, f"{utente.username}: {voce.nome or voce.descrizione}")
@@ -291,4 +306,20 @@ def dispositivo(did, azione):
             notifica.chiusa_il = datetime.now(timezone.utc)
     db.session.commit()
     flash(messaggio, "ok")
-    return redirect(url_for(".elenco", _anchor=f"utente-{utente.id}"))
+    return torna
+
+
+@bp.get("/dispositivi")
+@richiede_ruolo("admin")
+def dispositivi():
+    """Tutti i dispositivi, divisi per stato: in attesa, bloccati (con la possibilita' di riabilitarli), approvati."""
+    from sqlalchemy.orm import selectinload
+    from .models import DispositivoAccesso, Utente
+    voci = db.session.scalars(
+        db.select(DispositivoAccesso).join(Utente, DispositivoAccesso.utente_id == Utente.id)
+        .where(Utente.eliminato.is_(False)).options(selectinload(DispositivoAccesso.utente))
+        .order_by(DispositivoAccesso.ultimo_uso.desc().nulls_last(), DispositivoAccesso.creato_il.desc())).all()
+    gruppi = {"in_attesa": [], "revocato": [], "approvato": []}
+    for voce in voci:
+        gruppi[voce.stato].append(voce)
+    return render_template("dispositivi.html", gruppi=gruppi)

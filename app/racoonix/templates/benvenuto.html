@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titolo %}{{ _("Benvenuto") }} - Racoonix{% endblock %}
+{% block contenuto %}
+<section class="scheda stretta">
+  <img class="logo-accesso" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+  {% if errore_link %}
+  <h1 class="centrato">Racoonix</h1>
+  <p class="errore">{{ _("Questo codice non e' valido o e' scaduto.") }}</p>
+  <p>{{ _("Chiedi al titolare un codice nuovo, oppure entra con la password temporanea che ti ha dato.") }}</p>
+  <p><a class="pulsante" href="{{ url_for('auth.login') }}">{{ _("Accedi") }}</a></p>
+  {% else %}
+  <h1 class="centrato">{{ _("Ciao %(utente)s!", utente=utente.username) }}</h1>
+  <p>{{ _("Scegli la tua password: da adesso entrerai con questa, da questo telefono.") }}</p>
+  {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+  <form method="post" action="{{ url_for('benvenuto.pagina') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="username" value="{{ utente.username }}" autocomplete="username">
+    <label>{{ _("Nuova password") }} <input name="password" type="password" autocomplete="new-password" minlength="12" required autofocus></label>
+    <label>{{ _("Ripeti la password") }} <input name="conferma" type="password" autocomplete="new-password" minlength="12" required></label>
+    <p class="sotto">{{ _("Almeno 12 caratteri. Una frase che ricordi facilmente e' piu' sicura di una parola complicata.") }}</p>
+    <button type="submit" class="spazio">{{ _("Entra in Racoonix") }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

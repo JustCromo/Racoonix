@@ -2399,3 +2399,81 @@ msgstr "Restore"
 
 msgid "Si possono eliminare solo i prodotti attivi"
 msgstr "Only active products can be deleted"
+
+msgid "Approvati"
+msgstr "Approved"
+
+msgid "Benvenuto"
+msgstr "Welcome"
+
+msgid "Chiedi al titolare un codice nuovo, oppure entra con la password temporanea che ti ha dato."
+msgstr "Ask the owner for a new code, or sign in with the temporary password they gave you."
+
+msgid "Ciao %(utente)s!"
+msgstr "Hi %(utente)s!"
+
+msgid "Codice di benvenuto errato o scaduto"
+msgstr "Wrong or expired welcome code"
+
+msgid "Dispositivi"
+msgstr "Devices"
+
+msgid "Dispositivi rifiutati o revocati. Riabilitarne uno lo rende di nuovo approvato per il suo utente."
+msgstr "Rejected or revoked devices. Re-enabling one makes it approved again for its user."
+
+msgid "Dispositivo"
+msgstr "Device"
+
+msgid "Dispositivo di %(utente)s riabilitato"
+msgstr "%(utente)s's device re-enabled"
+
+msgid "Dispositivo riabilitato"
+msgstr "Device re-enabled"
+
+msgid "Entra in Racoonix"
+msgstr "Enter Racoonix"
+
+msgid "Fai inquadrare questo codice dal telefono di %(utente)s: si apre la pagina per scegliere la password, e quel telefono diventa subito un suo dispositivo approvato."
+msgstr "Have %(utente)s scan this code with their phone: the page to choose a password opens, and that phone immediately becomes one of their approved devices."
+
+msgid "I telefoni e i computer da cui ogni persona puo' entrare. Un dispositivo bloccato non puo' entrare con nessun account, finche' non lo riabiliti."
+msgstr "The phones and computers each person can sign in from. A blocked device can't sign in with any account until you re-enable it."
+
+msgid "Il modo piu' comodo: il QR"
+msgstr "The easiest way: the QR code"
+
+msgid "In attesa di approvazione"
+msgstr "Awaiting approval"
+
+msgid "Nessun dispositivo approvato."
+msgstr "No approved devices."
+
+msgid "Nessun dispositivo bloccato."
+msgstr "No blocked devices."
+
+msgid "Nessuna richiesta in attesa."
+msgstr "No pending requests."
+
+msgid "Oppure: la password temporanea"
+msgstr "Or: the temporary password"
+
+msgid "Primo accesso con il QR di benvenuto"
+msgstr "First sign-in with the welcome QR code"
+
+msgid "Questo codice non e' valido o e' scaduto."
+msgstr "This code isn't valid or has expired."
+
+msgid "Riabilita"
+msgstr "Re-enable"
+
+msgid "Scegli la tua password: da adesso entrerai con questa, da questo telefono."
+msgstr "Choose your password: from now on you'll sign in with it, from this phone."
+
+msgid "Si possono riabilitare solo i dispositivi bloccati di utenti attivi"
+msgstr "Only blocked devices of active users can be re-enabled"
+
+msgid "Ultimo uso"
+msgstr "Last used"
+
+msgid "Vale 30 minuti e una sola volta."
+msgstr "Valid for 30 minutes, once only."

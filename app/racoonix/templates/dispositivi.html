@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block classe_main %}largo{% endblock %}
+{% block titolo %}{{ _("Dispositivi") }} - Racoonix{% endblock %}
+{% macro azione(d, nome, testo, classe="piccolo secondario") %}
+<form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione=nome) }}" class="riga">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="da" value="dispositivi">
+  {% if nome == "approva" %}<input name="nome" maxlength="60" placeholder="{{ _("Nome (es. Telefono di Mario)") }}">{% endif %}
+  <button type="submit" class="{{ classe }}">{{ testo }}</button>
+</form>
+{% endmacro %}
+{% macro elenco(voci, vuoto) %}
+{% if voci %}
+<div class="tabella-wrap">
+  <table>
+    <tr><th>{{ _("Utente") }}</th><th>{{ _("Dispositivo") }}</th><th>{{ _("Ultimo uso") }}</th><th></th></tr>
+    {% for d in voci %}
+    <tr>
+      <td><strong>{{ d.utente.username }}</strong>{% if not d.utente.attivo %} <span class="badge spento">{{ _("disattivato") }}</span>{% endif %}</td>
+      <td>{{ d.nome or d.descrizione }}{% if d.nome %}<br><span class="sotto">{{ d.descrizione }}</span>{% endif %}</td>
+      <td>{{ d.ultimo_uso|data_ora }}{% if d.ultimo_ip %}<br><span class="sotto">{{ d.ultimo_ip }}</span>{% endif %}</td>
+      <td>
+        {% if d.stato == "in_attesa" %}{{ azione(d, "approva", _("Approva"), "piccolo") }}{{ azione(d, "revoca", _("Rifiuta")) }}
+        {% elif d.stato == "revocato" %}{% if d.utente.attivo %}{{ azione(d, "riabilita", _("Riabilita")) }}{% endif %}
+        {% else %}{{ azione(d, "revoca", _("Revoca")) }}{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% else %}<p class="sotto">{{ vuoto }}</p>{% endif %}
+{% endmacro %}
+{% block contenuto %}
+<h1>{{ _("Dispositivi") }}</h1>
+<p class="sotto">{{ _("I telefoni e i computer da cui ogni persona puo' entrare. Un dispositivo bloccato non puo' entrare con nessun account, finche' non lo riabiliti.") }}</p>
+
+<section class="scheda spazio">
+  <h2>{{ _("In attesa di approvazione") }} ({{ gruppi.in_attesa|length }})</h2>
+  {{ elenco(gruppi.in_attesa, _("Nessuna richiesta in attesa.")) }}
+</section>
+
+<section class="scheda spazio">
+  <h2>{{ _("Bloccati") }} ({{ gruppi.revocato|length }})</h2>
+  <p class="sotto">{{ _("Dispositivi rifiutati o revocati. Riabilitarne uno lo rende di nuovo approvato per il suo utente.") }}</p>
+  {{ elenco(gruppi.revocato, _("Nessun dispositivo bloccato.")) }}
+</section>
+
+<section class="scheda spazio">
+  <h2>{{ _("Approvati") }} ({{ gruppi.approvato|length }})</h2>
+  {{ elenco(gruppi.approvato, _("Nessun dispositivo approvato.")) }}
+</section>
+{% endblock %}

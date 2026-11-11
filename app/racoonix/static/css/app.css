@@ -459,3 +459,7 @@ fieldset.scelte .carte-scelta { width: 100%; }
 }
 
 .tendina-bottone.vuoto { color: var(--testo-2); font-weight: 400; }
+
+/* --- QR di benvenuto --- */
+.qr-centrato { display: flex; justify-content: center; margin: .8rem 0 .3rem; }
+.qr-centrato svg { max-width: 260px; height: auto; border-radius: 12px; }

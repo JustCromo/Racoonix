@@ -24,6 +24,7 @@ VOCI = [
       "anagrafica.nuova_sottocategoria", "anagrafica.cambia_sottocategoria"), ANAGRAFICA),
     ("impostazioni.pagina", _l("Negozio"), "building-store", {"admin"}, ("impostazioni.",), IMPOSTAZIONI),
     ("utenti.elenco", _l("Utenti"), "users", {"admin"}, ("utenti.",), IMPOSTAZIONI),
+    ("utenti.dispositivi", _l("Dispositivi"), "device-mobile", {"admin"}, ("utenti.dispositivi",), IMPOSTAZIONI),
     ("collega.pagina", _l("Collega dispositivi"), "device-mobile", {"admin"}, ("collega.",), IMPOSTAZIONI),
     ("registro.pagina", _l("Registro attivita'"), "history", {"admin"}, ("registro.",), IMPOSTAZIONI),
 ]
@@ -41,6 +42,6 @@ def contesto():
             continue
         if ammessi is TUTTI or admin or ruoli & ammessi:
             menu.append({"url": url_for(endpoint), "etichetta": str(etichetta), "icona": icona,
-                         "attiva": attuale.startswith(prefissi), "gruppo": str(gruppo) if admin else None})
+                         "attiva": attuale.startswith(prefissi) and not (endpoint == "utenti.elenco" and attuale == "utenti.dispositivi"), "gruppo": str(gruppo) if admin else None})
     return {"menu": menu, "tema": g.utente.tema,
             "admin_limitato": g.utente.ha_ruolo("admin") and not admin}

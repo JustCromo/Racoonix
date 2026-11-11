@@ -111,7 +111,7 @@ def _dispositivo_ok(utente):
 
 
 def obbligo_cambio_password():
-    consentiti = ("auth.cambia_password", "auth.logout", "static", "versione")
+    consentiti = ("auth.cambia_password", "auth.logout", "static", "versione", "benvenuto.pagina")
     if g.utente and g.utente.deve_cambiare_password and request.endpoint not in consentiti:
         # Mentre la persona scrive la nuova password, il contatore che si aggiorna da solo non deve toccare la pagina
         return _verso(url_for("auth.cambia_password"), resta_se_sei_gia_qui=True)
@@ -240,6 +240,8 @@ def cambia_password():
     g.utente.password_hash = ph.hash(nuova)
     g.utente.deve_cambiare_password = False
     g.utente.token_sessione = secrets.token_hex(32)
+    g.utente.benvenuto_hash = None
+    g.utente.benvenuto_scade = None
     session["token"] = g.utente.token_sessione
     registra("cambio_password", g.utente.id)
     db.session.commit()
