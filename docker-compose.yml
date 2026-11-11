@@ -79,6 +79,7 @@ services:
       RACOONIX_IP: ${RACOONIX_IP:-localhost}
       RACOONIX_INDIRIZZO: ${RACOONIX_IP:-localhost}
       RACOONIX_NOME: ${RACOONIX_NOME:-racoonix.local}
+      RACOONIX_VERSIONE: ${RACOONIX_VERSIONE:-}
     volumes:
       - *segreti-app
     depends_on:

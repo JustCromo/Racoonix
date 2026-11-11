@@ -124,6 +124,17 @@
       {% endfor %}
     </section>
 
+    <section class="scheda spazio stato-sistema">
+      <h2>{{ _("Stato del sistema") }}</h2>
+      <div class="voce-elenco"><span>{{ _("Versione") }}</span><strong>{{ sistema.versione }}</strong></div>
+      <div class="voce-elenco"><span>{{ _("Ultimo backup") }}</span>
+        <strong{% if sistema.backup_vecchio %} class="acceso"{% endif %}>{{ sistema.ultimo_backup|data_ora if sistema.ultimo_backup else _("mai") }}</strong></div>
+      <div class="voce-elenco"><span>{{ _("Spazio libero") }}</span>
+        <strong{% if sistema.disco_pieno %} class="acceso"{% endif %}>{{ sistema.libero_gb }} GB ({{ sistema.libero_perc }}%)</strong></div>
+      {% if sistema.backup_vecchio %}<p class="errore">{{ _("Nessun backup recente. Sul server: ./racoonix.sh backup-automatico") }}</p>{% endif %}
+      {% if sistema.disco_pieno %}<p class="errore">{{ _("Il disco si sta riempiendo: libera spazio o usa un disco piu' grande.") }}</p>{% endif %}
+    </section>
+
     <section class="scheda spazio">
       <div class="intestazione"><h2>{{ _("Attivita' recenti") }}</h2><a href="{{ url_for('registro.pagina') }}">{{ _("Vedi tutto") }}</a></div>
       {% for voce, utente in attivita %}

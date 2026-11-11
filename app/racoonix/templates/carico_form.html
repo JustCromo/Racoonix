@@ -7,6 +7,12 @@
   <h1>{% if prodotto %}{{ prodotto.descrizione }}{% else %}{{ _("Prodotto nuovo") }}{% endif %}</h1>
   <p class="sotto">{{ _("Codice:") }} {{ tipi.get(info.tipo, info.tipo) }}{% if info.gtin %} &middot; GTIN {{ info.gtin }}{% endif %}</p>
   {% for e in errori %}<p class="errore">{{ e }}</p>{% endfor %}
+  {% if ordine and ordine.stato == "ordinato" %}
+  <p class="info">{{ _("Questo prodotto era stato ordinato") }}{% if ordine.quantita %}: <strong>{{ ordine.quantita|quantita(prodotto.unita) }}</strong>{% endif %}. {{ _("Controlla che sia arrivato tutto, e correggi la quantita' se serve.") }}</p>
+  {% endif %}
+  {% if not prodotto and info.suggerito %}
+  <p class="info">{{ _("Dati proposti da Open Food Facts: controlla che siano giusti prima di caricare.") }}</p>
+  {% endif %}
   {% if not prodotto %}
   <p class="info">{{ _("Prodotto non in catalogo: verra' creato e dovra' essere approvato dall'admin. Fino ad allora resta solo in magazzino.") }}</p>
   {% elif prodotto.stato != "attivo" %}
@@ -16,12 +22,20 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% if not prodotto %}
     <label>{{ _("Nome") }} <input name="nome" value="{{ valori.nome or '' }}" maxlength="120" required></label>
+    <label>{{ _("Marca") }} <input name="marca" value="{{ valori.marca or '' }}" maxlength="60"></label>
     <label>{{ _("Categoria") }}
       <select name="categoria_id">{% for c in categorie %}<option value="{{ c.id }}" {% if valori.categoria_id == c.id|string %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select>
     </label>
     <label>{{ _("Unita'") }}
       <select name="unita"><option value="pezzo">{{ _("pezzo") }}</option><option value="kg" {% if valori.unita == "kg" %}selected{% endif %}>kg</option></select>
     </label>
+    <div class="griglia">
+      <label>{{ _("Pezzi per confezione") }} <input name="formato_pezzi" inputmode="numeric" value="{{ valori.formato_pezzi or '' }}" placeholder="1"></label>
+      <label>{{ _("Quantita' per pezzo") }} <input name="formato_quantita" inputmode="numeric" value="{{ valori.formato_quantita or '' }}" placeholder="500"></label>
+      <label>{{ _("Unita'") }}
+        <select name="formato_unita">{% for u in ["g", "ml", "pz"] %}<option value="{{ u }}" {% if valori.formato_unita == u %}selected{% endif %}>{{ u }}</option>{% endfor %}</select>
+      </label>
+    </div>
     {% endif %}
     {% set misura = ("kg" if prodotto.unita == "kg" else _("pezzi")) if prodotto else _("pezzi, o kg se a peso") %}
     {% if prodotto and prodotto.stato == "attivo" %}

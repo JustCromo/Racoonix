@@ -2477,3 +2477,84 @@ msgstr "Last used"
 
 msgid "Vale 30 minuti e una sola volta."
 msgstr "Valid for 30 minutes, once only."
+
+msgid "Al carico di un prodotto nuovo, Racoonix chiede i suoi dati al database aperto Open Food Facts. Viene inviato solo il codice a barre, nessun dato del negozio."
+msgstr "When a new product is booked in, Racoonix asks the open Open Food Facts database for its details. Only the barcode is sent, no shop data."
+
+msgid "Caricato: %(prodotto)s"
+msgstr "Booked in: %(prodotto)s"
+
+msgid "Carico a raffica"
+msgstr "Rapid booking"
+
+msgid "Carico annullato"
+msgstr "Delivery undone"
+
+msgid "Consegna diversa dall'ordine"
+msgstr "Delivery different from the order"
+
+msgid "Controlla che sia arrivato tutto, e correggi la quantita' se serve."
+msgstr "Check that everything arrived, and correct the quantity if needed."
+
+msgid "Dati proposti da Open Food Facts: controlla che siano giusti prima di caricare."
+msgstr "Details suggested by Open Food Facts: check they're right before booking in."
+
+msgid "Dopo ogni carico la fotocamera si riaccende da sola, e le ultime quantita' restano."
+msgstr "After each item the camera turns back on by itself, and the last quantities are kept."
+
+msgid "Hai appena caricato %(prodotto)s."
+msgstr "You've just booked in %(prodotto)s."
+
+msgid "Il disco si sta riempiendo: libera spazio o usa un disco piu' grande."
+msgstr "The disk is filling up: free some space or use a bigger disk."
+
+msgid "Nessun backup recente. Sul server: ./racoonix.sh backup-automatico"
+msgstr "No recent backup. On the server: ./racoonix.sh auto-backup"
+
+msgid "Non c'e' piu' niente da annullare: e' passato troppo tempo"
+msgstr "There's nothing left to undo: too much time has passed"
+
+msgid "Non si puo' annullare: la merce e' gia' stata spostata o contata"
+msgstr "Can't undo: the stock has already been moved or counted"
+
+msgid "Non si puo' annullare: lo scaffale e' gia' cambiato"
+msgstr "Can't undo: the shelf has already changed"
+
+msgid "Ordinati %(ordinati)s, arrivati %(arrivati)s: controlla la consegna"
+msgstr "Ordered %(ordinati)s, received %(arrivati)s: check the delivery"
+
+msgid "Prodotti nuovi"
+msgstr "New products"
+
+msgid "Proponi nome, marca e formato da Open Food Facts"
+msgstr "Suggest name, brand and size from Open Food Facts"
+
+msgid "Questo prodotto era stato ordinato"
+msgstr "This product had been ordered"
+
+msgid "Rifornimento annullato"
+msgstr "Restock undone"
+
+msgid "Rifornimento annullato: la merce torna in magazzino"
+msgstr "Restock undone: the stock goes back to the stockroom"
+
+msgid "Spazio libero"
+msgstr "Free space"
+
+msgid "Spegni il carico a raffica"
+msgstr "Turn off rapid booking"
+
+msgid "Stato del sistema"
+msgstr "System status"
+
+msgid "Ultimo backup"
+msgstr "Last backup"
+
+msgid "Versione"
+msgstr "Version"
+
+msgid "mai"
+msgstr "never"
+
+msgid "per un minuto"
+msgstr "for one minute"

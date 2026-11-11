@@ -24,6 +24,7 @@ def pagina():
         return render_template("impostazioni.html", **_contesto(dict(negozio.impostazioni()), []))
     f = request.form
     valori = {k: testo_pulito(f.get(k)) for k in ("nome", "lingua", "paese", "fuso", "reti_admin")}
+    valori["open_food_facts"] = "1" if f.get("open_food_facts") == "1" else "0"
     errori = []
     if not NOME_OK.match(valori["nome"]):
         errori.append(_("Nome del negozio non valido (2-60 caratteri)"))

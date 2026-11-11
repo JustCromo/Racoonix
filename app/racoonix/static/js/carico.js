@@ -32,4 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
       pulsante.textContent = (window.racoonixTesto ? window.racoonixTesto("Fotocamera non disponibile") : "Fotocamera non disponibile");
     }
   });
+  // Carico a raffica: la fotocamera si riaccende da sola, pronta per il prodotto successivo
+  if (pulsante.dataset.raffica === "1") pulsante.click();
 });

@@ -11,6 +11,7 @@ from .models import Categoria, Lotto, Notifica, Prodotto
 from .notifiche import controlla_scaffali
 from .riordini import merce_arrivata
 from .catalogo import trova_per_gtin
+from .formato import testo_pulito
 from .lingua import _, _l
 
 bp = Blueprint("carico", __name__, url_prefix="/carico")
@@ -54,20 +55,52 @@ def _prodotto_da_info(info):
 
 
 def _mostra_form(info, prodotto, errori=None, valori=None, codice=200):
-    return render_template("carico_form.html", info=info, prodotto=prodotto,
+    from .riordini import riordino_aperto
+    valori = dict(valori or {})
+    # Carico a raffica: ricordo le ultime quantita' e (se scritta a mano) l'ultima scadenza
+    if not errori and session.get("raffica"):
+        for chiave, valore in (session.get("ultimo_carico") or {}).items():
+            valori.setdefault(chiave, valore)
+    # Prodotto ordinato: propongo la quantita' dell'ordine, cosi' si vede subito se ne manca qualcuno
+    ordine = riordino_aperto(prodotto.id) if prodotto else None
+    if ordine and ordine.stato == "ordinato" and ordine.quantita and not errori:
+        from .formato import quantita_input
+        valori["magazzino"] = quantita_input(ordine.quantita, prodotto.unita)
+    if not errori and prodotto is None and info.get("suggerito"):
+        sugg = info["suggerito"]
+        valori.setdefault("nome", sugg["nome"])
+        valori.setdefault("marca", sugg.get("marca") or "")
+        if sugg.get("formato"):
+            pezzi, quantita, unita = sugg["formato"]
+            valori.setdefault("formato_pezzi", str(pezzi))
+            valori.setdefault("formato_quantita", str(quantita))
+            valori.setdefault("formato_unita", unita)
+    return render_template("carico_form.html", info=info, prodotto=prodotto, ordine=ordine,
                            categorie=_categorie(), errori=errori or [],
-                           valori=valori or {}, oggi=date.today()), codice
+                           valori=valori, oggi=date.today()), codice
 
 
 @bp.get("/")
 @richiede_ruolo("magazziniere")
 def pagina():
+    from .annulla import disponibile
     session.pop(CHIAVE, None)
     sfusi = db.session.scalars(
         db.select(Prodotto)
         .where(Prodotto.codice_bilancia.is_not(None), Prodotto.stato == "attivo")
         .order_by(Prodotto.nome)).all()
-    return render_template("carico.html", sfusi=sfusi)
+    return render_template("carico.html", sfusi=sfusi, raffica=bool(session.get("raffica")),
+                           annullabile=disponibile("carico"))
+
+
+@bp.post("/raffica")
+@richiede_ruolo("magazziniere")
+def raffica():
+    """Carico a raffica: dopo ogni carico la fotocamera si riaccende da sola e le quantita' restano."""
+    session["raffica"] = request.form.get("attiva") == "1"
+    if not session["raffica"]:
+        session.pop("ultimo_carico", None)
+    return redirect(url_for(".pagina"))
 
 
 @bp.post("/leggi")
@@ -87,6 +120,12 @@ def leggi():
     if prodotto and prodotto.stato == "rimosso":
         flash(_("Prodotto non ammesso: contatta l'admin"), "errore")
         return redirect(url_for(".pagina"))
+    if prodotto is None and info.get("gtin"):
+        from . import negozio
+        from .lingua import scegli_lingua
+        from .openfoodfacts import cerca
+        if negozio.impostazioni().get("open_food_facts") != "0":
+            info["suggerito"] = cerca(info["gtin"], scegli_lingua())
     session[CHIAVE] = info
     return _mostra_form(info, prodotto)
 
@@ -120,7 +159,6 @@ def conferma():
     f = request.form
     errori = []
     if prodotto is None:
-        from .formato import testo_pulito
         nome = testo_pulito(f.get("nome"))
         unita = f.get("unita")
         cid = _id(f.get("categoria_id"))
@@ -131,6 +169,21 @@ def conferma():
             errori.append(_("Categoria non valida"))
         if unita not in ("pezzo", "kg"):
             errori.append(_("Unita' non valida"))
+        marca = testo_pulito(f.get("marca"))[:60] or None
+        if marca and not NOME_OK.match(marca):
+            errori.append(_("Marca non valida"))
+        formato_pezzi, formato_quantita, formato_unita = 1, None, None
+        testo_q = (f.get("formato_quantita") or "").strip()
+        if unita == "pezzo" and testo_q:
+            pezzi_t = (f.get("formato_pezzi") or "1").strip()
+            formato_unita = f.get("formato_unita")
+            if not (PEZZI_OK.match(pezzi_t) and 1 <= int(pezzi_t) <= 99 and PEZZI_OK.match(testo_q)
+                    and 1 <= int(testo_q) <= 100_000 and formato_unita in ("g", "ml", "pz")):
+                errori.append(_("Formato non valido: servono quantita' e unita'"))
+            else:
+                formato_pezzi, formato_quantita = int(pezzi_t), int(testo_q)
+        if not formato_quantita:
+            formato_unita = None
     else:
         categoria, unita = prodotto.categoria, prodotto.unita
 
@@ -171,15 +224,20 @@ def conferma():
         codice_lotto = f"INT{oggi:%y%m%d}{secrets.token_hex(2).upper()}"
 
     if prodotto is None:
-        prodotto = Prodotto(gtin=info.get("gtin"), nome=nome, categoria_id=categoria.id,
+        prodotto = Prodotto(gtin=info.get("gtin"), nome=nome, marca=marca, categoria_id=categoria.id,
+                            formato_pezzi=formato_pezzi, formato_quantita=formato_quantita, formato_unita=formato_unita,
                             unita=unita, stato="in_attesa", creato_da=g.utente.id)
         db.session.add(prodotto)
         db.session.flush()
         db.session.add(Notifica(tipo="da_approvare", prodotto_id=prodotto.id,
                                 ruolo_destinatario="admin"))
+        prodotto_nuovo = True
+    else:
+        prodotto_nuovo = False
 
     lotto = db.session.scalar(db.select(Lotto).filter_by(
         prodotto_id=prodotto.id, codice_lotto=codice_lotto, data_scadenza=scadenza))
+    lotto_nuovo = lotto is None
     if lotto is None:
         lotto = Lotto(prodotto_id=prodotto.id, codice_lotto=codice_lotto, data_scadenza=scadenza,
                       qta_esposta=0, qta_magazzino=0, caricato_da=g.utente.id)
@@ -187,11 +245,34 @@ def conferma():
     lotto.qta_esposta += esposta
     lotto.qta_magazzino += magazzino
 
+    # Merce ordinata: se ne arriva una quantita' diversa, lo dico subito e resta nel registro
+    from .formato import quantita as mostra_quantita
+    from .models import Riordino
+    from .riordini import APERTI
+    aperti = db.session.scalars(db.select(Riordino).where(
+        Riordino.prodotto_id == prodotto.id, Riordino.stato.in_(APERTI))).all()
+    differenza = None
+    for r in aperti:
+        if r.stato == "ordinato" and r.quantita and r.quantita != esposta + magazzino:
+            differenza = _("Ordinati %(ordinati)s, arrivati %(arrivati)s: controlla la consegna",
+                           ordinati=mostra_quantita(r.quantita, prodotto.unita),
+                           arrivati=mostra_quantita(esposta + magazzino, prodotto.unita))
+            registra("consegna_diversa", g.utente.id,
+                     f"prodotto {prodotto.id}: ordinati {r.quantita}, arrivati {esposta + magazzino}")
+    stati_prima = [(r.id, r.stato) for r in aperti]
     merce_arrivata(prodotto.id)
     registra("carico", g.utente.id,
              f"prodotto {prodotto.id}, lotto {codice_lotto}, esposta {esposta}, magazzino {magazzino}")
     db.session.commit()
     session.pop(CHIAVE, None)
     controlla_scaffali([prodotto.id])
-    flash(f"Caricato: {prodotto.nome}", "ok")
+    from .annulla import ricorda
+    ricorda("carico", lotto_id=lotto.id, esposta=esposta, magazzino=magazzino, lotto_nuovo=lotto_nuovo,
+            prodotto_nuovo=prodotto_nuovo, riordini=stati_prima, nome=prodotto.descrizione)
+    if session.get("raffica"):
+        session["ultimo_carico"] = {k: (f.get(k) or "").strip() for k in ("esposta", "magazzino", "scadenza")
+                                    if (f.get(k) or "").strip()}
+    if differenza:
+        flash(differenza, "errore")
+    flash(_("Caricato: %(prodotto)s", prodotto=prodotto.descrizione), "ok")
     return redirect(url_for(".pagina"))

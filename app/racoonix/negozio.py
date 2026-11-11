@@ -12,7 +12,7 @@ from . import db
 LINGUE = ("it", "en")
 PAESI = ("IT", "GB", "US")
 FUSO_PER_PAESE = {"IT": "Europe/Rome", "GB": "Europe/London", "US": "America/New_York"}
-CHIAVI = ("nome", "lingua", "paese", "fuso", "reti_admin", "configurato")
+CHIAVI = ("nome", "lingua", "paese", "fuso", "reti_admin", "configurato", "open_food_facts")
 
 
 def _da_ambiente():
@@ -23,6 +23,7 @@ def _da_ambiente():
         "fuso": os.environ.get("RACOONIX_FUSO") or "Europe/Rome",
         "reti_admin": os.environ.get("ADMIN_IP_CONSENTITI") or "127.0.0.1/32",
         "configurato": "0",
+        "open_food_facts": "1",
     }
 
 

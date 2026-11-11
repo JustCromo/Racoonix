@@ -2,14 +2,28 @@
 {% block titolo %}{{ _("Carico merce - Racoonix") }}{% endblock %}
 {% block contenuto %}
 <h1>{{ _("Carico merce") }}</h1>
+{% if annullabile %}
+<form method="post" action="{{ url_for('annulla.annulla') }}" class="scheda annulla-riga">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <span>{{ _("Hai appena caricato %(prodotto)s.", prodotto=annullabile.nome) }}</span>
+  <button type="submit" class="piccolo secondario">{{ _("Annulla") }}</button>
+  <span class="sotto">{{ _("per un minuto") }}</span>
+</form>
+{% endif %}
 <section class="scheda">
   <form id="modulo-codice" method="post" action="{{ url_for('carico.leggi') }}" class="riga">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input id="codice" name="codice" autocomplete="off" autofocus maxlength="250" placeholder="{{ _("Leggi o scrivi il codice") }}">
     <button type="submit">{{ _("Avanti") }}</button>
   </form>
-  <button id="avvia" type="button" class="secondario">{{ _("Usa fotocamera") }}</button>
+  <button id="avvia" type="button" class="secondario"{% if raffica %} data-raffica="1"{% endif %}>{{ _("Usa fotocamera") }}</button>
   <div id="lettore"></div>
+  <form method="post" action="{{ url_for('carico.raffica') }}" class="spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="attiva" value="{{ '0' if raffica else '1' }}">
+    <button type="submit" class="piccolo secondario">{{ _("Spegni il carico a raffica") if raffica else _("Carico a raffica") }}</button>
+    <span class="sotto">{{ _("Dopo ogni carico la fotocamera si riaccende da sola, e le ultime quantita' restano.") }}</span>
+  </form>
 </section>
 {% if sfusi %}
 <section class="scheda spazio">

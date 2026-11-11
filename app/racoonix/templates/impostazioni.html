@@ -14,6 +14,12 @@
       <p class="sotto">{{ _("Indirizzi da cui funzionano le funzioni del titolare, separati da virgole. Il computer che stai usando ha l'indirizzo %(ip)s e deve restare tra questi.", ip=mio_ip) }}</p>
       <input name="reti_admin" value="{{ valori.reti_admin }}" maxlength="500" required spellcheck="false">
     </fieldset>
+    <fieldset class="scelte">
+      <legend>{{ _("Prodotti nuovi") }}</legend>
+      <label class="spunta"><input type="checkbox" name="open_food_facts" value="1" {% if valori.open_food_facts != "0" %}checked{% endif %}>
+        {{ _("Proponi nome, marca e formato da Open Food Facts") }}</label>
+      <p class="sotto">{{ _("Al carico di un prodotto nuovo, Racoonix chiede i suoi dati al database aperto Open Food Facts. Viene inviato solo il codice a barre, nessun dato del negozio.") }}</p>
+    </fieldset>
     <button type="submit" class="spazio">{{ _("Salva") }}</button>
   </form>
 </section>

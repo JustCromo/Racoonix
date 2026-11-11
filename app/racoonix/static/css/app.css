@@ -469,3 +469,9 @@ fieldset.scelte .carte-scelta { width: 100%; }
 
 .stato-sistema strong.acceso { color: #A6493A; }
 [data-theme="scuro"] .stato-sistema strong.acceso { color: #E08B7C; }
+
+/* --- Annulla l'ultima operazione --- */
+.annulla-riga { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+
+.stato-sistema strong.acceso { color: #A6493A; }
+[data-theme="scuro"] .stato-sistema strong.acceso { color: #E08B7C; }

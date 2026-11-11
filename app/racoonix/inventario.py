@@ -125,11 +125,11 @@ def risultati():
                            q=_q_mostrabile(q), categoria_id=categoria_id, filtro_scadenza=_filtri_scadenza())
 
 
-def _risposta(prodotto, messaggio, esito, q, categoria_id):
+def _risposta(prodotto, messaggio, esito, q, categoria_id, annullabile=False):
     """Con htmx restituisce solo la scheda aggiornata, senza htmx fa il classico redirect."""
     if request.headers.get("HX-Request") == "true":
         return render_template("_scheda_prodotto.html", s=_scheda(prodotto, date.today()),
-                               messaggio=messaggio, esito=esito,
+                               messaggio=messaggio, esito=esito, annullabile=annullabile,
                                q=_q_mostrabile(q), categoria_id=categoria_id, filtro_scadenza=_filtri_scadenza())
     flash(messaggio, esito)
     return redirect(url_for(".pagina", q=q or None, categoria=categoria_id))
@@ -158,11 +158,12 @@ def rifornisci(prodotto_id):
         return _risposta(prodotto, _("In magazzino ci sono solo %(quantita)s", quantita=mostra_quantita(disponibile, prodotto.unita)),
                          "errore", q, categoria_id)
 
-    restante = quantita
+    restante, movimenti = quantita, []
     for lotto in lotti:
         sposta = min(restante, lotto.qta_magazzino)
         lotto.qta_magazzino -= sposta
         lotto.qta_esposta += sposta
+        movimenti.append((lotto.id, sposta))
         restante -= sposta
         if restante == 0:
             break
@@ -171,8 +172,10 @@ def rifornisci(prodotto_id):
     registra("rifornimento", g.utente.id, f"prodotto {prodotto.id}, quantita {quantita}")
     db.session.commit()
     controlla_scaffali([prodotto.id])
+    from .annulla import ricorda
+    ricorda("rifornimento", prodotto_id=prodotto.id, movimenti=movimenti, cerca=prodotto.nome)
     return _risposta(prodotto, _("Spostati sullo scaffale: %(quantita)s", quantita=mostra_quantita(quantita, prodotto.unita)),
-                     "ok", q, categoria_id)
+                     "ok", q, categoria_id, annullabile=True)
 
 
 def _intero(testo, minimo, massimo):

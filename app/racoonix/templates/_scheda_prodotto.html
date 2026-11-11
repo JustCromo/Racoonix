@@ -77,6 +77,13 @@
   </form>
   {% endif %}
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}
+  {% if annullabile %}
+  <form method="post" action="{{ url_for('annulla.annulla') }}" class="annulla-riga">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="piccolo secondario">{{ _("Annulla") }}</button>
+    <span class="sotto">{{ _("per un minuto") }}</span>
+  </form>
+  {% endif %}
   {% if s.magazzino > 0 %}
   <details class="spazio" id="conta-{{ p.id }}">
     <summary>{{ _("Conta il magazzino") }}</summary>

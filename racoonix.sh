@@ -79,6 +79,14 @@ esporta_certificato() {
 indirizzo() { grep '^RACOONIX_IP=' .env | cut -d= -f2; }
 nome_rete() { grep '^RACOONIX_NOME=' .env | cut -d= -f2; }
 
+# La versione (dal tag Git) arriva all'app e compare nella dashboard
+segna_versione() {
+  local versione
+  versione=$(git describe --tags --always 2>/dev/null || echo "?")
+  sed -i '/^RACOONIX_VERSIONE=/d' .env
+  echo "RACOONIX_VERSIONE=$versione" >> .env
+}
+
 mostra_link() {
   dc run --rm --no-deps app python -m racoonix.configurazione
 }
@@ -96,6 +104,7 @@ installa() {
 
   printf 'RACOONIX_IP=%s\nRACOONIX_NOME=%s\n' "$ip" "$nome" > .env
   chmod 600 .env
+  segna_versione
   info "$(t "Preparo l'applicazione (la prima volta puo' richiedere qualche minuto)..." "Preparing the application (the first time can take a few minutes)...")"
   dc build
   importa_segreti_vecchi
@@ -114,6 +123,8 @@ backup() {
     errore "$(t "Backup non riuscito" "Backup failed")"
   fi
   chmod 600 "$file"
+  # La dashboard mostra la data dell'ultimo backup riuscito
+  dc exec -T db psql -q -U racoonix -d racoonix -c "INSERT INTO impostazioni (chiave, valore, aggiornata_il) VALUES ('sistema.ultimo_backup', 'ok', now()) ON CONFLICT (chiave) DO UPDATE SET valore = 'ok', aggiornata_il = now();" >/dev/null 2>&1 || true
   ok "$(t "Backup salvato:" "Backup saved:") $file ($(du -h "$file" | cut -f1))"
   ls -1t "$BACKUP_DIR"/racoonix-*.dump | tail -n +$((BACKUP_DA_TENERE + 1)) | xargs -r rm -f
 }
@@ -156,6 +167,7 @@ aggiorna() {
     git diff --quiet && git diff --cached --quiet || errore "$(t "Ci sono modifiche locali al codice: salvale o annullale prima di aggiornare" "There are local code changes: commit or discard them before updating")"
     git pull --ff-only
   fi
+  segna_versione
   info "$(t "Scarico le immagini aggiornate (correzioni di sicurezza di Caddy e PostgreSQL)" "Downloading updated images (Caddy and PostgreSQL security fixes)")"
   dc pull caddy
   dc build --pull

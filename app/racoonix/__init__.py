@@ -59,6 +59,8 @@ def create_app():
     app.register_blueprint(configurazione_bp)
     from .benvenuto import bp as benvenuto_bp
     app.register_blueprint(benvenuto_bp)
+    from .annulla import bp as annulla_bp
+    app.register_blueprint(annulla_bp)
     from .impostazioni import bp as impostazioni_bp
     app.register_blueprint(impostazioni_bp)
     from . import negozio

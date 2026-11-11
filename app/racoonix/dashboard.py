@@ -126,8 +126,29 @@ def pagina():
         scarti=scarti.values(), valore_scarti=sum(s["valore"] for s in scarti.values()), piu_buttati=piu_buttati,
         valore_magazzino=valore_magazzino, attenzione=attenzione, in_scadenza=in_scadenza,
         sconti_attivi=sconti_attivi, barre_scadenze=barre_scadenze, numeri=numeri, attivita=attivita,
-        etichette_attivita=ETICHETTE_ATTIVITA, guida=_guida(),
+        etichette_attivita=ETICHETTE_ATTIVITA, guida=_guida(), sistema=_stato_sistema(),
         guida_nascosta=_impostazione("guida_nascosta") == "1" and _guida(True) is not None)
+
+
+def _stato_sistema():
+    """Versione, ultimo backup e spazio libero: il titolare si accorge dei problemi prima che diventino guai."""
+    import os
+    import shutil
+    versione_db = db.session.scalar(db.text("SELECT version_num FROM alembic_version LIMIT 1"))
+    voce = db.session.get(Impostazione, "sistema.ultimo_backup")
+    ultimo_backup = voce.aggiornata_il if voce else None
+    disco = shutil.disk_usage("/")
+    libero = disco.free / disco.total if disco.total else 1
+    backup_vecchio = ultimo_backup is None or datetime.now(ultimo_backup.tzinfo) - ultimo_backup > timedelta(hours=36)
+    return {
+        "versione": os.environ.get("RACOONIX_VERSIONE") or "?",
+        "versione_db": versione_db,
+        "ultimo_backup": ultimo_backup,
+        "backup_vecchio": backup_vecchio,
+        "libero_gb": round(disco.free / 1024 ** 3, 1),
+        "libero_perc": round(libero * 100),
+        "disco_pieno": libero < 0.10 or disco.free < 2 * 1024 ** 3,
+    }
 
 
 def _saluto():

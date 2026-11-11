@@ -61,6 +61,7 @@ Probably **not**, if you already have a management system connected to your till
 
 - **Barcode reading**: EAN-13 and EAN-8, UPC, book and magazine codes, GS1 DataMatrix and GS1 Digital Link QR codes (with batch and expiry date), labels of products sold by weight.
 - **New products filled in automatically**: on booking in, name, brand and size come from [Open Food Facts](https://world.openfoodfacts.org), the open food products database (only the barcode leaves the shop, and it can be turned off).
+- **New products filled in automatically**: on booking in, name, brand and size come from [Open Food Facts](https://world.openfoodfacts.org), the open food products database (only the barcode leaves the shop, and it can be turned off).
 - **Batches and expiry dates**, with automatic rotation: what expires first is sold first.
 - **To-do lists** by role, updated in real time.
 - **Discounts**, set manually on a batch or scheduled in two steps based on the days left before expiry.
