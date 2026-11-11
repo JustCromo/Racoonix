@@ -71,7 +71,7 @@ Probably **not**, if you already have a management system connected to your till
 
 ## Quick installation
 
-You need a Linux computer that's always on in the shop, with a fixed address on the local network (a Raspberry Pi 4 or 5 is perfect), with **Docker**, **git** and **openssl**.
+You need a Linux computer that's always on in the shop, with a fixed address on the local network (a Raspberry Pi 4 or 5 is perfect), with **Docker** and **git**. Nothing else: nothing to install on the system, no administrator rights.
 
 ```bash
 git clone https://github.com/JustCromo/Racoonix.git
@@ -79,11 +79,13 @@ cd Racoonix
 ./racoonix.sh install
 ```
 
-The installer first asks for **language, country and time zone**, then **four details** (shop name, server address, the computer you'll manage it from, Racoonix's name on the network), sets everything else up on its own and starts Racoonix. Then:
+The installer asks no questions: it sets everything up on its own, starts Racoonix and finally shows a **personal link** (also as a QR code). Then:
 
-1. from your computer, open `https://racoonix.local` (or the server's IP address) and sign in as the administrator;
+1. open that link from your computer: the **guided setup** opens, where you pick country, language and time zone with a click, name your shop and create your account. The link works once only: if you need it again, `./racoonix.sh link`;
 2. go to **Collega dispositivi** (*Connect devices*) and follow the instructions so that phones and PCs recognise Racoonix (once per device);
-3. create accounts for the people who work with you under **Utenti** (*Users*). The first time they sign in, everyone chooses their own password, and you approve their phone.
+3. create accounts for the people who work with you under **Users**. The first time they sign in, everyone chooses their own password, and you approve their phone.
+
+Name, language, country and time zone can be changed at any time from **Shop**, in the menu.
 
 Everything else takes a single command:
 
@@ -94,13 +96,14 @@ Everything else takes a single command:
 | `./racoonix.sh auto-backup` | Turn on nightly backups |
 | `./racoonix.sh backup` / `restore` | Back up right now, or restore an earlier backup |
 | `./racoonix.sh update` | Update to the latest version (it takes a backup first) |
-| `./racoonix.sh name` | Announce the `racoonix.local` name on the network again (for example, if the server's IP has changed) |
+| `./racoonix.sh link` | Show the guided setup link again |
+| `./racoonix.sh name NAME` | Change Racoonix's name on the network (`racoonix.local` by default) |
 
 ### How to reach Racoonix
 
 Racoonix has **two addresses**, and both work:
 
-- **an easy-to-remember name**, `https://racoonix.local`. Racoonix announces it on the shop's network by itself, the way network printers do: the installer sets it up automatically, without touching the router;
+- **an easy-to-remember name**, `https://racoonix.local`. Racoonix announces it on the shop's network by itself, the way network printers do, without touching the router or the server;
 - **the server's IP address**, for example `https://192.168.1.50`, which always works, everywhere.
 
 | Device | Address to use |
@@ -113,7 +116,7 @@ The **Collega dispositivi** page always shows both addresses, with a QR code to 
 
 > **Tip:** have each device always use the same address. To the browser, the name and the IP are two different websites: switching address means signing in again and having the device approved again.
 
-**Want the name on Android too?** If the shop's router lets you give names to devices on the network (many routers call this "local DNS" or "host name"), you can link a name to the server's IP: that name will work on any device. In that case, enter that name instead of `racoonix.local` during installation.
+**Want the name on Android too?** If the shop's router lets you give names to devices on the network (many routers call this "local DNS" or "host name"), you can link a name to the server's IP: that name will work on any device. In that case, give Racoonix that name with `./racoonix.sh name`.
 
 ## Security
 
@@ -130,6 +133,7 @@ Every page travels over **HTTPS**, even inside the shop. Racoonix creates its ow
 ### Who gets in, and from where
 
 - **No open sign-up**: accounts can only be created by the owner, and on first sign-in everyone chooses their own password.
+- **Protected initial setup**: the setup page only opens with a one-time code shown on the server, expires after 24 hours and switches off for good once setup is complete. Nobody on the network can set up Racoonix in your place.
 - **Protected passwords**, using an algorithm designed specifically to make guessing attempts extremely slow, even if someone were to steal the database.
 - **Approved devices**: each person can only sign in from devices the owner has approved. A stolen password, on its own, isn't enough. A revoked device is blocked immediately, for any account.
 - **No clues for intruders**: when a sign-in fails, the response is always the same, whatever the reason. Someone trying to guess can't tell whether they've found the right password, or whether a user exists. Only the owner sees the real reason.
@@ -148,7 +152,8 @@ If someone ever managed to take control of the application anyway, Racoonix limi
 - the application talks to the database with **the fewest permissions possible**: it can read and write the shop's data, but it can't delete tables, create users or change the structure of the database;
 - **the activity log can't be changed or deleted**, not even by the application: the database itself prevents it. Someone who gets in unnoticed can't cover their tracks;
 - each component runs **isolated** in its own container, with only the permissions it strictly needs and a read-only disk; the database can't be reached from the shop's network;
-- **passwords and keys** are generated at random during installation and never appear in the code.
+- **passwords and keys** are generated at random on first start, kept in separate spaces where each component only sees what it needs, and never appear in the code or in files to manage by hand;
+- **security updates**: on every `./racoonix.sh update` the Racoonix images, database included, are rebuilt with the latest operating system fixes, without waiting for anyone.
 
 ### Protection on every page
 
@@ -174,6 +179,7 @@ flowchart LR
     C --> A["Racoonix<br/>(Python, Flask)"]
     A --> D[("Database<br/>(PostgreSQL)")]
     S["Scheduled<br/>checks"] --> D
+    N["Network name<br/>(racoonix.local)"] -. mDNS .-> T
 ```
 
 Python and Flask for the application, PostgreSQL for the data, Caddy for the encrypted connection, htmx for a responsive interface with no logic in the browser, Docker to run everything the same way on any computer.

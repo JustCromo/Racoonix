@@ -151,7 +151,8 @@ Se un giorno qualcuno riuscisse comunque a prendere il controllo dell'applicazio
 - l'applicazione parla al database con **permessi ridotti al minimo**: può leggere e scrivere i dati del negozio, ma non può cancellare tabelle, creare utenti o cambiare la struttura del database;
 - **il registro attività non si può modificare né cancellare**, nemmeno dall'applicazione: è il database stesso a impedirlo. Chi entra di nascosto non può cancellare le proprie tracce;
 - ogni componente gira **isolato** nel suo container, con i soli permessi indispensabili e il disco in sola lettura; il database non è raggiungibile dalla rete del negozio;
-- **password e chiavi** vengono generate a caso al primo avvio, restano in spazi separati a cui ogni componente vede solo la parte che gli serve, e non compaiono mai nel codice né in file da gestire a mano.
+- **password e chiavi** vengono generate a caso al primo avvio, restano in spazi separati a cui ogni componente vede solo la parte che gli serve, e non compaiono mai nel codice né in file da gestire a mano;
+- **aggiornamenti di sicurezza**: a ogni `./racoonix.sh aggiorna` le immagini di Racoonix, database compreso, vengono ricostruite con le ultime correzioni del sistema operativo, senza aspettare nessuno.
 
 ### Le protezioni di ogni pagina
 
@@ -177,6 +178,7 @@ flowchart LR
     C --> A["Racoonix<br/>(Python, Flask)"]
     A --> D[("Database<br/>(PostgreSQL)")]
     S["Controlli<br/>programmati"] --> D
+    N["Nome in rete<br/>(racoonix.local)"] -. mDNS .-> T
 ```
 
 Python e Flask per l'applicazione, PostgreSQL per i dati, Caddy per la connessione cifrata, htmx per un'interfaccia reattiva senza logica nel browser, Docker per far girare tutto allo stesso modo su qualunque computer.
