@@ -12,7 +12,7 @@ import secrets
 import sys
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from . import db, limiter, negozio
 from .lingua import LINGUE, _
@@ -117,7 +117,9 @@ def pagina():
     from .auth import ph, registra
     from .models import Ruolo, Utente
     if negozio.configurato():
-        abort(404)
+        # Link gia' usato: niente errore, si va al login. La configurazione resta chiusa per sempre.
+        flash(_("Racoonix e' gia' configurato: entra con il tuo account."), "ok")
+        return redirect(url_for("auth.login"))
     lingua = request.args.get("lingua")
     if lingua in LINGUE:
         session["lingua_configurazione"] = lingua

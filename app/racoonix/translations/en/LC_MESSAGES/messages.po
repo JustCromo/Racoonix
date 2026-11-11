@@ -2312,3 +2312,6 @@ msgstr "Search for a city..."
 
 msgid "Nessun risultato"
 msgstr "No results"
+
+msgid "Racoonix e' gia' configurato: entra con il tuo account."
+msgstr "Racoonix is already set up: sign in with your account."
