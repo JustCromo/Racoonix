@@ -58,6 +58,7 @@ Probabilmente **no**, se hai già un gestionale collegato alla cassa che gestisc
 ## Cosa sa fare
 
 - **Lettura dei codici**: EAN-13 ed EAN-8, UPC, codici dei libri e delle riviste, GS1 DataMatrix e QR GS1 Digital Link (con lotto e scadenza), etichette dei prodotti a peso.
+- **Prodotti nuovi già compilati**: al carico, nome, marca e formato arrivano da [Open Food Facts](https://world.openfoodfacts.org), il database aperto dei prodotti alimentari (solo il codice a barre lascia il negozio, e si può spegnere).
 - **Lotti e scadenze**, con rotazione automatica: si vende prima quello che scade prima.
 - **Cose da fare** per ruolo, aggiornate in tempo reale.
 - **Sconti** manuali su un lotto, o programmati a due fasce in base ai giorni che mancano alla scadenza.

@@ -32,7 +32,7 @@ Please test only on your own installation, and don't access or modify data that 
 
 Racoonix was designed starting from one question: **what happens if something goes wrong?** Every defence is meant to keep working even when the one before it has given way.
 
-**Your data stays in the shop.** No cloud, no external services, nothing downloaded from the internet while you use it: fonts, icons and libraries all live on the shop's server. Racoonix is meant to be reachable only from the local network.
+**Your data stays in the shop.** The only external connection is optional: when a new product is booked in, Racoonix can ask Open Food Facts for its name and brand, sending only the barcode (it can be turned off in Settings). No cloud, nothing downloaded from the internet while you use it: fonts, icons and libraries all live on the shop's server. Racoonix is meant to be reachable only from the local network.
 
 **Always-encrypted connection.** Every page travels over HTTPS, even inside the shop. Racoonix creates its own certificate; each device installs it once and can check its fingerprint. After the first visit, browsers refuse to connect without encryption.
 
@@ -92,7 +92,7 @@ Fai le prove solo sulla tua installazione, e non accedere né modificare dati ch
 
 Racoonix è stato progettato partendo da una domanda: **cosa succede se qualcosa va storto?** Ogni difesa è pensata per funzionare anche quando quella prima ha ceduto.
 
-**I dati restano in negozio.** Niente cloud, niente servizi esterni, niente risorse scaricate da internet mentre lo usi: caratteri, icone e librerie stanno sul server del negozio. Racoonix è pensato per essere raggiungibile solo dalla rete locale.
+**I dati restano in negozio.** L'unico collegamento esterno è facoltativo: al carico di un prodotto nuovo, Racoonix può chiedere nome e marca a Open Food Facts inviando solo il codice a barre (si spegne da Impostazioni). Niente cloud, niente risorse scaricate da internet mentre lo usi: caratteri, icone e librerie stanno sul server del negozio. Racoonix è pensato per essere raggiungibile solo dalla rete locale.
 
 **Connessione sempre cifrata.** Ogni pagina viaggia su HTTPS, anche dentro il negozio. Racoonix crea il proprio certificato; ogni dispositivo lo installa una volta e può verificarne l'impronta. Dopo il primo accesso, il browser rifiuta di collegarsi senza cifratura.
 

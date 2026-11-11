@@ -463,3 +463,9 @@ fieldset.scelte .carte-scelta { width: 100%; }
 /* --- QR di benvenuto --- */
 .qr-centrato { display: flex; justify-content: center; margin: .8rem 0 .3rem; }
 .qr-centrato svg { max-width: 260px; height: auto; border-radius: 12px; }
+
+/* --- Annulla l'ultima operazione --- */
+.annulla-riga { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+
+.stato-sistema strong.acceso { color: #A6493A; }
+[data-theme="scuro"] .stato-sistema strong.acceso { color: #E08B7C; }
