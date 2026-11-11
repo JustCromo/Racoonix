@@ -1,11 +1,12 @@
 import ipaddress
 import secrets
+import time
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
-from flask import (Blueprint, abort, g, make_response, redirect, render_template,
+from flask import (Blueprint, abort, current_app, g, make_response, redirect, render_template,
                    request, session, url_for)
 
 from . import db, limiter
@@ -114,9 +115,16 @@ def carica_utente():
     if not uid or not token:
         return
     utente = db.session.get(Utente, uid)
-    if (utente and utente.attivo and utente.token_sessione
+    import time
+    ora = time.time()
+    inattiva = ora - session.get("attivita", ora) > current_app.config["PERMANENT_SESSION_LIFETIME"].total_seconds()
+    if (utente and utente.attivo and utente.token_sessione and not inattiva
             and secrets.compare_digest(utente.token_sessione, token) and _dispositivo_ok(utente)):
         g.utente = utente
+        # Solo le azioni delle persone contano come attivita': gli aggiornamenti automatici delle pagine
+        # (contatore, "e' cambiato qualcosa?") non tengono aperta una sessione dimenticata su un dispositivo
+        if request.headers.get("X-Racoonix-Auto") != "1":
+            session["attivita"] = ora
     else:
         destinazione = session.get("dopo_login")
         session.clear()
@@ -207,6 +215,7 @@ def login():
         session["uid"] = utente.id
         session["token"] = utente.token_sessione
         session["dispositivo"] = controllo.dispositivo_id
+        session["attivita"] = time.time()
         if _percorso_interno(destinazione):
             return imposta_cookie(redirect(destinazione), controllo.token_nuovo)
         return imposta_cookie(redirect(url_for("home")), controllo.token_nuovo)

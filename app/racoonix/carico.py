@@ -20,7 +20,18 @@ ID_OK = re.compile(r"^[0-9]{1,9}$")
 PEZZI_OK = re.compile(r"^[0-9]{1,5}$")
 KG_OK = re.compile(r"^[0-9]{1,4}([.,][0-9]{1,3})?$")
 ERRORE_CODICE = _l("Codice non riconosciuto")
-CHIAVE = "carico"
+CHIAVE = "carichi"
+
+
+def _metti_in_sospeso(info):
+    """Ogni lettura ha il suo codice: due schede aperte non si scambiano il prodotto. Tengo solo gli ultimi 5."""
+    sospesi = dict(session.get(CHIAVE) or {})
+    while len(sospesi) >= 5:
+        sospesi.pop(next(iter(sospesi)))
+    chiave = secrets.token_urlsafe(8)
+    sospesi[chiave] = info
+    session[CHIAVE] = sospesi
+    return chiave
 
 
 def _categorie():
@@ -84,7 +95,6 @@ def _mostra_form(info, prodotto, errori=None, valori=None, codice=200):
 @richiede_ruolo("magazziniere")
 def pagina():
     from .annulla import disponibile
-    session.pop(CHIAVE, None)
     sfusi = db.session.scalars(
         db.select(Prodotto)
         .where(Prodotto.codice_bilancia.is_not(None), Prodotto.stato == "attivo")
@@ -126,7 +136,7 @@ def leggi():
         from .openfoodfacts import cerca
         if negozio.impostazioni().get("open_food_facts") != "0":
             info["suggerito"] = cerca(info["gtin"], scegli_lingua())
-    session[CHIAVE] = info
+    info["chiave"] = _metti_in_sospeso(info)
     return _mostra_form(info, prodotto)
 
 
@@ -140,14 +150,14 @@ def sfuso():
         return redirect(url_for(".pagina"))
     info = {"tipo": "manuale", "prodotto_id": prodotto.id, "gtin": None, "scadenza": None,
             "tipo_data": None, "lotto": None, "confezionamento": None, "peso_g": None}
-    session[CHIAVE] = info
+    info["chiave"] = _metti_in_sospeso(info)
     return _mostra_form(info, prodotto)
 
 
 @bp.post("/conferma")
 @richiede_ruolo("magazziniere")
 def conferma():
-    info = session.get(CHIAVE)
+    info = (session.get(CHIAVE) or {}).get(request.form.get("carico") or "")
     if not info:
         flash(_("Carico scaduto, rileggi il codice"), "errore")
         return redirect(url_for(".pagina"))
@@ -264,7 +274,9 @@ def conferma():
     registra("carico", g.utente.id,
              f"prodotto {prodotto.id}, lotto {codice_lotto}, esposta {esposta}, magazzino {magazzino}")
     db.session.commit()
-    session.pop(CHIAVE, None)
+    sospesi = dict(session.get(CHIAVE) or {})
+    sospesi.pop(request.form.get("carico") or "", None)
+    session[CHIAVE] = sospesi
     controlla_scaffali([prodotto.id])
     from .annulla import ricorda
     ricorda("carico", lotto_id=lotto.id, esposta=esposta, magazzino=magazzino, lotto_nuovo=lotto_nuovo,

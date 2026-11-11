@@ -20,6 +20,7 @@
   {% endif %}
   <form method="post" action="{{ url_for('carico.conferma') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="carico" value="{{ info.chiave }}">
     {% if not prodotto %}
     <label>{{ _("Nome") }} <input name="nome" value="{{ valori.nome or '' }}" maxlength="120" required></label>
     <label>{{ _("Marca") }} <input name="marca" value="{{ valori.marca or '' }}" maxlength="60"></label>

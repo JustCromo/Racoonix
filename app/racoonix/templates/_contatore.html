@@ -1,1 +1,1 @@
-<span class="contatore{% if not notifiche_aperte %} vuoto{% endif %}" hx-get="{{ url_for('notifiche.contatore') }}" hx-trigger="racoonix:aggiorna from:body, every 60s" hx-swap="outerHTML">{{ notifiche_aperte or "" }}</span>
+<span class="contatore{% if not notifiche_aperte %} vuoto{% endif %}" hx-get="{{ url_for('notifiche.contatore') }}" hx-trigger="racoonix:aggiorna from:body, every 60s" hx-headers='{"X-Racoonix-Auto": "1"}' hx-swap="outerHTML">{{ notifiche_aperte or "" }}</span>

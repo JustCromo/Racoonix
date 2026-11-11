@@ -123,7 +123,8 @@
       let url = contenitore.dataset.aggiorna;
       if (modulo) url += "?" + new URLSearchParams(new FormData(modulo)).toString();
       const aperti = [...contenitore.querySelectorAll("details[open][id]")].map((d) => d.id);
-      window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML", select: contenitore.dataset.seleziona })
+      window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML", select: contenitore.dataset.seleziona,
+        headers: { "X-Racoonix-Auto": "1" } })
         .then(() => aperti.forEach((id) => { const d = document.getElementById(id); if (d) d.open = true; }));
     });
   }
@@ -134,7 +135,7 @@
   async function controlla() {
     if (document.hidden || !document.querySelector(".contatore, [data-aggiorna]")) return;
     try {
-      const risposta = await fetch("/stato/versione", { credentials: "same-origin", cache: "no-store" });
+      const risposta = await fetch("/stato/versione", { credentials: "same-origin", cache: "no-store", headers: { "X-Racoonix-Auto": "1" } });
       if (!risposta.ok || !(risposta.headers.get("Content-Type") || "").includes("json")) return;
       const { v } = await risposta.json();
       if (versione !== null && v !== versione) aggiornaTutto();
@@ -157,4 +158,16 @@ document.addEventListener("click", (e) => {
   if (campo && typeof campo.showPicker === "function") {
     try { campo.showPicker(); } catch (_errore) { /* il browser non lo permette: resta l'icona */ }
   }
+});
+
+// Un doppio tocco su "Carica" o "Salva" non deve inviare il modulo due volte
+document.addEventListener("submit", (e) => {
+  const form = e.target;
+  if (form.hasAttribute("hx-post") || form.hasAttribute("hx-get") || e.defaultPrevented) return;
+  if (form.dataset.inviato === "1") { e.preventDefault(); return; }
+  form.dataset.inviato = "1";
+});
+// Tornando indietro con il browser, i moduli si possono usare di nuovo
+window.addEventListener("pageshow", () => {
+  document.querySelectorAll("form[data-inviato]").forEach((f) => delete f.dataset.inviato);
 });

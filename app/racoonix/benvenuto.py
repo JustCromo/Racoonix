@@ -7,6 +7,7 @@ e i cookie SameSite=Strict non tornerebbero dopo un reindirizzamento)."""
 import hmac
 import os
 import secrets
+import time
 from datetime import datetime, timedelta, timezone
 
 import segno
@@ -104,6 +105,7 @@ def pagina():
     session["uid"] = utente.id
     session["token"] = utente.token_sessione
     session["dispositivo"] = dispositivo.id
+    session["attivita"] = time.time()
     risposta = redirect(url_for("home"))
     risposta.set_cookie(COOKIE, token, max_age=DURATA_COOKIE, secure=True, httponly=True, samesite="Strict")
     return risposta
