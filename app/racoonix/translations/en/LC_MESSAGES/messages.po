@@ -2345,3 +2345,57 @@ msgstr "Go to orders"
 
 msgid "nessun fornitore"
 msgstr "no supplier"
+
+msgid "%(prodotto)s eliminato dal catalogo: lo storico resta, e puoi ripristinarlo quando vuoi"
+msgstr "%(prodotto)s removed from the catalogue: its history stays, and you can restore it whenever you like"
+
+msgid "%(prodotto)s eliminato definitivamente"
+msgstr "%(prodotto)s permanently deleted"
+
+msgid "C'e' ancora merce di questo prodotto: segnala che e' finito o conta il magazzino, poi eliminalo"
+msgstr "There's still stock of this product: report it as sold out or count the stockroom, then delete it"
+
+msgid "Elimina il prodotto"
+msgstr "Delete the product"
+
+msgid "Elimina prodotto"
+msgstr "Delete product"
+
+msgid "Elimina..."
+msgstr "Delete..."
+
+msgid "Eliminare %(prodotto)s?"
+msgstr "Delete %(prodotto)s?"
+
+msgid "L'operazione viene registrata nel registro attivita'."
+msgstr "The action is recorded in the activity log."
+
+msgid "Non compare in inventario e non si puo' caricare. Lo storico resta."
+msgstr "It doesn't appear in stock and can't be booked in. Its history stays."
+
+msgid "Per un prodotto che non vendi piu'. Prima di eliminarlo, la merce deve essere finita."
+msgstr "For a product you no longer sell. Before deleting it, the stock must be sold out."
+
+msgid "Prodotto eliminato dal catalogo"
+msgstr "Product removed from the catalogue"
+
+msgid "Prodotto eliminato dal catalogo (storico conservato)"
+msgstr "Product removed from the catalogue (history kept)"
+
+msgid "Prodotto eliminato definitivamente"
+msgstr "Product permanently deleted"
+
+msgid "Prodotto ripristinato"
+msgstr "Product restored"
+
+msgid "Questo prodotto ha uno storico (lotti, scarti o ordini). Sparira' dal catalogo attivo, dall'inventario e dal carico, ma lo storico resta intero e potrai ripristinarlo."
+msgstr "This product has a history (batches, waste or orders). It will disappear from the active catalogue, stock and deliveries, but its history stays intact and you can restore it."
+
+msgid "Questo prodotto non e' mai stato caricato: verra' eliminato definitivamente, con i suoi codici."
+msgstr "This product has never been booked in: it will be permanently deleted, along with its codes."
+
+msgid "Ripristina"
+msgstr "Restore"
+
+msgid "Si possono eliminare solo i prodotti attivi"
+msgstr "Only active products can be deleted"

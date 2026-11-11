@@ -85,4 +85,19 @@
     <button type="submit">{{ _("Aggiungi") }}</button>
   </form>
 </section>
+
+<section class="scheda spazio">
+  {% if p.stato == "rimosso" %}
+  <h2>{{ _("Prodotto eliminato dal catalogo") }}</h2>
+  <p class="sotto">{{ _("Non compare in inventario e non si puo' caricare. Lo storico resta.") }}</p>
+  <form method="post" action="{{ url_for('anagrafica.ripristina_prodotto', pid=p.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="secondario">{{ _("Ripristina") }}</button>
+  </form>
+  {% elif p.stato == "attivo" %}
+  <h2>{{ _("Elimina il prodotto") }}</h2>
+  <p class="sotto">{{ _("Per un prodotto che non vendi piu'. Prima di eliminarlo, la merce deve essere finita.") }}</p>
+  <a class="pulsante secondario" href="{{ url_for('anagrafica.elimina_prodotto', pid=p.id) }}">{{ _("Elimina...") }}</a>
+  {% endif %}
+</section>
 {% endblock %}

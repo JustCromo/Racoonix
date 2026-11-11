@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titolo %}{{ _("Elimina prodotto") }} - Racoonix{% endblock %}
+{% block contenuto %}
+<p><a href="{{ url_for('anagrafica.scheda', pid=p.id) }}">&larr; {{ p.descrizione }}</a></p>
+<section class="scheda stretta">
+  <h1>{{ _("Eliminare %(prodotto)s?", prodotto=p.descrizione) }}</h1>
+  {% if archiviare %}
+  <p>{{ _("Questo prodotto ha uno storico (lotti, scarti o ordini). Sparira' dal catalogo attivo, dall'inventario e dal carico, ma lo storico resta intero e potrai ripristinarlo.") }}</p>
+  {% else %}
+  <p>{{ _("Questo prodotto non e' mai stato caricato: verra' eliminato definitivamente, con i suoi codici.") }}</p>
+  {% endif %}
+  <p class="sotto">{{ _("L'operazione viene registrata nel registro attivita'.") }}</p>
+  <form method="post" action="{{ url_for('anagrafica.elimina_prodotto', pid=p.id) }}" class="azioni spazio">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">{{ _("Si', elimina") }}</button>
+    <a class="pulsante secondario" href="{{ url_for('anagrafica.scheda', pid=p.id) }}">{{ _("Annulla") }}</a>
+  </form>
+</section>
+{% endblock %}

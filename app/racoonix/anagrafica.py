@@ -113,6 +113,64 @@ def scheda(pid):
     return _mostra_scheda(db.get_or_404(Prodotto, pid))
 
 
+def _ha_storia(p):
+    """Un prodotto con lotti o ordini alle spalle non si cancella: si archivia, cosi' lo storico resta intero."""
+    from .models import Lotto, Riordino
+    return bool(db.session.scalar(db.select(Lotto.id).filter_by(prodotto_id=p.id).limit(1))
+                or db.session.scalar(db.select(Riordino.id).filter_by(prodotto_id=p.id).limit(1)))
+
+
+def _merce_presente(p):
+    return any(l.qta_esposta + l.qta_magazzino > 0 for l in p.lotti)
+
+
+@bp.route("/catalogo/<int:pid>/elimina", methods=["GET", "POST"])
+@richiede_ruolo("admin")
+def elimina_prodotto(pid):
+    from .models import Notifica
+    from .riordini import chiudi_riordini, APERTI
+    p = db.get_or_404(Prodotto, pid)
+    torna = redirect(url_for(".scheda", pid=p.id))
+    if p.stato != "attivo":
+        flash(_("Si possono eliminare solo i prodotti attivi"), "errore")
+        return torna
+    if _merce_presente(p):
+        flash(_("C'e' ancora merce di questo prodotto: segnala che e' finito o conta il magazzino, poi eliminalo"), "errore")
+        return torna
+    archiviare = _ha_storia(p)
+    if request.method == "GET":
+        return render_template("prodotto_elimina.html", p=p, archiviare=archiviare)
+    nome = p.descrizione
+    if archiviare:
+        p.stato = "rimosso"
+        chiudi_riordini(p.id, APERTI, "annullato")
+        for notifica in db.session.scalars(db.select(Notifica).filter_by(prodotto_id=p.id, stato="aperta")):
+            notifica.stato = "chiusa"
+        registra("prodotto_archiviato", g.utente.id, f"prodotto {p.id}: {nome}")
+        db.session.commit()
+        flash(_("%(prodotto)s eliminato dal catalogo: lo storico resta, e puoi ripristinarlo quando vuoi", prodotto=nome), "ok")
+        return redirect(url_for(".catalogo"))
+    for notifica in db.session.scalars(db.select(Notifica).filter_by(prodotto_id=p.id)):
+        db.session.delete(notifica)
+    db.session.delete(p)
+    registra("prodotto_eliminato", g.utente.id, f"prodotto {pid}: {nome}")
+    db.session.commit()
+    flash(_("%(prodotto)s eliminato definitivamente", prodotto=nome), "ok")
+    return redirect(url_for(".catalogo"))
+
+
+@bp.post("/catalogo/<int:pid>/ripristina")
+@richiede_ruolo("admin")
+def ripristina_prodotto(pid):
+    p = db.get_or_404(Prodotto, pid)
+    if p.stato == "rimosso":
+        p.stato = "attivo"
+        registra("prodotto_ripristinato", g.utente.id, f"prodotto {p.id}: {p.descrizione}")
+        db.session.commit()
+        flash(_("Prodotto ripristinato"), "ok")
+    return redirect(url_for(".scheda", pid=p.id))
+
+
 @bp.post("/catalogo/<int:pid>")
 @richiede_ruolo("admin")
 def salva(pid):

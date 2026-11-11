@@ -15,6 +15,7 @@ VOCI = [
     ("ordini.pagina", _l("Ordini"), "clipboard-list", {"admin"}, ("ordini.",), GIORNO),
     ("anagrafica.catalogo", _l("Catalogo"), "tags", {"admin"},
      ("anagrafica.catalogo", "anagrafica.scheda", "anagrafica.salva", "anagrafica.aggiungi_codice",
+      "anagrafica.elimina_prodotto", "anagrafica.ripristina_prodotto",
       "anagrafica.rimuovi_codice", "prodotti."), ANAGRAFICA),
     ("anagrafica.fornitori", _l("Fornitori"), "building-warehouse", {"admin"},
      ("anagrafica.fornitori", "anagrafica.nuovo_fornitore", "anagrafica.salva_fornitore"), ANAGRAFICA),
