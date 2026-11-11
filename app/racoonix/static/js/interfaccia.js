@@ -105,10 +105,11 @@
     });
   }
 
-  // Le liste con data-aggiorna (Cose da fare, Utenti) si ricaricano ogni 20 secondi, conservando i filtri
-  // e i riquadri aperti. Mai mentre stai scrivendo, ne' con la scheda del browser in secondo piano.
-  setInterval(() => {
+  // Le liste con data-aggiorna (Cose da fare, Inventario, Ordini...) si ricaricano conservando filtri e riquadri
+  // aperti. Mai mentre stai scrivendo, ne' con la scheda del browser in secondo piano.
+  function aggiornaTutto() {
     if (!window.htmx || document.hidden) return;
+    document.body.dispatchEvent(new CustomEvent("racoonix:aggiorna"));
     const attivo = document.activeElement;
     const scrivendo = attivo && ["INPUT", "SELECT", "TEXTAREA"].includes(attivo.tagName);
     document.querySelectorAll("[data-aggiorna]").forEach((contenitore) => {
@@ -125,7 +126,25 @@
       window.htmx.ajax("GET", url, { target: "#" + contenitore.id, swap: contenitore.dataset.swap || "outerHTML", select: contenitore.dataset.seleziona })
         .then(() => aperti.forEach((id) => { const d = document.getElementById(id); if (d) d.open = true; }));
     });
-  }, 20000);
+  }
+
+  // Ogni 3 secondi una domanda leggerissima al server: "e' cambiato qualcosa?". Se si', si aggiorna subito.
+  // Comunque, per sicurezza, un aggiornamento completo ogni minuto.
+  let versione = null;
+  async function controlla() {
+    if (document.hidden || !document.querySelector(".contatore, [data-aggiorna]")) return;
+    try {
+      const risposta = await fetch("/stato/versione", { credentials: "same-origin", cache: "no-store" });
+      if (!risposta.ok || !(risposta.headers.get("Content-Type") || "").includes("json")) return;
+      const { v } = await risposta.json();
+      if (versione !== null && v !== versione) aggiornaTutto();
+      versione = v;
+    } catch (_errore) { /* rete assente per un attimo: si riprova al giro dopo */ }
+  }
+  setInterval(controlla, 3000);
+  setInterval(aggiornaTutto, 60000);
+  // Tornando sulla scheda del browser (o riaccendendo il telefono), controllo subito
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) controlla(); });
 
   const applica = (radice) => { occhi(radice); copie(radice); avvisi(radice); };
   document.addEventListener("DOMContentLoaded", () => applica(document));

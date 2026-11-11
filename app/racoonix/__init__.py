@@ -102,6 +102,22 @@ def create_app():
     @app.get("/health")
     def health():
         return {"stato": "ok"}
+
+    @app.get("/stato/versione")
+    def versione():
+        """Domanda leggerissima che le pagine fanno ogni pochi secondi: "e' cambiato qualcosa?".
+        Le pagine si ricaricano solo quando la risposta cambia. Niente dati, solo un numero."""
+        from flask import g, jsonify
+        from sqlalchemy import func
+        from .models import AuditLog, Notifica
+        if g.get("utente") is None:
+            return "", 204
+        azioni = db.session.scalar(db.select(func.max(AuditLog.id))) or 0
+        notifiche = db.session.scalar(db.select(func.max(Notifica.id))) or 0
+        aperte = db.session.scalar(db.select(func.count(Notifica.id)).where(Notifica.stato == "aperta")) or 0
+        risposta = jsonify(v=f"{azioni}.{notifiche}.{aperte}")
+        risposta.headers["Cache-Control"] = "no-store"
+        return risposta
     def errore(messaggio, codice):
         return render_template("errore.html", messaggio=messaggio), codice
 

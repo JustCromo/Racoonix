@@ -111,7 +111,7 @@ def _dispositivo_ok(utente):
 
 
 def obbligo_cambio_password():
-    consentiti = ("auth.cambia_password", "auth.logout", "static")
+    consentiti = ("auth.cambia_password", "auth.logout", "static", "versione")
     if g.utente and g.utente.deve_cambiare_password and request.endpoint not in consentiti:
         # Mentre la persona scrive la nuova password, il contatore che si aggiorna da solo non deve toccare la pagina
         return _verso(url_for("auth.cambia_password"), resta_se_sei_gia_qui=True)
