@@ -117,9 +117,8 @@ def pagina():
     from .auth import ph, registra
     from .models import Ruolo, Utente
     if negozio.configurato():
-        # Link gia' usato: niente errore, si va al login. La configurazione resta chiusa per sempre.
-        flash(_("Racoonix e' gia' configurato: entra con il tuo account."), "ok")
-        return redirect(url_for("auth.login"))
+        # Link gia' usato: niente errore, una pagina che porta al login. La configurazione resta chiusa.
+        return render_template("configurazione_attesa.html", gia_configurato=True)
     lingua = request.args.get("lingua")
     if lingua in LINGUE:
         session["lingua_configurazione"] = lingua
@@ -130,9 +129,9 @@ def pagina():
             registra("configurazione_codice_errato", None)
             db.session.commit()
             return render_template("configurazione_attesa.html", errore=True), 403
-        # Il codice esce subito dall'indirizzo: non resta nella cronologia ne' nei link condivisi
+        # Il modulo si mostra subito, senza reindirizzare: arrivando da un QR o da un link esterno,
+        # il browser non rimanderebbe il cookie di sessione (SameSite=Strict) dopo un reindirizzamento.
         session["configurazione"] = impronta
-        return redirect(url_for(".pagina"))
     if not _codice_valido(session.get("configurazione")):
         if lingua in LINGUE:
             return redirect(url_for(".pagina"))

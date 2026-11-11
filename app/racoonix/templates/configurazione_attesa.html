@@ -4,11 +4,16 @@
 <section class="scheda stretta">
   <img class="logo-accesso" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
   <h1 class="centrato">Racoonix</h1>
+  {% if gia_configurato %}
+  <p>{{ _("Racoonix e' gia' configurato: entra con il tuo account.") }}</p>
+  <p><a class="pulsante" href="{{ url_for('auth.login') }}">{{ _("Accedi") }}</a></p>
+  {% else %}
   {% if errore %}
   <p class="errore">{{ _("Questo link non e' valido o e' scaduto.") }}</p>
   {% endif %}
   <p>{{ _("Racoonix aspetta la configurazione iniziale. Per iniziare serve il link personale che compare sul server.") }}</p>
   <p class="sotto">{{ _("Sul server, nella cartella di Racoonix, lancia:") }}</p>
   <pre>./racoonix.sh link</pre>
+  {% endif %}
 </section>
 {% endblock %}
