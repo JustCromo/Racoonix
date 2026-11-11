@@ -9,7 +9,7 @@ from .auth import registra, richiede_ruolo
 from .carico import _quantita as leggi_quantita
 from .formato import quantita as mostra_quantita
 from .models import Prodotto, Riordino
-from .riordini import APERTI
+from .riordini import APERTI, chiudi_avviso
 from .lingua import _, nella_lingua_del_negozio, testo_negozio
 from .negozio import impostazioni
 
@@ -89,6 +89,7 @@ def fornitore(fid):
         adesso = datetime.now(timezone.utc)
         for r in righe:
             r.stato, r.ordinato_da, r.ordinato_il = "ordinato", g.utente.id, adesso
+            chiudi_avviso(r.prodotto_id)
         registra("riordino_ordinato", g.utente.id, f"fornitore {fid}, {len(righe)} prodotti")
         messaggio = _("Segnati come ordinati: %(numero)s. Usciranno dalla lista all'arrivo della merce", numero=len(righe))
     else:
@@ -107,6 +108,7 @@ def riga(rid, azione):
     fid = r.prodotto.fornitore_id or 0
     if r.stato in APERTI:
         r.stato, r.chiuso_il = "annullato", datetime.now(timezone.utc)
+        chiudi_avviso(r.prodotto_id)
         if azione == "esaurimento":
             r.prodotto.in_esaurimento = True
         registra("riordino_annullato" if azione == "togli" else "prodotto_esaurimento",

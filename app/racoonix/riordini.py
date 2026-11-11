@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import insert
 
 from . import db
-from .models import Riordino
+from .lingua import testo_negozio
+from .models import Notifica, Riordino
 
 APERTI = ("da_ordinare", "ordinato")
 
@@ -48,7 +49,31 @@ def apri_riordino(prodotto, origine, utente_id=None):
                                 stato="da_ordinare", origine=origine, segnalato_da=utente_id,
                                 creato_il=_adesso())
         .on_conflict_do_nothing())
+    if risultato.rowcount:
+        _avvisa_admin(prodotto, origine, utente_id)
     return risultato.rowcount
+
+
+def _avvisa_admin(prodotto, origine, utente_id):
+    """Il titolare lo vede subito in Cose da fare, non solo quando apre la pagina Ordini."""
+    from .models import Utente
+    fornitore = prodotto.fornitore.ragione_sociale if prodotto.fornitore else testo_negozio("nessun fornitore")
+    if origine == "segnalazione":
+        chi = db.session.get(Utente, utente_id) if utente_id else None
+        nota = testo_negozio("Finito anche in magazzino (segnalato da %(utente)s): da ordinare a %(fornitore)s",
+                             utente=chi.username if chi else "?", fornitore=fornitore)
+    else:
+        nota = testo_negozio("Magazzino sotto la soglia di riordino: da ordinare a %(fornitore)s", fornitore=fornitore)
+    db.session.execute(insert(Notifica).values(
+        tipo="da_ordinare", prodotto_id=prodotto.id, ruolo_destinatario="admin", stato="aperta",
+        nota=nota[:255], creata_il=_adesso()).on_conflict_do_nothing())
+
+
+def chiudi_avviso(prodotto_id):
+    """Quando il prodotto esce da 'da ordinare' (ordinato, tolto, arrivato) l'avviso non serve piu'."""
+    for notifica in db.session.scalars(db.select(Notifica).filter_by(
+            prodotto_id=prodotto_id, tipo="da_ordinare", stato="aperta")):
+        notifica.stato, notifica.chiusa_il = "chiusa", _adesso()
 
 
 def chiudi_riordini(prodotto_id, stati, nuovo_stato):
@@ -56,6 +81,7 @@ def chiudi_riordini(prodotto_id, stati, nuovo_stato):
             Riordino.prodotto_id == prodotto_id, Riordino.stato.in_(stati))):
         riordino.stato = nuovo_stato
         riordino.chiuso_il = _adesso()
+    chiudi_avviso(prodotto_id)
 
 
 def merce_arrivata(prodotto_id):

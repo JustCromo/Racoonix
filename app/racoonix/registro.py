@@ -61,6 +61,7 @@ AZIONI = {
     "notifica_ignora": ("magazzino", _l("Richiesta ignorata"), False),
     "prodotto_approvato": ("prodotti", _l("Prodotto approvato"), False),
     "segnalazione_mancanza": ("magazzino", _l("Segnalato: sta finendo"), False),
+    "scaffale_vuoto": ("magazzino", _l("Segnalato: scaffale vuoto"), False),
     "riordino_ordinato": ("prodotti", _l("Ordine segnato come inviato"), False),
     "riordino_annullato": ("prodotti", _l("Tolto dalla lista d'ordine"), False),
     "prodotto_esaurimento": ("prodotti", _l("Prodotto messo in esaurimento"), False),

@@ -1,6 +1,6 @@
 {% from "_icone.html" import icona %}
-{% set titoli = {"da_rimuovere": _("Da rimuovere"), "riempi": _("Riempi lo scaffale"), "sconto": _("Applica sconto"), "in_scadenza": _("In scadenza"), "freschezza": _("Controlla freschezza"), "da_approvare": _("Da approvare"), "reset_password": _("Nuova password"), "dispositivo": _("Nuovo dispositivo")} %}
-{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento"} %}
+{% set titoli = {"da_rimuovere": _("Da rimuovere"), "riempi": _("Riempi lo scaffale"), "sconto": _("Applica sconto"), "in_scadenza": _("In scadenza"), "freschezza": _("Controlla freschezza"), "da_approvare": _("Da approvare"), "reset_password": _("Nuova password"), "dispositivo": _("Nuovo dispositivo"), "da_ordinare": _("Da ordinare")} %}
+{% set classi = {"da_rimuovere": "spento", "riempi": "avviso", "sconto": "avviso", "in_scadenza": "avviso", "freschezza": "avviso", "reset_password": "avviso", "dispositivo": "spento", "da_ordinare": "avviso"} %}
 {% set icone_sezione = {"admin": "shield", "dipendente": "shopping-cart", "magazziniere": "box"} %}
 {% macro azione(n, nome, testo, classe="piccolo") %}
 <form method="post" action="{{ url_for('notifiche.agisci', nid=n.id, azione=nome) }}"
@@ -60,6 +60,9 @@
         {% elif n.tipo == "in_scadenza" %}
           {{ con_quantita(n, "verifica", _("Quanti ne restano?"), "", _("Conferma")) }}
           {{ con_quantita_fissa(n, "verifica", "0", _("Finiti")) }}
+        {% elif n.tipo == "da_ordinare" %}
+          <a class="pulsante" href="{{ url_for('ordini.pagina') }}">{{ _("Vai agli ordini") }}</a>
+          {{ azione(n, "visto", _("Presa visione")) }}
         {% elif n.tipo == "riempi" %}
           <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">{{ _("Vai a rifornire") }}</a>
         {% elif n.tipo == "sconto" %}

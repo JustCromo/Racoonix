@@ -265,7 +265,7 @@ class Notifica(db.Model):
     __table_args__ = (
         CheckConstraint(
             "tipo IN ('riempi','in_scadenza','da_rimuovere','da_approvare',"
-            "'sconto','freschezza','reset_password','dispositivo')",
+            "'sconto','freschezza','reset_password','dispositivo','da_ordinare')",
             name="ck_notifica_tipo",
         ),
         CheckConstraint("ruolo_destinatario IN ('admin','magazziniere','dipendente')", name="ck_notifica_ruolo"),

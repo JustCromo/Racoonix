@@ -72,6 +72,8 @@
         hx-post="{{ url_for('inventario.finendo', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">
     {{ nascosti() }}
     <button type="submit" class="piccolo secondario">{{ _("Sta finendo") }}</button>
+    <button type="submit" class="piccolo secondario" formaction="{{ url_for('inventario.finito', prodotto_id=p.id) }}"
+            hx-post="{{ url_for('inventario.finito', prodotto_id=p.id) }}" hx-target="#prodotto-{{ p.id }}" hx-swap="outerHTML">{{ _("E' finito") }}</button>
   </form>
   {% endif %}
   {% if messaggio %}<p class="flash {{ esito }}">{{ messaggio }}</p>{% endif %}

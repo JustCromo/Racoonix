@@ -15,10 +15,11 @@ from .sconti import applica_programmati
 bp = Blueprint("notifiche", __name__, url_prefix="/notifiche")
 SEZIONI = [("admin", _l("Per te")), ("dipendente", _l("Dipendenti: scaffali")),
            ("magazziniere", _l("Magazzinieri: magazzino"))]
-URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "riempi": 3,  # nosec B105 - priorita' della notifica, non una password
+URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approvare": 2, "da_ordinare": 2, "riempi": 3,  # nosec B105 - priorita' della notifica, non una password
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
 AZIONI = {"da_rimuovere": {"rimosso"}, "sconto": {"bollino"},
-          "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"}}
+          "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"},
+          "da_ordinare": {"visto"}}
 STORICO_MAX = 30
 
 

@@ -28,7 +28,7 @@
     cerca.className = "tendina-cerca";
     cerca.autocomplete = "off";
     cerca.spellcheck = false;
-    cerca.placeholder = t("Cerca una citta'...");
+    cerca.placeholder = select.dataset.tendinaCerca || t("Cerca una citta'...");
     cerca.setAttribute("aria-controls", id);
 
     const elenco = document.createElement("ul");
@@ -55,6 +55,7 @@
       voci.push({ voce, gruppo });
     };
     [...select.children].forEach((figlio) => {
+      if (figlio.disabled && !figlio.value) return;  // la voce "scegli..." non serve nel menu con ricerca
       if (figlio.tagName === "OPTGROUP") {
         const titolo = document.createElement("li");
         titolo.className = "tendina-gruppo";
@@ -88,6 +89,7 @@
     const aggiornaBottone = () => {
       const scelta = select.options[select.selectedIndex];
       bottone.textContent = scelta ? scelta.textContent : "";
+      bottone.classList.toggle("vuoto", !scelta || !scelta.value);
       voci.forEach(({ voce }) => voce.setAttribute("aria-selected", String(scelta && voce.dataset.valore === scelta.value)));
     };
     const filtra = (testo) => {
@@ -146,6 +148,8 @@
       }
     });
     document.addEventListener("click", (e) => { if (!box.contains(e.target)) chiudi(false); });
+    // Campo obbligatorio non scelto: il browser non puo' evidenziare il menu nascosto, quindi apriamo il nostro
+    select.addEventListener("invalid", (e) => { e.preventDefault(); apri(); });
     aggiornaBottone();
   }
 

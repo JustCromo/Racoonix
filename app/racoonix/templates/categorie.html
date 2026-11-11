@@ -8,7 +8,15 @@
   <input name="nome" placeholder="{{ _("Nuova categoria") }}" maxlength="50" required>
   <button type="submit">{{ _("Aggiungi") }}</button>
 </form>
-<div class="lista-schede">
+<div class="barra-azioni">
+  <form method="get" action="{{ url_for('anagrafica.categorie') }}" class="cresci">
+    <input type="search" name="q" value="{{ q }}" maxlength="60" autocomplete="off" placeholder="{{ _("Cerca una categoria o una sottocategoria") }}"
+           hx-get="{{ url_for('anagrafica.categorie') }}" hx-trigger="input changed delay:300ms, search"
+           hx-target="#elenco-categorie" hx-select="#elenco-categorie" hx-swap="outerHTML">
+  </form>
+</div>
+<div class="lista-schede" id="elenco-categorie">
+{% if not categorie %}<p class="sotto">{{ _("Nessuna categoria trovata.") }}</p>{% endif %}
 {% for c in categorie %}
 <section class="scheda spazio">
   <h2>{{ c.nome }}{% if not c.attiva %} <span class="badge spento">{{ _("disattivata") }}</span>{% endif %}</h2>

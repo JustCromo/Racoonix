@@ -279,10 +279,27 @@ def conteggio(prodotto_id):
 @richiede_ruolo("dipendente", "magazziniere")
 def finendo(prodotto_id):
     """'Sta finendo': il quaderno delle mancanze, digitale. Racoonix decide il passo successivo."""
+    return _segnala(prodotto_id, vuoto=False)
+
+
+@bp.post("/<int:prodotto_id>/finito")
+@richiede_ruolo("dipendente", "magazziniere")
+def finito(prodotto_id):
+    """'E' finito': sullo scaffale non ne resta nessuno. I lotti non risultano piu' esposti
+    (sono stati venduti), poi come per 'Sta finendo': riempire dal magazzino oppure ordinare."""
+    return _segnala(prodotto_id, vuoto=True)
+
+
+def _segnala(prodotto_id, vuoto):
     q, categoria_id = _filtri(request.form)
     prodotto = db.get_or_404(Prodotto, prodotto_id)
     if prodotto.stato != "attivo":
         return _risposta(prodotto, _("Prodotto non ancora approvato"), "errore", q, categoria_id)
+    if vuoto:
+        for lotto in db.session.scalars(db.select(Lotto).where(
+                Lotto.prodotto_id == prodotto.id, Lotto.qta_esposta > 0).with_for_update()):
+            lotto.qta_esposta = 0
+        registra("scaffale_vuoto", g.utente.id, f"prodotto {prodotto.id}")
     oggi = date.today()
     lotti = sorted((l for l in prodotto.lotti if l.qta_magazzino > 0 and _vendibile(l, oggi)),
                    key=lambda l: (l.data_scadenza is None, l.data_scadenza or oggi, l.data_carico))
@@ -291,9 +308,14 @@ def finendo(prodotto_id):
         primo = lotti[0]
         with force_locale(lingua_negozio()):
             scade = _(" (scade il %(data)s)", data=data_it(primo.data_scadenza)) if primo.data_scadenza else ""
-            nota = _("Segnalato da %(utente)s: sullo scaffale sta finendo. In magazzino: %(quantita)s, "
-                     "metti davanti il lotto %(lotto)s%(scade)s", utente=g.utente.username,
-                     quantita=mostra_quantita(magazzino, prodotto.unita), lotto=primo.codice_lotto, scade=scade)
+            valori = {"utente": g.utente.username, "quantita": mostra_quantita(magazzino, prodotto.unita),
+                      "lotto": primo.codice_lotto, "scade": scade}
+            if vuoto:
+                nota = _("Segnalato da %(utente)s: lo scaffale e' vuoto. In magazzino: %(quantita)s, "
+                         "metti davanti il lotto %(lotto)s%(scade)s", **valori)
+            else:
+                nota = _("Segnalato da %(utente)s: sullo scaffale sta finendo. In magazzino: %(quantita)s, "
+                         "metti davanti il lotto %(lotto)s%(scade)s", **valori)
         _apri("riempi", prodotto.id, "magazziniere", nota)
         messaggio = _("Segnalato: chi sta in magazzino ricevera' il compito di riempire lo scaffale")
     elif prodotto.in_esaurimento:

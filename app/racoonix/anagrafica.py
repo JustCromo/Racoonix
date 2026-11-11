@@ -317,9 +317,15 @@ def salva_fornitore(fid):
 @bp.get("/categorie")
 @richiede_ruolo("admin")
 def categorie():
+    import unicodedata
+    semplice = lambda s: unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode().lower()
+    q = (request.args.get("q") or "").strip()[:60]
     elenco = db.session.scalars(db.select(Categoria).options(selectinload(Categoria.sottocategorie))
                                 .order_by(Categoria.nome)).all()
-    return render_template("categorie.html", categorie=elenco)
+    if q:
+        cerca = semplice(q)
+        elenco = [c for c in elenco if cerca in semplice(c.nome) or any(cerca in semplice(s.nome) for s in c.sottocategorie)]
+    return render_template("categorie.html", categorie=elenco, q="".join(ch for ch in q if ch.isprintable()))
 
 
 @bp.post("/categorie/nuova")

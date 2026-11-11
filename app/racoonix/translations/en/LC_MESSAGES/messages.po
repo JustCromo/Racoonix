@@ -226,7 +226,7 @@ msgid "Arrivato da %(giorni)s giorni: controlla %(dove)s"
 msgstr "Arrived %(giorni)s days ago: check %(dove)s"
 
 msgid "Attiva"
-msgstr "Enable"
+msgstr "Active"
 
 msgid "Attiva i backup notturni"
 msgstr "Turn on nightly backups"
@@ -2315,3 +2315,33 @@ msgstr "No results"
 
 msgid "Racoonix e' gia' configurato: entra con il tuo account."
 msgstr "Racoonix is already set up: sign in with your account."
+
+msgid "Cerca un prodotto..."
+msgstr "Search for a product..."
+
+msgid "Cerca una categoria o una sottocategoria"
+msgstr "Search for a category or subcategory"
+
+msgid "E' finito"
+msgstr "Sold out"
+
+msgid "Finito anche in magazzino (segnalato da %(utente)s): da ordinare a %(fornitore)s"
+msgstr "Out of stock in the stockroom too (reported by %(utente)s): order from %(fornitore)s"
+
+msgid "Magazzino sotto la soglia di riordino: da ordinare a %(fornitore)s"
+msgstr "Stockroom below the reorder threshold: order from %(fornitore)s"
+
+msgid "Nessuna categoria trovata."
+msgstr "No categories found."
+
+msgid "Segnalato da %(utente)s: lo scaffale e' vuoto. In magazzino: %(quantita)s, metti davanti il lotto %(lotto)s%(scade)s"
+msgstr "Reported by %(utente)s: the shelf is empty. In the stockroom: %(quantita)s, put batch %(lotto)s at the front%(scade)s"
+
+msgid "Segnalato: scaffale vuoto"
+msgstr "Reported: empty shelf"
+
+msgid "Vai agli ordini"
+msgstr "Go to orders"
+
+msgid "nessun fornitore"
+msgstr "no supplier"

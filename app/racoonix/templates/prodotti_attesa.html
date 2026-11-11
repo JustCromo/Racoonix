@@ -24,7 +24,7 @@
   <form method="post" action="{{ url_for('prodotti.unisci', prodotto_id=p.id) }}" class="spazio">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>{{ _("Oppure e' un altro codice di un prodotto gia' in catalogo:") }}
-      <select name="destinazione_id" required><option value="" selected disabled>{{ _("— scegli il prodotto —") }}</option>{% for a in attivi if a.unita == p.unita %}<option value="{{ a.id }}">{{ a.descrizione }}</option>{% endfor %}</select>
+      <select name="destinazione_id" required data-tendina data-tendina-cerca="{{ _("Cerca un prodotto...") }}"><option value="" selected disabled>{{ _("— scegli il prodotto —") }}</option>{% for a in attivi if a.unita == p.unita %}<option value="{{ a.id }}">{{ a.descrizione }}</option>{% endfor %}</select>
     </label>
     <button type="submit" class="secondario">{{ _("Unisci come codice aggiuntivo") }}</button>
   </form>

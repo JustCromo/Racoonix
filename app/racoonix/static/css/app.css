@@ -457,3 +457,5 @@ fieldset.scelte .carte-scelta { width: 100%; }
 @media (max-width: 900px) {
   .contenuto > .scheda.stretta, .accesso > .scheda.stretta { width: auto; max-width: none; margin: .5rem 0; }
 }
+
+.tendina-bottone.vuoto { color: var(--testo-2); font-weight: 400; }
