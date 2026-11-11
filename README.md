@@ -119,54 +119,14 @@ La pagina **Collega dispositivi** mostra sempre entrambi gli indirizzi, con un Q
 
 ## Sicurezza
 
-Un gestionale contiene dati che contano: le persone che lavorano in negozio, il valore della merce, le abitudini di acquisto. Racoonix è stato progettato partendo da una domanda: **cosa succede se qualcosa va storto?** Ogni difesa è pensata per funzionare anche quando quella prima ha ceduto.
+Racoonix è progettato partendo da una domanda: **cosa succede se qualcosa va storto?** In breve:
 
-### I dati restano in negozio
+- **i dati restano in negozio**, e la connessione è sempre cifrata;
+- **si entra solo dai dispositivi approvati**, e la configurazione iniziale è protetta da un codice monouso;
+- **difesa in profondità**: permessi minimi, registro attività inalterabile, componenti isolati;
+- **verificato**, con test automatici, scansioni e test manuali.
 
-Racoonix non usa servizi esterni: niente cloud, niente account da creare altrove, niente risorse scaricate da internet mentre lo usi. Caratteri, icone e librerie sono tutti sul server del negozio. Racoonix è pensato per essere raggiungibile solo dalla rete locale.
-
-### Connessione sempre cifrata
-
-Ogni pagina viaggia su **HTTPS**, anche dentro il negozio. Racoonix crea il proprio certificato, e ogni dispositivo lo installa una volta sola, potendo verificare con un'impronta digitale che sia proprio quello del negozio. Dopo il primo accesso, il browser rifiuta di collegarsi senza cifratura.
-
-### Chi entra, e da dove
-
-- **Niente registrazione libera**: gli account li crea solo il titolare, e al primo accesso ognuno sceglie una password sua.
-- **Configurazione iniziale protetta**: la pagina di configurazione si apre solo con un codice monouso che compare sul server, scade dopo 24 ore e si spegne per sempre a configurazione finita. Nessuno, nella rete, può configurare Racoonix al posto tuo.
-- **Password protette** con un algoritmo progettato apposta per rendere lentissimi i tentativi di indovinarle, anche nel caso in cui qualcuno rubasse il database.
-- **Dispositivi approvati**: ogni persona può entrare solo dai dispositivi che il titolare ha approvato. Una password rubata, da sola, non basta. Un dispositivo revocato viene bloccato subito, per qualunque account.
-- **Nessun indizio a chi tenta**: quando un accesso fallisce, la risposta è sempre la stessa, qualunque sia il motivo. Chi prova a indovinare non può capire se ha trovato la password giusta, né se un utente esiste. Il motivo vero lo vede solo il titolare.
-- **Tentativi limitati**: dopo una serie di errori l'account si blocca per un po', e le richieste ripetute vengono rallentate.
-- **Le funzioni del titolare** sono disponibili solo dai computer autorizzati, anche se qualcuno ne conoscesse la password.
-- **Le sessioni scadono** dopo un periodo di inattività, e l'uscita le chiude davvero, anche sul server.
-
-### Ognuno vede solo il suo
-
-I ruoli sono controllati dal server a ogni richiesta, non dall'interfaccia: un dipendente non può raggiungere le pagine del titolare nemmeno scrivendone l'indirizzo. L'interfaccia stessa non contiene logica: tutte le decisioni le prende il server.
-
-### Difesa in profondità
-
-Se un giorno qualcuno riuscisse comunque a prendere il controllo dell'applicazione, Racoonix limita i danni:
-
-- l'applicazione parla al database con **permessi ridotti al minimo**: può leggere e scrivere i dati del negozio, ma non può cancellare tabelle, creare utenti o cambiare la struttura del database;
-- **il registro attività non si può modificare né cancellare**, nemmeno dall'applicazione: è il database stesso a impedirlo. Chi entra di nascosto non può cancellare le proprie tracce;
-- ogni componente gira **isolato** nel suo container, con i soli permessi indispensabili e il disco in sola lettura; il database non è raggiungibile dalla rete del negozio;
-- **password e chiavi** vengono generate a caso al primo avvio, restano in spazi separati a cui ogni componente vede solo la parte che gli serve, e non compaiono mai nel codice né in file da gestire a mano;
-- **aggiornamenti di sicurezza**: a ogni `./racoonix.sh aggiorna` le immagini di Racoonix, database compreso, vengono ricostruite con le ultime correzioni del sistema operativo, senza aspettare nessuno.
-
-### Le protezioni di ogni pagina
-
-Protezione dalle richieste contraffatte su ogni modulo, cookie inaccessibili agli script e legati al solo sito di Racoonix, una politica dei contenuti che impedisce di eseguire codice estraneo, protezione dall'inserimento della pagina in altri siti, nessuna pagina salvata nella cache del browser (importante sui dispositivi condivisi), controllo rigoroso di ogni dato inserito o letto da un codice a barre, esportazioni protette contro le formule malevole nei fogli di calcolo.
-
-### Tutto resta registrato
-
-Accessi, tentativi falliti, approvazioni, carichi, correzioni, ordini: ogni operazione importante finisce nel **registro attività**, consultabile dal titolare. Un riepilogo di sicurezza delle ultime 24 ore segnala subito se qualcuno sta provando a indovinare una password.
-
-### Verificato, non solo dichiarato
-
-Il codice e le immagini vengono controllati con strumenti di analisi automatica (codice, librerie, immagini Docker, segreti nel repository, scansione web) e con test manuali. Le vulnerabilità trovate durante lo sviluppo sono state corrette e verificate.
-
-> **Hai trovato un problema di sicurezza?** Per favore non aprire una issue pubblica: contattami in privato tramite il mio profilo GitHub, così possiamo correggerlo prima che venga sfruttato.
+I dettagli, e come segnalare una vulnerabilità in privato, sono in **[SECURITY.md](SECURITY.md)**.
 
 ## Com'è fatto
 

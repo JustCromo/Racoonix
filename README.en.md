@@ -120,54 +120,14 @@ The **Collega dispositivi** page always shows both addresses, with a QR code to 
 
 ## Security
 
-A management system holds data that matters: the people who work in the shop, the value of the stock, buying habits. Racoonix was designed starting from one question: **what happens if something goes wrong?** Every defence is designed to keep working even when the one before it has given way.
+Racoonix was designed starting from one question: **what happens if something goes wrong?** In short:
 
-### Your data stays in the shop
+- **your data stays in the shop**, and the connection is always encrypted;
+- **sign-in only from approved devices**, and the initial setup is protected by a one-time code;
+- **defence in depth**: least privilege, tamper-proof activity log, isolated components;
+- **tested**, with automated tests, scans and manual testing.
 
-Racoonix doesn't use external services: no cloud, no accounts to create elsewhere, nothing downloaded from the internet while you use it. Fonts, icons and libraries all live on the shop's server. Racoonix is designed to be reachable only from the local network.
-
-### Always-encrypted connection
-
-Every page travels over **HTTPS**, even inside the shop. Racoonix creates its own certificate, and each device installs it just once, with a digital fingerprint to check that it really is the shop's. After the first visit, the browser refuses to connect without encryption.
-
-### Who gets in, and from where
-
-- **No open sign-up**: accounts can only be created by the owner, and on first sign-in everyone chooses their own password.
-- **Protected initial setup**: the setup page only opens with a one-time code shown on the server, expires after 24 hours and switches off for good once setup is complete. Nobody on the network can set up Racoonix in your place.
-- **Protected passwords**, using an algorithm designed specifically to make guessing attempts extremely slow, even if someone were to steal the database.
-- **Approved devices**: each person can only sign in from devices the owner has approved. A stolen password, on its own, isn't enough. A revoked device is blocked immediately, for any account.
-- **No clues for intruders**: when a sign-in fails, the response is always the same, whatever the reason. Someone trying to guess can't tell whether they've found the right password, or whether a user exists. Only the owner sees the real reason.
-- **Limited attempts**: after a series of errors the account is locked for a while, and repeated requests are slowed down.
-- **Owner functions** are only available from authorised computers, even if someone knew the password.
-- **Sessions expire** after a period of inactivity, and signing out really ends them, on the server too.
-
-### Everyone sees only their own
-
-Roles are checked by the server on every request, not by the interface: a shop assistant can't reach the owner's pages, not even by typing in the address. The interface itself contains no logic: every decision is made by the server.
-
-### Defence in depth
-
-If someone ever managed to take control of the application anyway, Racoonix limits the damage:
-
-- the application talks to the database with **the fewest permissions possible**: it can read and write the shop's data, but it can't delete tables, create users or change the structure of the database;
-- **the activity log can't be changed or deleted**, not even by the application: the database itself prevents it. Someone who gets in unnoticed can't cover their tracks;
-- each component runs **isolated** in its own container, with only the permissions it strictly needs and a read-only disk; the database can't be reached from the shop's network;
-- **passwords and keys** are generated at random on first start, kept in separate spaces where each component only sees what it needs, and never appear in the code or in files to manage by hand;
-- **security updates**: on every `./racoonix.sh update` the Racoonix images, database included, are rebuilt with the latest operating system fixes, without waiting for anyone.
-
-### Protection on every page
-
-Protection against forged requests on every form, cookies that scripts can't read and that are tied to Racoonix alone, a content policy that blocks foreign code from running, protection against the page being embedded in other websites, no pages saved in the browser's cache (important on shared devices), strict checks on every piece of data typed in or read from a barcode, and exports protected against malicious formulas in spreadsheets.
-
-### Everything is recorded
-
-Sign-ins, failed attempts, approvals, deliveries, corrections, orders: every important action goes into the **activity log**, which the owner can consult. A security summary of the last 24 hours flags straight away if someone is trying to guess a password.
-
-### Tested, not just claimed
-
-The code and images are checked with automated analysis tools (code, libraries, Docker images, secrets in the repository, web scanning) and with manual testing. Vulnerabilities found during development have been fixed and verified.
-
-> **Found a security issue?** Please don't open a public issue: contact me privately through my GitHub profile, so we can fix it before it's exploited.
+The details, and how to report a vulnerability privately, are in **[SECURITY.md](SECURITY.md)**.
 
 ## Under the bonnet
 
