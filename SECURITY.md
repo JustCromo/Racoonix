@@ -42,10 +42,11 @@ Racoonix was designed starting from one question: **what happens if something go
 - No open sign-up: only the owner creates accounts, and everyone chooses their own password on first sign-in.
 - Passwords are protected with an algorithm designed to make guessing extremely slow, even if the database were stolen.
 - Each person can only sign in from devices the owner has approved. A stolen password alone isn't enough, and a revoked device is blocked for every account.
+- New staff can sign in for the first time with a QR code the owner shows them in person: it works once, for 30 minutes, it's stored only as a hash, and the phone that scans it becomes their approved device. Every device, including blocked ones, is listed on the Devices page.
 - A failed sign-in always gets the same response, whatever the reason: an attacker can't tell whether a password was right or a user exists.
 - Repeated failures lock the account for a while and slow down requests.
 - The owner's functions only work from authorised computers.
-- Sessions expire, and signing out really ends them on the server too.
+- Sessions expire after 30 minutes without real use (automatic page updates don't count), and signing out really ends them on the server too.
 
 **Everyone sees only their own.** Roles are checked by the server on every request; the interface contains no logic, so there's nothing to bypass in the browser.
 
@@ -102,10 +103,11 @@ Racoonix è stato progettato partendo da una domanda: **cosa succede se qualcosa
 - Niente registrazione libera: gli account li crea solo il titolare, e al primo accesso ognuno sceglie la sua password.
 - Le password sono protette con un algoritmo pensato per rendere lentissimi i tentativi di indovinarle, anche se qualcuno rubasse il database.
 - Ognuno entra solo dai dispositivi approvati dal titolare. Una password rubata, da sola, non basta, e un dispositivo revocato viene bloccato per qualunque account.
+- Chi è nuovo può fare il primo accesso con un QR che il titolare gli mostra di persona: vale una volta sola, per 30 minuti, viene salvato solo come impronta, e il telefono che lo inquadra diventa il suo dispositivo approvato. Tutti i dispositivi, compresi quelli bloccati, sono nella pagina Dispositivi.
 - Un accesso fallito riceve sempre la stessa risposta, qualunque sia il motivo: chi attacca non capisce se una password era giusta o se un utente esiste.
 - Dopo una serie di errori l'account si blocca per un po', e le richieste ripetute vengono rallentate.
 - Le funzioni del titolare funzionano solo dai computer autorizzati.
-- Le sessioni scadono, e l'uscita le chiude davvero, anche sul server.
+- Le sessioni scadono dopo 30 minuti senza un uso vero (gli aggiornamenti automatici delle pagine non contano), e l'uscita le chiude davvero, anche sul server.
 
 **Ognuno vede solo il suo.** I ruoli li controlla il server a ogni richiesta; l'interfaccia non contiene logica, quindi nel browser non c'è niente da aggirare.
 

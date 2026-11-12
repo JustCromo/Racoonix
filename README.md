@@ -66,7 +66,10 @@ Probabilmente **no**, se hai già un gestionale collegato alla cassa che gestisc
 - **Ordini ai fornitori** con giorni d'ordine, soglie di riordino e testo pronto da inviare.
 - **Conteggio del magazzino**, con registrazione automatica delle differenze.
 - **Dashboard** con scadenze, sprechi e valore del magazzino.
-- **Utenti e ruoli**: titolare (admin), magazziniere e dipendente, anche combinati.
+- **Utenti e ruoli**: titolare (admin), magazziniere e dipendente, anche combinati; primo accesso con un QR.
+- **Carico veloce**: carico a raffica, quantità proposte dall'ordine con le differenze segnalate, e "Annulla" per un minuto dopo ogni carico o rifornimento.
+- **Cose da fare operative**: si rifornisce lo scaffale, si approva un dispositivo o un prodotto direttamente dalla notifica.
+- **Stato del sistema** in dashboard: versione, ultimo backup e spazio libero.
 - **Italiano e inglese**: ogni persona sceglie la sua lingua dal menu; date e valuta seguono il paese del negozio (Italia, Regno Unito, Stati Uniti).
 - **Tema chiaro e scuro**, interfaccia pensata prima di tutto per il telefono.
 
@@ -84,7 +87,7 @@ L'installatore non fa domande: prepara tutto da solo, avvia Racoonix e alla fine
 
 1. dal tuo computer apri quel link: si apre la **configurazione guidata**, dove scegli con un clic paese, lingua e fuso orario, dai un nome al negozio e crei il tuo account. Il link vale una volta sola: se ti serve di nuovo, `./racoonix.sh link`;
 2. vai su **Collega dispositivi** e segui le istruzioni per far riconoscere Racoonix a telefoni e PC (una volta sola per dispositivo);
-3. crea gli account di chi lavora con te da **Utenti**. Al primo accesso ognuno sceglie la sua password, e tu approvi il suo telefono.
+3. crea gli account di chi lavora con te da **Utenti** e fai inquadrare il **QR** che compare: scelgono la loro password e il telefono è già approvato. In alternativa c'è la password temporanea.
 
 Nome, lingua, paese e fuso orario si cambiano quando vuoi da **Negozio**, nel menu.
 

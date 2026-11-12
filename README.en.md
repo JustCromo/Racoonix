@@ -68,7 +68,10 @@ Probably **not**, if you already have a management system connected to your till
 - **Supplier orders** with ordering days, reorder thresholds and order text ready to send.
 - **Stockroom counts**, with differences recorded automatically.
 - **Dashboard** with expiry dates, waste and stockroom value.
-- **Users and roles**: owner (admin), stockroom worker and shop assistant, which can also be combined.
+- **Users and roles**: owner (admin), stockroom worker and shop assistant, which can also be combined; first sign-in with a QR code.
+- **Fast booking in**: rapid booking, quantities suggested from the order with differences flagged, and "Undo" for one minute after booking in or restocking.
+- **Actionable to-do list**: restock the shelf, approve a device or a product straight from the notification.
+- **System status** on the dashboard: version, last backup and free space.
 - **Light and dark theme**, with an interface designed for phones first.
 
 ## Quick installation
@@ -85,7 +88,7 @@ The installer asks no questions: it sets everything up on its own, starts Racoon
 
 1. open that link from your computer: the **guided setup** opens, where you pick country, language and time zone with a click, name your shop and create your account. The link works once only: if you need it again, `./racoonix.sh link`;
 2. go to **Collega dispositivi** (*Connect devices*) and follow the instructions so that phones and PCs recognise Racoonix (once per device);
-3. create accounts for the people who work with you under **Users**. The first time they sign in, everyone chooses their own password, and you approve their phone.
+3. create accounts for the people who work with you under **Users** and have them scan the **QR code** shown: they choose their own password and their phone is already approved. A temporary password is also available.
 
 Name, language, country and time zone can be changed at any time from **Shop**, in the menu.
 
