@@ -120,6 +120,8 @@ La pagina **Collega dispositivi** mostra sempre entrambi gli indirizzi, con un Q
 
 > **Un consiglio:** fai usare a ogni dispositivo sempre lo stesso indirizzo. Per il browser, il nome e l'IP sono due siti diversi: cambiando indirizzo, bisogna rifare l'accesso e far approvare di nuovo il dispositivo.
 
+**Due Racoonix nella stessa rete** (per esempio uno di prova) devono avere nomi diversi: l'installatore lo controlla, e propone un altro nome se `racoonix.local` è già usato.
+
 **Vuoi il nome anche sugli Android?** Se il router del negozio permette di dare un nome ai dispositivi della rete (molti router lo chiamano "DNS locale" o "nome host"), puoi associare un nome all'IP del server: quel nome funzionerà su qualunque dispositivo. In questo caso, dai quel nome a Racoonix con `./racoonix.sh nome`.
 
 ## Sicurezza

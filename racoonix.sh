@@ -40,6 +40,13 @@ controlla_installato() {
   if ! grep -q '^RACOONIX_IP=' .env && grep -q '^RACOONIX_SNI=' .env; then
     echo "RACOONIX_IP=$(grep '^RACOONIX_SNI=' .env | cut -d= -f2)" >> .env
   fi
+  segna_versione
+}
+
+# Il nome in rete deve essere solo nostro: se un altro dispositivo (per esempio un secondo Racoonix) lo usa gia',
+# lo diciamo subito invece di scoprirlo dopo. Restituisce 3 se il nome e' occupato.
+nome_libero() {
+  dc run --rm --no-deps -e RACOONIX_NOME="$1" mdns python /srv/annuncia.py --verifica
 }
 
 # Installazioni precedenti: i segreti stavano nella cartella secrets/. Li copio nei volumi una volta sola
@@ -107,6 +114,10 @@ installa() {
   segna_versione
   info "$(t "Preparo l'applicazione (la prima volta puo' richiedere qualche minuto)..." "Preparing the application (the first time can take a few minutes)...")"
   dc build
+  if ! nome_libero "$nome"; then
+    rm -f .env
+    errore "$(t "Nella rete c'e' gia' un dispositivo che si chiama $nome (forse un altro Racoonix). Installa con un altro nome, per esempio:" "There's already a device called $nome on the network (maybe another Racoonix). Install with another name, for example:") ./racoonix.sh installa $ip racoonix-2.local"
+  fi
   importa_segreti_vecchi
   dc up -d
   attendi_avvio
@@ -188,11 +199,16 @@ stato() {
   local versione
   versione=$(dc exec -T app flask --app racoonix:create_app db current 2>/dev/null | tail -1 || true)
   info "$(t "Versione del database:" "Database version:") ${versione:-$(t "non disponibile" "not available")}"
+  info "$(t "Versione di Racoonix:" "Racoonix version:") $(grep '^RACOONIX_VERSIONE=' .env | cut -d= -f2)"
+  local annuncio
+  annuncio=$(dc logs --no-log-prefix --tail 1 mdns 2>/dev/null | sed 's/^\[mdns\] //' || true)
+  info "$(t "Nome in rete:" "Network name:") ${annuncio:-$(t "nessuna informazione" "no information")}"
 }
 
 cambia_nome() {
   local nome="$1"
   [[ "$nome" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || errore "$(t "Indica il nuovo nome, per esempio: ./racoonix.sh nome negozio.local" "Give the new name, for example: ./racoonix.sh name shop.local")"
+  nome_libero "$nome" || errore "$(t "Il nome $nome e' gia' usato da un altro dispositivo nella rete: scegline un altro" "The name $nome is already used by another device on the network: choose another one")"
   sed -i '/^RACOONIX_NOME=/d' .env && echo "RACOONIX_NOME=$nome" >> .env
   dc up -d --force-recreate caddy app mdns
   ok "$(t "Ora Racoonix e' raggiungibile anche come" "Racoonix can now also be reached at") https://$nome"

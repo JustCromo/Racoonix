@@ -121,6 +121,8 @@ The **Collega dispositivi** page always shows both addresses, with a QR code to 
 
 > **Tip:** have each device always use the same address. To the browser, the name and the IP are two different websites: switching address means signing in again and having the device approved again.
 
+**Two Racoonix installations on the same network** (for example a test one) need different names: the installer checks, and suggests another name if `racoonix.local` is already taken.
+
 **Want the name on Android too?** If the shop's router lets you give names to devices on the network (many routers call this "local DNS" or "host name"), you can link a name to the server's IP: that name will work on any device. In that case, give Racoonix that name with `./racoonix.sh name`.
 
 ## Security

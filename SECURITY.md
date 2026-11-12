@@ -61,6 +61,8 @@ Racoonix was designed starting from one question: **what happens if something go
 
 **Everything is recorded.** Sign-ins, failed attempts, approvals and every important action go into the activity log, with a 24-hour security summary that flags password-guessing attempts.
 
+**Known limit: someone pretending to be Racoonix.** The `racoonix.local` name is announced with mDNS, which has no authentication: any device on the local network could claim the same name. This is covered by the certificate: phones and computers only trust your Racoonix's certificate (installed once, with its fingerprint checked), so an impostor triggers a certificate error, and browsers that have already visited Racoonix don't even allow it to be bypassed (HSTS). The rule for everyone: never accept a certificate warning on Racoonix. Racoonix also refuses to install with a name already used on the network, and doesn't contend a name already in use.
+
 **Tested, not just claimed.** The code, its libraries, the Docker images, the repository history and the web interface are checked with automated tools, alongside automated tests and manual testing. Vulnerabilities found during development were fixed and verified.
 
 ---
@@ -121,5 +123,7 @@ Racoonix è stato progettato partendo da una domanda: **cosa succede se qualcosa
 **Le protezioni di ogni pagina.** Protezione dalle richieste contraffatte, cookie inaccessibili agli script e legati solo a Racoonix, una politica dei contenuti restrittiva, protezione dall'inserimento in altri siti, nessuna pagina nella cache del browser, controlli rigorosi su ogni dato inserito o letto da un codice a barre, ed esportazioni protette contro le formule malevole nei fogli di calcolo.
 
 **Tutto resta registrato.** Accessi, tentativi falliti, approvazioni e ogni operazione importante finiscono nel registro attività, con un riepilogo di sicurezza delle ultime 24 ore che segnala i tentativi di indovinare una password.
+
+**Limite noto: qualcuno che si spaccia per Racoonix.** Il nome `racoonix.local` viene annunciato con mDNS, che non ha nessuna autenticazione: qualunque dispositivo nella rete locale potrebbe dire di chiamarsi così. È coperto dal certificato: telefoni e computer si fidano solo del certificato del tuo Racoonix (installato una volta, verificandone l'impronta), quindi un impostore provoca un errore di certificato, e i browser che hanno già visitato Racoonix non permettono nemmeno di ignorarlo (HSTS). La regola per tutti: mai accettare un avviso di certificato su Racoonix. In più, Racoonix si rifiuta di installarsi con un nome già usato nella rete e non contende un nome occupato.
 
 **Verificato, non solo dichiarato.** Il codice, le librerie, le immagini Docker, la storia del repository e l'interfaccia web vengono controllati con strumenti automatici, insieme a test automatici e test manuali. Le vulnerabilità trovate durante lo sviluppo sono state corrette e verificate.
