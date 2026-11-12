@@ -2588,3 +2588,57 @@ msgstr "Filter:"
 
 msgid "Togli il filtro"
 msgstr "Remove filter"
+
+msgid "Indirizzo non valido"
+msgstr "Invalid address"
+
+msgid "Richiesta non valida"
+msgstr "Invalid request"
+
+msgid "Non puoi bloccare un indirizzo che include i computer dell'amministratore"
+msgstr "You can't block an address that includes the administrator's computers"
+
+msgid "Rete troppo grande: blocca al massimo 256 indirizzi alla volta"
+msgstr "Network too large: block at most 256 addresses at a time"
+
+msgid "Tentativi di accesso falliti"
+msgstr "Failed sign-in attempts"
+
+msgid "Indirizzo %(ip)s bloccato"
+msgstr "Address %(ip)s blocked"
+
+msgid "Segnalazione per %(ip)s nascosta"
+msgstr "Report for %(ip)s hidden"
+
+msgid "Indirizzo %(ip)s sbloccato"
+msgstr "Address %(ip)s unblocked"
+
+msgid "Indirizzo bloccato"
+msgstr "Address blocked"
+
+msgid "Indirizzo sbloccato"
+msgstr "Address unblocked"
+
+msgid "Segnalazione di un indirizzo nascosta"
+msgstr "Address report hidden"
+
+msgid "per 24 ore"
+msgstr "for 24 hours"
+
+msgid "per 7 giorni"
+msgstr "for 7 days"
+
+msgid "per sempre"
+msgstr "permanently"
+
+msgid "Indirizzi bloccati"
+msgstr "Blocked addresses"
+
+msgid "fino al"
+msgstr "until"
+
+msgid "Indirizzo o rete da bloccare (es. 192.168.1.50)"
+msgstr "Address or network to block (e.g. 192.168.1.50)"
+
+msgid "Blocca"
+msgstr "Block"

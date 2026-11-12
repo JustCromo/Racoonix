@@ -371,3 +371,16 @@ class Riordino(db.Model):
         Index("uq_riordino_aperto", "prodotto_id", unique=True,
               postgresql_where=text("stato IN ('da_ordinare','ordinato')")),
     )
+
+
+class IndirizzoBloccato(db.Model):
+    """Indirizzi (o reti) che l'admin ha bloccato, oppure segnato come gia' visti nel riepilogo di sicurezza."""
+    __tablename__ = "indirizzi_bloccati"
+    id = db.Column(db.Integer, primary_key=True)
+    rete = db.Column(db.String(50), nullable=False, unique=True)
+    stato = db.Column(db.String(10), nullable=False, default="bloccato")
+    motivo = db.Column(db.String(200))
+    creato_da = db.Column(db.Integer, db.ForeignKey("utenti.id", ondelete="SET NULL"))
+    creato_il = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    scade_il = db.Column(db.DateTime(timezone=True))
+    __table_args__ = (CheckConstraint("stato IN ('bloccato','ignorato')", name="ck_indirizzo_stato"),)

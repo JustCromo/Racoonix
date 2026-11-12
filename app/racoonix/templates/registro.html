@@ -16,12 +16,43 @@
   {% if riepilogo.sospetti %}
   <div class="spazio">
     {% for ip, numero, ultimo in riepilogo.sospetti %}
-    <p class="errore">{{ _("Possibile attacco a forza bruta:") }} {{ numero }} {{ _("tentativi falliti da") }} {{ ip }} {{ _("(ultimo alle") }} {{ ultimo|data_ora }})</p>
+    <div class="sospetto">
+      <p class="errore">{{ _("Possibile attacco a forza bruta:") }} {{ numero }} {{ _("tentativi falliti da") }} {{ ip }} {{ _("(ultimo alle") }} {{ ultimo|data_ora }})</p>
+      <form method="post" action="{{ url_for('registro.indirizzi') }}" class="riga">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="ip" value="{{ ip }}">
+        <select name="durata">
+          <option value="1">{{ _("per 24 ore") }}</option><option value="7">{{ _("per 7 giorni") }}</option><option value="sempre">{{ _("per sempre") }}</option>
+        </select>
+        <button type="submit" name="azione" value="blocca" class="piccolo">{{ _("Blocca") }}</button>
+        <button type="submit" name="azione" value="ignora" class="piccolo secondario">{{ _("Ignora") }}</button>
+      </form>
+    </div>
     {% endfor %}
   </div>
   {% else %}
   <p class="sotto spazio">{{ _("Nessuna attivita' sospetta: nessun indirizzo ha superato") }} {{ soglia }} {{ _("tentativi falliti.") }}</p>
   {% endif %}
+  <details class="spazio"{% if riepilogo.bloccati_ip %} open{% endif %}>
+    <summary>{{ _("Indirizzi bloccati") }} ({{ riepilogo.bloccati_ip|length }})</summary>
+    {% for b in riepilogo.bloccati_ip %}
+    <form method="post" action="{{ url_for('registro.sblocca', bid=b.id) }}" class="riga sospetto">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <strong>{{ b.rete }}</strong>
+      <span class="sotto">{{ _("fino al") ~ " " ~ (b.scade_il|data_ora) if b.scade_il else _("per sempre") }}</span>
+      <button type="submit" class="piccolo secondario">{{ _("Sblocca") }}</button>
+    </form>
+    {% endfor %}
+    <form method="post" action="{{ url_for('registro.indirizzi') }}" class="riga spazio">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="azione" value="blocca">
+      <input name="ip" maxlength="50" placeholder="{{ _("Indirizzo o rete da bloccare (es. 192.168.1.50)") }}" required spellcheck="false">
+      <select name="durata">
+        <option value="1">{{ _("per 24 ore") }}</option><option value="7">{{ _("per 7 giorni") }}</option><option value="sempre">{{ _("per sempre") }}</option>
+      </select>
+      <button type="submit" class="piccolo">{{ _("Blocca") }}</button>
+    </form>
+  </details>
 </section>
 
 <form method="get" action="{{ url_for('registro.pagina') }}" class="riga spazio" id="filtri-registro">

@@ -64,6 +64,8 @@ def create_app():
     from .impostazioni import bp as impostazioni_bp
     app.register_blueprint(impostazioni_bp)
     from . import negozio
+    from . import blocchi
+    app.before_request(blocchi.respingi)
     app.before_request(negozio.applica_fuso)
     app.before_request(auth.carica_utente)
     app.before_request(auth.obbligo_cambio_password)

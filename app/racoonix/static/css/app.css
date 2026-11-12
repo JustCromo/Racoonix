@@ -488,3 +488,7 @@ a.scheda-link:hover { border-color: #D9A441; transform: translateY(-1px); }
 .filtro-attivo { margin: .2rem 0 .8rem; }
 .etichetta-filtro { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .85rem; border-radius: 999px;
   background: rgba(217, 164, 65, .16); border: 1px solid rgba(217, 164, 65, .55); }
+
+/* --- Attivita' sospette con i pulsanti per bloccare --- */
+.sospetto { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .4rem 0; }
+.sospetto .errore { margin: 0; flex: 1 1 320px; }

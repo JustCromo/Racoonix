@@ -38,6 +38,9 @@ AZIONI = {
     "richiesta_reset_password": ("sicurezza", _l("Richiesta di nuova password"), False),
     "bootstrap_admin": ("sicurezza", _l("Primo amministratore creato"), False),
     "registro_esportato": ("sicurezza", _l("Registro esportato"), False),
+    "ip_bloccato": ("sicurezza", _l("Indirizzo bloccato"), True),
+    "ip_sbloccato": ("sicurezza", _l("Indirizzo sbloccato"), False),
+    "ip_ignorato": ("sicurezza", _l("Segnalazione di un indirizzo nascosta"), False),
     "configurazione_codice_errato": ("sicurezza", _l("Codice di configurazione errato o scaduto"), True),
     "configurazione_completata": ("sicurezza", _l("Configurazione iniziale completata"), False),
     "impostazioni_modificate": ("sistema", _l("Impostazioni del negozio modificate"), False),
@@ -163,9 +166,13 @@ def _righe(stmt, pagina):
 
 
 def _riepilogo():
+    from .blocchi import _attivi
     da = datetime.now(timezone.utc) - timedelta(hours=24)
     falliti = (AuditLog.azione.in_(TENTATIVI_FALLITI), AuditLog.data_ora >= da)
+    bloccati, ignorati = _attivi("bloccato"), _attivi("ignorato")
+    gia_gestiti = [b.rete.split("/")[0] for b in bloccati + ignorati if b.rete.endswith(("/32", "/128"))]
     return {
+        "bloccati_ip": bloccati,
         "falliti": db.session.scalar(db.select(func.count(AuditLog.id)).where(*falliti)),
         "indirizzi": db.session.scalar(db.select(func.count(func.distinct(AuditLog.ip))).where(*falliti)),
         "bloccati": db.session.scalar(db.select(func.count(AuditLog.id)).where(
@@ -173,7 +180,8 @@ def _riepilogo():
         "admin_ip": db.session.scalar(db.select(func.count(AuditLog.id)).where(
             AuditLog.azione == "admin_ip_non_consentito", AuditLog.data_ora >= da)),
         "sospetti": db.session.execute(
-            db.select(AuditLog.ip, func.count(AuditLog.id), func.max(AuditLog.data_ora)).where(*falliti)
+            db.select(AuditLog.ip, func.count(AuditLog.id), func.max(AuditLog.data_ora))
+            .where(*falliti, AuditLog.ip.not_in(gia_gestiti or [""]))
             .group_by(AuditLog.ip).having(func.count(AuditLog.id) >= SOGLIA_SOSPETTO)
             .order_by(func.count(AuditLog.id).desc()).limit(5)).all(),
     }
@@ -194,6 +202,72 @@ def pagina():
                            categoria=categoria, periodo=periodo, utente_id=utente_id, q=q,
                            evento=evento, eventi=EVENTI,
                            soglia=SOGLIA_SOSPETTO, **_contesto_righe())
+
+
+DURATE = {"1": timedelta(days=1), "7": timedelta(days=7), "sempre": None}
+
+
+@bp.post("/indirizzi")
+@richiede_ruolo("admin")
+def indirizzi():
+    """Blocca un indirizzo (o una rete) per un giorno, una settimana o per sempre, oppure segnalo come gia' visto."""
+    import ipaddress
+    from flask import flash, g, redirect, url_for
+    from .auth import registra
+    from .blocchi import svuota_cache
+    from .lingua import _
+    from .models import IndirizzoBloccato
+    from .negozio import reti_admin
+    torna = redirect(url_for(".pagina"))
+    azione, durata = request.form.get("azione"), request.form.get("durata", "1")
+    try:
+        rete = ipaddress.ip_network((request.form.get("ip") or "").strip()[:50], strict=False)
+    except ValueError:
+        flash(_("Indirizzo non valido"), "errore")
+        return torna
+    if azione not in ("blocca", "ignora") or durata not in DURATE:
+        flash(_("Richiesta non valida"), "errore")
+        return torna
+    # Mai chiudere fuori il titolare: niente blocchi che includano il computer in uso o quelli dell'admin
+    mio = ipaddress.ip_address(request.remote_addr)
+    if azione == "blocca" and (mio in rete or any(rete.overlaps(r) for r in reti_admin() if r.version == rete.version)):
+        flash(_("Non puoi bloccare un indirizzo che include i computer dell'amministratore"), "errore")
+        return torna
+    if azione == "blocca" and rete.num_addresses > 256:
+        flash(_("Rete troppo grande: blocca al massimo 256 indirizzi alla volta"), "errore")
+        return torna
+    voce = db.session.scalar(db.select(IndirizzoBloccato).filter_by(rete=str(rete))) or IndirizzoBloccato(rete=str(rete))
+    voce.stato = "bloccato" if azione == "blocca" else "ignorato"
+    voce.creato_da = g.utente.id
+    voce.creato_il = datetime.now(timezone.utc)
+    voce.scade_il = (voce.creato_il + DURATE[durata]) if DURATE[durata] else None
+    voce.motivo = _("Tentativi di accesso falliti") if azione == "blocca" else None
+    db.session.add(voce)
+    registra("ip_bloccato" if azione == "blocca" else "ip_ignorato", g.utente.id,
+             f"{rete}, {'per sempre' if durata == 'sempre' else durata + ' giorni'}")
+    db.session.commit()
+    svuota_cache()
+    leggibile = str(rete.network_address) if rete.num_addresses == 1 else str(rete)
+    flash(_("Indirizzo %(ip)s bloccato", ip=leggibile) if azione == "blocca"
+          else _("Segnalazione per %(ip)s nascosta", ip=leggibile), "ok")
+    return torna
+
+
+@bp.post("/indirizzi/<int:bid>/sblocca")
+@richiede_ruolo("admin")
+def sblocca(bid):
+    from flask import flash, g, redirect, url_for
+    from .auth import registra
+    from .blocchi import svuota_cache
+    from .lingua import _
+    from .models import IndirizzoBloccato
+    voce = db.get_or_404(IndirizzoBloccato, bid)
+    registra("ip_sbloccato", g.utente.id, voce.rete)
+    db.session.delete(voce)
+    db.session.commit()
+    svuota_cache()
+    flash(_("Indirizzo %(ip)s sbloccato", ip=voce.rete), "ok")
+    return redirect(url_for(".pagina"))
 
 
 @bp.get("/risultati")
