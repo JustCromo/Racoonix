@@ -148,6 +148,130 @@ flowchart LR
 
 Python e Flask per l'applicazione, PostgreSQL per i dati, Caddy per la connessione cifrata, htmx per un'interfaccia reattiva senza logica nel browser, Docker per far girare tutto allo stesso modo su qualunque computer.
 
+## Per sviluppatori
+
+### Requisiti
+
+- **Docker Engine 24+** con **Docker Compose v2**, e **git**. Nient'altro: Python, PostgreSQL e tutte le librerie girano nei container.
+- Testato su **Linux** (Arch, Ubuntu 26.04, Raspberry Pi 4/5 a 64 bit).
+- Su **macOS o Windows** (Docker Desktop) indica tu l'indirizzo, perché lo script non riesce a trovarlo da solo: `./racoonix.sh installa 127.0.0.1`, poi apri `https://localhost`. Il nome `racoonix.local` è pensato per un server Linux nella rete del negozio.
+
+### Avvio
+
+```bash
+git clone https://github.com/JustCromo/Racoonix.git
+cd Racoonix
+./racoonix.sh installa
+```
+
+Alla fine compare il link della configurazione guidata (vale 24 ore, una volta sola). Aprilo dal browser, accetta l'avviso sul certificato (è quello di Racoonix, creato al momento) e completa la configurazione: paese, lingua, fuso orario, nome del negozio e account admin.
+
+### Provare con i dati demo
+
+Per avere subito un catalogo, fornitori e codici a barre da scansionare:
+
+```bash
+docker build -t racoonix-etichette tools/barcode
+docker run --rm -v ./demo:/out racoonix-etichette
+docker compose run --rm --no-deps -v ./demo:/demo:ro app python -m racoonix.carica_demo /demo/catalogo_demo.json
+```
+
+Poi apri `demo/foglio_demo.html` (stampato, o su un secondo schermo) e dalla pagina **Carico** inquadra i codici con la fotocamera:
+- i **DataMatrix** e i **QR** contengono già lotto e scadenza (alcuni scadono nei prossimi giorni, così partono subito le notifiche);
+- un codice è di un **prodotto nuovo**, che finisce tra quelli da approvare;
+- uno è un **secondo codice** di un prodotto esistente.
+
+Per provare i ruoli, da **Utenti** crea un **dipendente** e un **magazziniere**, e accedi con loro da un altro browser o dal telefono (il dispositivo va approvato dall'admin).
+
+### Comandi utili
+
+| Comando | A cosa serve |
+|---|---|
+| `./racoonix.sh log app` | Log dell'applicazione in tempo reale |
+| `./racoonix.sh stato` | Servizi attivi e versione del database |
+| `docker compose build app && docker compose up -d app` | Applicare una modifica al codice |
+| `./racoonix.sh backup` / `ripristina FILE` | Backup e ripristino del database |
+
+### Servizi Docker
+
+| Servizio | Cosa fa |
+|---|---|
+| `segreti` | Al primo avvio genera password e chiavi in volumi separati, poi si ferma |
+| `db` | PostgreSQL 16 (immagine ufficiale + aggiornamenti di sicurezza), su rete interna |
+| `migrazioni` | Applica le migrazioni del database e i permessi minimi, poi si ferma |
+| `app` | Flask + gunicorn: l'applicazione |
+| `scheduler` | Controlli programmati (scadenze, freschezza, sconti) |
+| `caddy` | HTTPS con certificato interno e intestazioni di sicurezza; unico servizio esposto |
+| `mdns` | Annuncia `racoonix.local` nella rete del negozio |
+
+### Struttura del codice
+
+```
+app/racoonix/
+├── __init__.py          avvio dell'app, intestazioni e controlli comuni
+├── models.py            modelli del database (SQLAlchemy)
+├── auth.py, accessi.py  login, sessioni, ruoli, dispositivi approvati
+├── configurazione.py    configurazione iniziale con codice monouso
+├── negozio.py           impostazioni del negozio (lingua, paese, fuso)
+├── carico.py            carico merce; codici.py legge EAN, GS1 DataMatrix e Digital Link
+├── inventario.py        inventario, rifornimento, conteggio, "Sta finendo"
+├── notifiche.py         motore delle notifiche; notifiche_web.py le pagine
+├── ordini.py, riordini.py  lista d'ordine per fornitore
+├── registro.py          registro attività
+├── benvenuto.py         primo accesso con il QR
+├── annulla.py           annulla l'ultimo carico o rifornimento
+├── openfoodfacts.py     dati dei prodotti nuovi da Open Food Facts
+├── impostazioni.py      pagina Negozio
+├── templates/, static/  pagine (Jinja + htmx) e stili
+└── translations/        traduzione inglese
+app/migrations/          migrazioni Alembic
+db/, mdns/               immagini del database e dell'annuncio del nome
+tools/                   etichette demo e icone
+```
+
+### Database
+
+Lo schema nasce dai modelli in `app/racoonix/models.py`. Per modificarlo: cambia `app/racoonix/models.py`, poi genera la migrazione
+
+```bash
+docker compose run --rm --no-deps -v ./app:/srv migrazioni flask --app racoonix:create_app db migrate -m "descrizione"
+```
+
+controlla il file creato in `app/migrations/versions/` (i vincoli `CHECK` vanno aggiunti a mano) e riavvia: le migrazioni si applicano da sole.
+
+### Traduzioni
+
+I testi sono in italiano nel codice, le traduzioni in `app/racoonix/translations/`. Dopo aver aggiunto o cambiato testi:
+
+```bash
+P="docker compose run --rm --no-deps --user $(id -u):$(id -g) -v ./app:/srv app pybabel"
+$P extract -F babel.cfg -k _ -k _l -k testo_negozio -k N_ -k lazy_gettext -k gettext -o messages.pot .
+$P update -i messages.pot -d racoonix/translations
+# traduci i testi nuovi in racoonix/translations/en/LC_MESSAGES/messages.po
+$P compile -d racoonix/translations
+```
+
+## Sviluppi futuri
+
+- **"Da consumarsi preferibilmente entro"** distinta dalla scadenza vera: oggi Racoonix le tratta tutte come scadenze rigide.
+- **Unità americane** (libbre, once) e **tasse per paese** (IVA britannica, sales tax degli Stati Uniti).
+- **Altre lingue**: basta un file di traduzione in più.
+- **Stima dei consumi** dai conteggi e dai rifornimenti, per anticipare le mancanze.
+- **Carico che riconosce l'ordine** e segnala le differenze di consegna.
+- **Installabile sul telefono** come app (PWA), con notifiche push.
+- **Più negozi** con un unico Racoonix.
+- **Test e scansioni di sicurezza automatici** su GitHub Actions a ogni modifica.
+
+## Riferimenti
+
+- [Open Food Facts API](https://openfoodfacts.github.io/openfoodfacts-server/api/): dati dei prodotti alimentari
+- [Flask](https://flask.palletsprojects.com/), [SQLAlchemy](https://www.sqlalchemy.org/), [Alembic](https://alembic.sqlalchemy.org/), [Flask-Babel](https://python-babel.github.io/flask-babel/)
+- [PostgreSQL 16](https://www.postgresql.org/docs/16/), [Caddy](https://caddyserver.com/docs/), [htmx](https://htmx.org/), [Docker Compose](https://docs.docker.com/compose/)
+- [GS1 General Specifications](https://www.gs1.org/standards/barcodes-epcrfid-id-keys/gs1-general-specifications) e [GS1 Digital Link](https://www.gs1.org/standards/gs1-digital-link): codici a barre con lotto e scadenza
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/) e [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+- [CWE-204](https://cwe.mitre.org/data/definitions/204.html): risposte diverse che rivelano informazioni (la vulnerabilità trovata e corretta nel login)
+- [RFC 9106 – Argon2](https://www.rfc-editor.org/rfc/rfc9106) e [RFC 6762 – mDNS](https://www.rfc-editor.org/rfc/rfc6762)
+
 ## Autore
 
 Racoonix è un progetto di **Ivan** ([JustCromo](https://github.com/JustCromo)), nato per il corso *System Cyber Security* dell'ITS Academy Prodigi.
