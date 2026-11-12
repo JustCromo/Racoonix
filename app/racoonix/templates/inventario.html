@@ -17,12 +17,12 @@
   {% set entro, giorno = filtro_scadenza %}
   {% if entro is not none %}<input type="hidden" name="entro" value="{{ entro }}">{% endif %}
   {% if giorno %}<input type="hidden" name="giorno" value="{{ giorno.isoformat() }}">{% endif %}
+  <button id="avvia" type="button" class="secondario">{{ _("Usa fotocamera") }}</button>
 </form>
+<div id="lettore"></div>
 {% if entro is not none or giorno %}
 <p class="info filtro">{{ _("Mostro solo i prodotti") }} {% if giorno %}{{ _("che scadono il") }} {{ giorno|data }}{% else %}{{ _("in scadenza entro") }} {{ entro }} {{ _("giorni") }}{% endif %} &middot; <a href="{{ url_for('inventario.pagina') }}">{{ _("mostra tutto") }}</a></p>
 {% endif %}
-<button id="avvia" type="button" class="secondario">{{ _("Usa fotocamera") }}</button>
-<div id="lettore"></div>
 <div id="risultati" data-aggiorna="{{ url_for('inventario.risultati') }}" data-modulo="modulo-codice" data-swap="innerHTML">{% include "_risultati.html" %}</div>
 {% endblock %}
 {% block script %}

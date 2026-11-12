@@ -2561,3 +2561,21 @@ msgstr "for one minute"
 
 msgid "Questa pagina non si puo' aprire direttamente"
 msgstr "This page can't be opened directly"
+
+msgid "Kg messi sullo scaffale"
+msgstr "Kg put on the shelf"
+
+msgid "Pezzi messi sullo scaffale"
+msgstr "Items put on the shelf"
+
+msgid "Rifornito"
+msgstr "Restocked"
+
+msgid "Scrivi quanti ne hai messi sullo scaffale"
+msgstr "Enter how many you put on the shelf"
+
+msgid "Altre opzioni (nome, categoria, unione con un prodotto esistente)"
+msgstr "More options (name, category, merge with an existing product)"
+
+msgid "Approvato: %(prodotto)s"
+msgstr "Approved: %(prodotto)s"

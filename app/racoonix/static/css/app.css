@@ -475,3 +475,6 @@ fieldset.scelte .carte-scelta { width: 100%; }
 
 .stato-sistema strong.acceso { color: #A6493A; }
 [data-theme="scuro"] .stato-sistema strong.acceso { color: #E08B7C; }
+
+/* --- Dispositivi da approvare dentro le Cose da fare --- */
+.riga-dispositivo { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .4rem; }

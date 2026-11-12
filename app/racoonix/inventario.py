@@ -135,6 +135,36 @@ def _risposta(prodotto, messaggio, esito, q, categoria_id, annullabile=False):
     return redirect(url_for(".pagina", q=q or None, categoria=categoria_id))
 
 
+def sposta_sullo_scaffale(prodotto, quantita):
+    """Dal magazzino allo scaffale, prima i lotti che scadono prima (FEFO). Chiude "Riempi lo scaffale".
+    Restituisce (messaggio d'errore, movimenti): i movimenti servono per poter annullare."""
+    oggi = date.today()
+    lotti = db.session.scalars(
+        db.select(Lotto)
+        .where(Lotto.prodotto_id == prodotto.id, Lotto.qta_magazzino > 0,
+               or_(Lotto.data_scadenza.is_(None), Lotto.data_scadenza > oggi))
+        .order_by(Lotto.data_scadenza.asc().nulls_last(), Lotto.data_carico)
+        .with_for_update()).all()
+    disponibile = sum(l.qta_magazzino for l in lotti)
+    if quantita > disponibile:
+        db.session.rollback()
+        return _("In magazzino ci sono solo %(quantita)s", quantita=mostra_quantita(disponibile, prodotto.unita)), []
+    restante, movimenti = quantita, []
+    for lotto in lotti:
+        sposta = min(restante, lotto.qta_magazzino)
+        lotto.qta_magazzino -= sposta
+        lotto.qta_esposta += sposta
+        movimenti.append((lotto.id, sposta))
+        restante -= sposta
+        if restante == 0:
+            break
+    _chiudi_notifiche(prodotto.id, "riempi")
+    registra("rifornimento", g.utente.id, f"prodotto {prodotto.id}, quantita {quantita}")
+    db.session.commit()
+    controlla_scaffali([prodotto.id])
+    return None, movimenti
+
+
 @bp.post("/<int:prodotto_id>/rifornisci")
 @richiede_ruolo("dipendente", "magazziniere")
 def rifornisci(prodotto_id):
@@ -146,32 +176,9 @@ def rifornisci(prodotto_id):
     if not quantita:
         return _risposta(prodotto, _("Quantita' non valida"), "errore", q, categoria_id)
 
-    oggi = date.today()
-    lotti = db.session.scalars(
-        db.select(Lotto)
-        .where(Lotto.prodotto_id == prodotto.id, Lotto.qta_magazzino > 0,
-               or_(Lotto.data_scadenza.is_(None), Lotto.data_scadenza > oggi))
-        .order_by(Lotto.data_scadenza.asc().nulls_last(), Lotto.data_carico)
-        .with_for_update()).all()
-    disponibile = sum(l.qta_magazzino for l in lotti)
-    if quantita > disponibile:
-        return _risposta(prodotto, _("In magazzino ci sono solo %(quantita)s", quantita=mostra_quantita(disponibile, prodotto.unita)),
-                         "errore", q, categoria_id)
-
-    restante, movimenti = quantita, []
-    for lotto in lotti:
-        sposta = min(restante, lotto.qta_magazzino)
-        lotto.qta_magazzino -= sposta
-        lotto.qta_esposta += sposta
-        movimenti.append((lotto.id, sposta))
-        restante -= sposta
-        if restante == 0:
-            break
-
-    _chiudi_notifiche(prodotto.id, "riempi")
-    registra("rifornimento", g.utente.id, f"prodotto {prodotto.id}, quantita {quantita}")
-    db.session.commit()
-    controlla_scaffali([prodotto.id])
+    errore, movimenti = sposta_sullo_scaffale(prodotto, quantita)
+    if errore:
+        return _risposta(prodotto, errore, "errore", q, categoria_id)
     from .annulla import ricorda
     ricorda("rifornimento", prodotto_id=prodotto.id, movimenti=movimenti, cerca=prodotto.nome)
     return _risposta(prodotto, _("Spostati sullo scaffale: %(quantita)s", quantita=mostra_quantita(quantita, prodotto.unita)),

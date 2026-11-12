@@ -19,7 +19,7 @@ URGENZA = {"dispositivo": 0, "reset_password": 0, "da_rimuovere": 1, "da_approva
            "sconto": 5, "in_scadenza": 6, "freschezza": 7}
 AZIONI = {"da_rimuovere": {"rimosso"}, "sconto": {"bollino"},
           "in_scadenza": {"verifica"}, "freschezza": {"ok", "deteriorato"}, "reset_password": {"ignora"},
-          "da_ordinare": {"visto"}}
+          "da_ordinare": {"visto"}, "riempi": {"rifornito"}}
 STORICO_MAX = 30
 
 
@@ -90,6 +90,18 @@ def agisci(nid, azione):
         abort(404)
     if notifica.stato != "aperta":
         return _vista(_("Gia' gestita da qualcun altro"), "errore")
+
+    if azione == "rifornito":
+        from .formato import quantita as mostra_quantita
+        from .inventario import sposta_sullo_scaffale
+        prodotto = notifica.prodotto
+        quantita = leggi_quantita(request.form.get("quantita"), prodotto.unita)
+        if not quantita:
+            return _vista(_("Scrivi quanti ne hai messi sullo scaffale"), "errore")
+        errore, _movimenti = sposta_sullo_scaffale(prodotto, quantita)
+        if errore:
+            return _vista(errore, "errore")
+        return _vista(_("Spostati sullo scaffale: %(quantita)s", quantita=mostra_quantita(quantita, prodotto.unita)), "ok")
 
     if azione in ("rimosso", "deteriorato", "verifica"):
         if notifica.lotto_id is None:

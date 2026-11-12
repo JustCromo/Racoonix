@@ -50,10 +50,12 @@ def attesa():
 @bp.post("/<int:prodotto_id>/approva")
 @richiede_ruolo("admin")
 def approva(prodotto_id):
+    # Dalla notifica si torna alle Cose da fare, dalla pagina dei prodotti in attesa si resta li'
+    torna = redirect(url_for("notifiche.pagina") if request.form.get("da") == "notifiche" else url_for(".attesa"))
     prodotto = _in_attesa(prodotto_id)
     if prodotto is None:
         flash(_("Prodotto gia' gestito"), "errore")
-        return redirect(url_for(".attesa"))
+        return torna
     from .formato import testo_pulito
     nome = testo_pulito(request.form.get("nome"))
     cid = (request.form.get("categoria_id") or "").strip()
@@ -61,7 +63,7 @@ def approva(prodotto_id):
     prezzo = centesimi(request.form.get("prezzo"))
     if not NOME_OK.match(nome) or categoria is None or prezzo is None:
         flash(_("Dati non validi: controlla nome, categoria e prezzo"), "errore")
-        return redirect(url_for(".attesa"))
+        return torna
     prodotto.nome = nome
     prodotto.categoria_id = categoria.id
     prodotto.prezzo_centesimi = prezzo
@@ -70,8 +72,8 @@ def approva(prodotto_id):
     _chiudi_notifiche(prodotto.id, "da_approvare")
     registra("prodotto_approvato", g.utente.id, f"prodotto {prodotto.id}, prezzo {prezzo}")
     db.session.commit()
-    flash(f"Approvato: {prodotto.nome}", "ok")
-    return redirect(url_for(".attesa"))
+    flash(_("Approvato: %(prodotto)s", prodotto=prodotto.descrizione), "ok")
+    return torna
 
 
 @bp.post("/<int:prodotto_id>/rifiuta")

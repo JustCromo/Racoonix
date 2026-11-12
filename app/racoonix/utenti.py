@@ -267,7 +267,8 @@ def dispositivo(did, azione):
     voce = db.get_or_404(DispositivoAccesso, did)
     utente = voce.utente
     # Dalla pagina Dispositivi si torna li', dalla scheda dell'utente si torna alla scheda
-    torna = redirect(url_for(".dispositivi") if request.form.get("da") == "dispositivi"
+    da = request.form.get("da")
+    torna = redirect(url_for(".dispositivi") if da == "dispositivi" else url_for("notifiche.pagina") if da == "notifiche"
                      else url_for(".elenco", _anchor=f"utente-{utente.id}"))
     if azione == "approva":
         if voce.stato != "in_attesa":

@@ -64,7 +64,7 @@
           <a class="pulsante" href="{{ url_for('ordini.pagina') }}">{{ _("Vai agli ordini") }}</a>
           {{ azione(n, "visto", _("Presa visione")) }}
         {% elif n.tipo == "riempi" %}
-          <a class="pulsante" href="{{ url_for('inventario.pagina', q=n.prodotto.nome) }}">{{ _("Vai a rifornire") }}</a>
+          {{ con_quantita(n, "rifornito", _("Kg messi sullo scaffale") if n.prodotto.unita == "kg" else _("Pezzi messi sullo scaffale"), "", _("Rifornito")) }}
         {% elif n.tipo == "sconto" %}
           {{ azione(n, "bollino", _("Bollino applicato")) }}
         {% elif n.tipo == "freschezza" %}
@@ -77,9 +77,35 @@
             <button type="submit" class="secondario">{{ _("Butta") }}</button>
           </form>
         {% elif n.tipo == "da_approvare" %}
-          <a class="pulsante" href="{{ url_for('prodotti.attesa') }}">{{ _("Vai all'approvazione") }}</a>
+          {% if n.prodotto and n.prodotto.stato == "in_attesa" %}
+          <form method="post" action="{{ url_for('prodotti.approva', prodotto_id=n.prodotto_id) }}" class="riga">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="da" value="notifiche">
+            <input type="hidden" name="nome" value="{{ n.prodotto.nome }}">
+            <input type="hidden" name="categoria_id" value="{{ n.prodotto.categoria_id }}">
+            <input name="prezzo" inputmode="decimal" required autocomplete="off"
+                   placeholder="{{ (_('Prezzo al kg') if n.prodotto.unita == 'kg' else _('Prezzo al pezzo')) ~ ' (' ~ simbolo_valuta ~ ')' }}">
+            <button type="submit" class="piccolo">{{ _("Approva") }}</button>
+          </form>
+          {% endif %}
+          <a href="{{ url_for('prodotti.attesa') }}" class="sotto">{{ _("Altre opzioni (nome, categoria, unione con un prodotto esistente)") }}</a>
         {% elif n.tipo == "dispositivo" %}
-          <a class="pulsante" href="{{ url_for('utenti.elenco', _anchor='utente-' ~ n.utente_id) }}">{{ _("Vai all'approvazione") }}</a>
+          {% for d in n.utente.dispositivi_accesso if d.stato == "in_attesa" %}
+          <div class="riga-dispositivo">
+            <span class="sotto">{{ d.descrizione }}{% if d.ultimo_ip %} &middot; {{ d.ultimo_ip }}{% endif %}</span>
+            <form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione='approva') }}" class="riga">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="da" value="notifiche">
+              <input name="nome" maxlength="60" placeholder="{{ _("Nome (es. Telefono di Mario)") }}">
+              <button type="submit" class="piccolo">{{ _("Approva") }}</button>
+            </form>
+            <form method="post" action="{{ url_for('utenti.dispositivo', did=d.id, azione='revoca') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="da" value="notifiche">
+              <button type="submit" class="piccolo secondario">{{ _("Rifiuta") }}</button>
+            </form>
+          </div>
+          {% endfor %}
         {% elif n.tipo == "reset_password" %}
           <form method="post" action="{{ url_for('utenti.reset_password', utente_id=n.utente_id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

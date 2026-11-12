@@ -1,5 +1,6 @@
 import re
 import secrets
+import time
 from datetime import date, timedelta
 
 from flask import (Blueprint, current_app, flash, g, redirect, render_template,
@@ -26,9 +27,11 @@ CHIAVE = "carichi"
 def _metti_in_sospeso(info):
     """Ogni lettura ha il suo codice: due schede aperte non si scambiano il prodotto. Tengo solo gli ultimi 5."""
     sospesi = dict(session.get(CHIAVE) or {})
+    # La sessione salva le chiavi in ordine alfabetico, non di arrivo: tolgo la lettura piu' vecchia per orario
     while len(sospesi) >= 5:
-        sospesi.pop(next(iter(sospesi)))
+        sospesi.pop(min(sospesi, key=lambda k: sospesi[k].get("letto", 0)))
     chiave = secrets.token_urlsafe(8)
+    info["letto"] = time.time()
     sospesi[chiave] = info
     session[CHIAVE] = sospesi
     return chiave
