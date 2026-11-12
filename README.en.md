@@ -207,7 +207,7 @@ To try the roles, create a **shop assistant** and a **stockroom worker** under *
 
 ### Database
 
-The schema comes from the models in `app/racoonix/models.py`. To change it: edit `app/racoonix/models.py`, then generate the migration
+The schema, with a diagram of the tables, is in **[docs/DATABASE.md](docs/DATABASE.md)**: it comes from the models in `app/racoonix/models.py`. To change it: edit `app/racoonix/models.py`, then generate the migration
 
 ```bash
 docker compose run --rm --no-deps -v ./app:/srv migrazioni flask --app racoonix:create_app db migrate -m "description"

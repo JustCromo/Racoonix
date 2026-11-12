@@ -231,7 +231,7 @@ tools/                   etichette demo e icone
 
 ### Database
 
-Lo schema nasce dai modelli in `app/racoonix/models.py`. Per modificarlo: cambia `app/racoonix/models.py`, poi genera la migrazione
+Lo schema, con il diagramma delle tabelle, è in **[docs/DATABASE.md](docs/DATABASE.md)**: nasce dai modelli in `app/racoonix/models.py`. Per modificarlo: cambia `app/racoonix/models.py`, poi genera la migrazione
 
 ```bash
 docker compose run --rm --no-deps -v ./app:/srv migrazioni flask --app racoonix:create_app db migrate -m "descrizione"
