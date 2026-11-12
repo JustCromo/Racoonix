@@ -20,6 +20,10 @@ CATEGORIE = {"sicurezza": _l("Sicurezza"), "utenti": _l("Utenti e dispositivi"),
              "prodotti": _l("Prodotti e prezzi"), "sistema": _l("Sistema")}
 PERIODI = {"1": _l("Ultime 24 ore"), "7": _l("Ultimi 7 giorni"), "30": _l("Ultimi 30 giorni"), "tutto": _l("Tutto")}
 TENTATIVI_FALLITI = ("login_fallito", "login_bloccato", "login_dispositivo_bloccato", "admin_ip_non_consentito")
+# Gruppi di eventi raggiungibili con un clic dai riquadri della sicurezza
+EVENTI = {"falliti": (_l("Accessi falliti"), TENTATIVI_FALLITI),
+          "bloccati": (_l("Account bloccati"), ("account_bloccato",)),
+          "admin_ip": (_l("Admin da dispositivi non autorizzati"), ("admin_ip_non_consentito",))}
 
 # azione: (categoria, descrizione leggibile, evento da evidenziare)
 AZIONI = {
@@ -108,10 +112,26 @@ def _filtri():
     q = (a.get("q") or "").strip()[:100]
     testo_pagina = a.get("pagina") or ""
     pagina = int(testo_pagina) if re.fullmatch(r"[0-9]{1,4}", testo_pagina) else 0
-    return categoria, periodo, utente_id, q, pagina
+    evento = a.get("evento") if a.get("evento") in EVENTI else ""
+    return categoria, periodo, utente_id, q, pagina, evento
 
 
-def _query(categoria, periodo, utente_id, q):
+def _semplice(testo):
+    import unicodedata
+    return unicodedata.normalize("NFD", str(testo)).encode("ascii", "ignore").decode().lower()
+
+
+def _azioni_che_contengono(q):
+    """La ricerca trova anche le azioni per nome ("accesso", "sign-in", "carico"...), in italiano e in inglese."""
+    from .lingua import force_locale
+    cerca, trovate = _semplice(q), set()
+    for lingua in ("it", "en"):
+        with force_locale(lingua):
+            trovate |= {a for a, (_c, etichetta, _x) in AZIONI.items() if cerca in _semplice(etichetta)}
+    return trovate
+
+
+def _query(categoria, periodo, utente_id, q, evento=""):
     stmt = db.select(AuditLog, Utente.username).outerjoin(Utente, AuditLog.utente_id == Utente.id)
     if periodo != "tutto":
         stmt = stmt.where(AuditLog.data_ora >= datetime.now(timezone.utc) - timedelta(days=int(periodo)))
@@ -121,11 +141,14 @@ def _query(categoria, periodo, utente_id, q):
         stmt = stmt.where(AuditLog.azione.in_([a for a, (c, _x, _x) in AZIONI.items() if c == categoria]))
     if utente_id:
         stmt = stmt.where(AuditLog.utente_id == utente_id)
+    if evento:
+        stmt = stmt.where(AuditLog.azione.in_(EVENTI[evento][1]))
     if q:
         sicuro = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
         modello = f"%{sicuro}%"
         stmt = stmt.where(or_(AuditLog.dettaglio.ilike(modello, escape="\\"), AuditLog.ip.ilike(modello, escape="\\"),
-                              AuditLog.azione.ilike(modello, escape="\\")))
+                              AuditLog.azione.ilike(modello, escape="\\"), Utente.username.ilike(modello, escape="\\"),
+                              AuditLog.azione.in_(_azioni_che_contengono(q))))
     return stmt.order_by(AuditLog.id.desc())
 
 
@@ -157,18 +180,19 @@ def _riepilogo():
 
 
 def _contesto_righe():
-    categoria, periodo, utente_id, q, pagina = _filtri()
-    righe, altre = _righe(_query(categoria, periodo, utente_id, q), pagina)
+    categoria, periodo, utente_id, q, pagina, evento = _filtri()
+    righe, altre = _righe(_query(categoria, periodo, utente_id, q, evento), pagina)
     return {"righe": righe, "altre": altre, "pagina": pagina, "categorie": CATEGORIE}
 
 
 @bp.get("/")
 @richiede_ruolo("admin")
 def pagina():
-    categoria, periodo, utente_id, q, _x = _filtri()
+    categoria, periodo, utente_id, q, _x, evento = _filtri()
     utenti = db.session.scalars(db.select(Utente).order_by(Utente.username)).all()
     return render_template("registro.html", riepilogo=_riepilogo(), utenti=utenti, periodi=PERIODI,
                            categoria=categoria, periodo=periodo, utente_id=utente_id, q=q,
+                           evento=evento, eventi=EVENTI,
                            soglia=SOGLIA_SOSPETTO, **_contesto_righe())
 
 
@@ -187,8 +211,8 @@ def _cella_sicura(valore):
 @bp.get("/esporta.csv")
 @richiede_ruolo("admin")
 def esporta():
-    categoria, periodo, utente_id, q, _x = _filtri()
-    righe = db.session.execute(_query(categoria, periodo, utente_id, q).limit(10_000)).all()
+    categoria, periodo, utente_id, q, _x, evento = _filtri()
+    righe = db.session.execute(_query(categoria, periodo, utente_id, q, evento).limit(10_000)).all()
     buffer = io.StringIO()
     scrittore = csv.writer(buffer, delimiter=";")
     scrittore.writerow([_("data_ora"), _("categoria"), _("azione"), _("descrizione"), _("utente"), _("dettaglio"), "ip"])

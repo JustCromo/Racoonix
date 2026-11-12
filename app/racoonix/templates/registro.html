@@ -8,10 +8,10 @@
 <section class="scheda spazio">
   <h2>{{ _("Sicurezza nelle ultime 24 ore") }}</h2>
   <div class="kpi">
-    <div class="scheda"><p class="sotto">{{ _("Accessi falliti") }}</p><p class="numero{% if riepilogo.falliti %} acceso{% endif %}">{{ riepilogo.falliti }}</p></div>
-    <div class="scheda"><p class="sotto">{{ _("Indirizzi coinvolti") }}</p><p class="numero">{{ riepilogo.indirizzi }}</p></div>
-    <div class="scheda"><p class="sotto">{{ _("Account bloccati") }}</p><p class="numero{% if riepilogo.bloccati %} acceso{% endif %}">{{ riepilogo.bloccati }}</p></div>
-    <div class="scheda"><p class="sotto">{{ _("Admin da dispositivi non autorizzati") }}</p><p class="numero{% if riepilogo.admin_ip %} acceso{% endif %}">{{ riepilogo.admin_ip }}</p></div>
+    <a class="scheda scheda-link" href="{{ url_for('registro.pagina', evento='falliti', periodo='1') }}"><p class="sotto">{{ _("Accessi falliti") }}</p><p class="numero{% if riepilogo.falliti %} acceso{% endif %}">{{ riepilogo.falliti }}</p></a>
+    <a class="scheda scheda-link" href="{{ url_for('registro.pagina', evento='falliti', periodo='1') }}"><p class="sotto">{{ _("Indirizzi coinvolti") }}</p><p class="numero">{{ riepilogo.indirizzi }}</p></a>
+    <a class="scheda scheda-link" href="{{ url_for('registro.pagina', evento='bloccati', periodo='1') }}"><p class="sotto">{{ _("Account bloccati") }}</p><p class="numero{% if riepilogo.bloccati %} acceso{% endif %}">{{ riepilogo.bloccati }}</p></a>
+    <a class="scheda scheda-link" href="{{ url_for('registro.pagina', evento='admin_ip', periodo='1') }}"><p class="sotto">{{ _("Admin da dispositivi non autorizzati") }}</p><p class="numero{% if riepilogo.admin_ip %} acceso{% endif %}">{{ riepilogo.admin_ip }}</p></a>
   </div>
   {% if riepilogo.sospetti %}
   <div class="spazio">
@@ -25,7 +25,8 @@
 </section>
 
 <form method="get" action="{{ url_for('registro.pagina') }}" class="riga spazio" id="filtri-registro">
-  <input name="q" value="{{ q }}" maxlength="100" placeholder="{{ _("Cerca nel dettaglio o per IP") }}" autocomplete="off"
+  {% if evento %}<input type="hidden" name="evento" value="{{ evento }}">{% endif %}
+  <input name="q" value="{{ q }}" maxlength="100" placeholder="{{ _("Cerca: azione, persona, dettaglio o IP") }}" autocomplete="off"
          hx-get="{{ url_for('registro.risultati') }}" hx-trigger="input changed delay:300ms" hx-target="#registro" hx-include="closest form">
   <select name="categoria" hx-get="{{ url_for('registro.risultati') }}" hx-trigger="change" hx-target="#registro" hx-include="closest form">
     <option value="">{{ _("Tutte le categorie") }}</option>
@@ -42,6 +43,10 @@
   <button type="submit" formaction="{{ url_for('registro.esporta') }}" class="secondario">{{ _("Esporta CSV") }}</button>
 </form>
 
+{% if evento %}
+<p class="filtro-attivo">{{ _("Filtro:") }} <strong>{{ eventi[evento][0] }}</strong>
+  <a href="{{ url_for('registro.pagina', periodo=periodo) }}">{{ _("Togli il filtro") }}</a></p>
+{% endif %}
 <div id="registro" data-aggiorna="{{ url_for('registro.risultati') }}" data-modulo="filtri-registro" data-swap="innerHTML">
   {% include "_registro_righe.html" %}
 </div>

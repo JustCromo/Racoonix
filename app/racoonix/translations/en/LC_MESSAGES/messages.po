@@ -2579,3 +2579,12 @@ msgstr "More options (name, category, merge with an existing product)"
 
 msgid "Approvato: %(prodotto)s"
 msgstr "Approved: %(prodotto)s"
+
+msgid "Cerca: azione, persona, dettaglio o IP"
+msgstr "Search: action, person, details or IP"
+
+msgid "Filtro:"
+msgstr "Filter:"
+
+msgid "Togli il filtro"
+msgstr "Remove filter"
