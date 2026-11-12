@@ -44,8 +44,10 @@
 </form>
 
 {% if evento %}
-<p class="filtro-attivo">{{ _("Filtro:") }} <strong>{{ eventi[evento][0] }}</strong>
-  <a href="{{ url_for('registro.pagina', periodo=periodo) }}">{{ _("Togli il filtro") }}</a></p>
+<div class="filtro-attivo">
+  <span class="etichetta-filtro">{{ _("Filtro:") }} <strong>{{ eventi[evento][0] }}</strong></span>
+  <a class="pulsante piccolo secondario" href="{{ url_for('registro.pagina', periodo=periodo) }}">&times; {{ _("Togli il filtro") }}</a>
+</div>
 {% endif %}
 <div id="registro" data-aggiorna="{{ url_for('registro.risultati') }}" data-modulo="filtri-registro" data-swap="innerHTML">
   {% include "_registro_righe.html" %}

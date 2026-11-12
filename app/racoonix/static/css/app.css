@@ -483,3 +483,8 @@ fieldset.scelte .carte-scelta { width: 100%; }
 a.scheda-link { display: block; color: inherit; text-decoration: none; transition: border-color .15s, transform .15s; }
 a.scheda-link:hover { border-color: #D9A441; transform: translateY(-1px); }
 .filtro-attivo { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+
+/* --- Filtro attivo: etichetta e pulsante per toglierlo --- */
+.filtro-attivo { margin: .2rem 0 .8rem; }
+.etichetta-filtro { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .85rem; border-radius: 999px;
+  background: rgba(217, 164, 65, .16); border: 1px solid rgba(217, 164, 65, .55); }
